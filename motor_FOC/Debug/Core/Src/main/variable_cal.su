@@ -1,0 +1,6 @@
+../Core/Src/main/variable_cal.c:5:10:var_comb_u32	24	static
+../Core/Src/main/variable_cal.c:21:10:var_swap_u32	16	static
+../Core/Src/main/variable_cal.c:29:9:var_swap_i32	24	static
+../Core/Src/main/variable_cal.c:38:7:var_swap_f32	24	static
+../Core/Src/main/variable_cal.c:49:10:var_comb_u16	24	static
+../Core/Src/main/variable_cal.c:63:10:var_swap_u16	16	static

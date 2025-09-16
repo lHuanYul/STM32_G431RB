@@ -1,0 +1,3 @@
+../Core/Src/connectivity/fdcan/pkt_write.c:12:13:write_u32	1
+../Core/Src/connectivity/fdcan/pkt_write.c:22:13:write_f32	1
+../Core/Src/connectivity/fdcan/pkt_write.c:30:8:fdcan_data_pkt_write	3

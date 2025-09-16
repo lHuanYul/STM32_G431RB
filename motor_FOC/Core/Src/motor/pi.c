@@ -1,0 +1,21 @@
+#include "motor/pi.h"
+
+Result PI_run(PI_CONTROLLER *pi)
+{
+    pi->up = pi->Kp * (pi->Ref - pi->Fbk);
+
+    if (pi->Out == pi->v1)
+    {
+        pi->ui = pi->Ki * pi->up + pi->i1;
+    }
+    else
+    {
+        pi->ui = pi->i1;
+    }
+    pi->i1 = pi->ui;
+
+    pi->v1 = pi->up + pi->ui;
+    pi->Out = CLAMP(pi->v1, pi->Umax, pi->Umin);
+    pi->w1 = (pi->Out == pi->v1) ? 1.0f : 0.0f;
+    return RESULT_OK(pi);
+}

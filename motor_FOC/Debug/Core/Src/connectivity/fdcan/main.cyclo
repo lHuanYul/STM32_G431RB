@@ -1,0 +1,6 @@
+../Core/Src/connectivity/fdcan/main.c:42:8:instant_recv_proc	4
+../Core/Src/connectivity/fdcan/main.c:426:24:pkt_transmit	3
+../Core/Src/connectivity/fdcan/main.c:438:26:trsm_pkt_proc	1
+../Core/Src/connectivity/fdcan/main.c:488:15:recv_pkt_proc_inner	2
+../Core/Src/connectivity/fdcan/main.c:536:26:recv_pkt_proc	3
+../Core/Src/connectivity/fdcan/main.c:548:6:StartFdCanTask	11

@@ -1,0 +1,6 @@
+../Core/Src/connectivity/fdcan/basic.c:9:8:fdcan_pkt_get_byte	40	static
+../Core/Src/connectivity/fdcan/basic.c:16:6:fdcan_pkt_pool_init	16	static
+../Core/Src/connectivity/fdcan/basic.c:26:8:fdcan_pkt_pool_alloc	40	static
+../Core/Src/connectivity/fdcan/basic.c:38:6:fdcan_pkt_pool_free	16	static
+../Core/Src/connectivity/fdcan/basic.c:58:8:fdcan_pkt_buf_push	48	static
+../Core/Src/connectivity/fdcan/basic.c:67:8:fdcan_pkt_buf_pop	40	static
