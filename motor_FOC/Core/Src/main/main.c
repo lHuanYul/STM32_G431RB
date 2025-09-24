@@ -13,7 +13,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 }
 
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+inline void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
     if (htim == motor_0.const_h.PWM_htimx[0])
     {

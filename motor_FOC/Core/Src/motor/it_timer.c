@@ -7,9 +7,11 @@
 Result pwm_setup(const MotorParameter *motor)
 {
     const MotorConst* const_h = &motor->const_h;
+    HAL_TIM_Base_Start_IT(const_h->PWM_htimx[0]);
     HAL_TIM_PWM_Start(const_h->PWM_htimx[0], const_h->PWM_TIM_CHANNEL_x[0]);
     HAL_TIM_PWM_Start(const_h->PWM_htimx[1], const_h->PWM_TIM_CHANNEL_x[1]);
     HAL_TIM_PWM_Start(const_h->PWM_htimx[2], const_h->PWM_TIM_CHANNEL_x[2]);
+    HAL_TIM_Base_Start(const_h->ELE_htimx);
     return RESULT_OK(NULL);
 }
 
@@ -365,10 +367,12 @@ static inline Result motor_vec_ret(MotorParameter *motor)
     return RESULT_OK(NULL);
 }//FOC 計算 END
 
+uint32_t running = 0;
 // Thread - timer - entrance
 #define FOC_CAL_DEG_ADD 270
 Result motor_pwm_pulse(MotorParameter *motor)
 {
+    running++;
     if((motor->gpio_hall_angle_acc + motor->pwm_it_angle) < 60) // 累計移動角度
     {
         motor->gpio_hall_angle_acc += motor->pwm_it_angle;

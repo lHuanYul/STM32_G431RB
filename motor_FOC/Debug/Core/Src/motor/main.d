@@ -51,8 +51,8 @@ Core/Src/motor/main.o: ../Core/Src/motor/main.c ../Core/Inc/motor/main.h \
  ../Core/Inc/main/main.h ../Core/Inc/main/fn_state.h \
  ../Core/Inc/motor/basic.h ../Core/Inc/motor/pi.h \
  ../Core/Inc/motor/clarke.h ../Core/Inc/motor/park.h \
- ../Core/Inc/motor/svgendq.h ../Core/Inc/motor/it_timer.h \
- ../Core/Inc/analog/adc1/main.h
+ ../Core/Inc/motor/svgendq.h ../Core/Inc/motor/it_hall.h \
+ ../Core/Inc/motor/it_timer.h ../Core/Inc/analog/adc1/main.h
 ../Core/Inc/motor/main.h:
 ../Core/Inc/main/config.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
@@ -110,5 +110,6 @@ Core/Src/motor/main.o: ../Core/Src/motor/main.c ../Core/Inc/motor/main.h \
 ../Core/Inc/motor/clarke.h:
 ../Core/Inc/motor/park.h:
 ../Core/Inc/motor/svgendq.h:
+../Core/Inc/motor/it_hall.h:
 ../Core/Inc/motor/it_timer.h:
 ../Core/Inc/analog/adc1/main.h:

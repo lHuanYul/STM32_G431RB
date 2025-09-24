@@ -69,8 +69,8 @@ all: main-build
 main-build: motor_FOC.elf secondary-outputs
 
 # Tool invocations
-motor_FOC.elf motor_FOC.map: $(OBJS) $(USER_OBJS) C:\Users\HuanYu\Desktop\Codes\STM32_G431RB\motor_FOC\STM32G431RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "motor_FOC.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\HuanYu\Desktop\Codes\STM32_G431RB\motor_FOC\STM32G431RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="motor_FOC.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+motor_FOC.elf motor_FOC.map: $(OBJS) $(USER_OBJS) C:\Users\HuanYu-NB\Desktop\Codes\STM32_G431RB\motor_FOC\STM32G431RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "motor_FOC.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\HuanYu-NB\Desktop\Codes\STM32_G431RB\motor_FOC\STM32G431RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="motor_FOC.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

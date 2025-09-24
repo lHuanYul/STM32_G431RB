@@ -9,7 +9,8 @@ Result SVGEN_run(volatile SVGENDQ *svgq)
     svgq->Vb = -t1 + t2;
     svgq->Vc = -t1 - t2;
     // 60 degree Sector determination
-    if (svgq->Va > 0.0f) svgq->Sector = 2;
+    svgq->Sector = 0;
+    if (svgq->Va > 0.0f) svgq->Sector += 2;
     if (svgq->Vb > 0.0f) svgq->Sector += 4;
     if (svgq->Vc > 0.0f) svgq->Sector += 1;
     // Sector 0: this is special case for (Ualpha,Ubeta) = (0,0)

@@ -56,9 +56,7 @@ typedef struct MotorParameter {
     volatile float      pwm_duty_u;
     volatile float      pwm_duty_v;
     volatile float      pwm_duty_w;
-    uint16_t    pwm_duty;       // 0-100
-    uint16_t    pwm_compare;    // Transfer from pwm_duty
-    bool        reverse;
+    bool                reverse;
 } MotorParameter;
 
 extern MotorParameter motor_0;

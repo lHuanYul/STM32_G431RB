@@ -19,26 +19,28 @@ static inline Result pos_calculate(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-static Result motor_hall_update(MotorParameter *motor)
+Result motor_hall_update(MotorParameter *motor)
 {
-    motor->gpio_hall_last = motor->gpio_hall_current;
-    motor->gpio_hall_current =
+    uint8_t hall_last = motor->gpio_hall_current;
+    motor->gpio_hall_last = hall_last;
+    uint8_t hall_current =
           ((motor->const_h.Hall_GPIOx[0]->IDR & motor->const_h.Hall_GPIO_Pin_x[0]) ? 4U : 0U)
         | ((motor->const_h.Hall_GPIOx[1]->IDR & motor->const_h.Hall_GPIO_Pin_x[1]) ? 2U : 0U)
         | ((motor->const_h.Hall_GPIOx[2]->IDR & motor->const_h.Hall_GPIO_Pin_x[2]) ? 1U : 0U);
-    if (motor->gpio_hall_current == 0 || motor->gpio_hall_current == 7)
+    motor->gpio_hall_current = hall_current;
+    if (hall_current == 0 || hall_current == 7)
     {
         return RESULT_ERROR(RES_ERR_FAIL);
     }
 
     uint16_t expected = (!motor->reverse)
-        ? hall_seq_clw[motor->gpio_hall_last]
-        : hall_seq_ccw[motor->gpio_hall_last];
-    if (motor->gpio_hall_last == 0) // ? CHECK
-    {
-        motor->gpio_hall_last = expected;
-    }
-    if (motor->gpio_hall_current == expected)
+        ? hall_seq_clw[hall_last]
+        : hall_seq_ccw[hall_last];
+    // if (hall_last == 0) // ? CHECK
+    // {
+    //     hall_last = expected;
+    // }
+    if (hall_current == expected)
     {
         motor->gpio_hall_angle_acc = 0;
     }

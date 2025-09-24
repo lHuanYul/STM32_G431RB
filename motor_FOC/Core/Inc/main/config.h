@@ -32,12 +32,12 @@
 #define MOTOR_GEAR      4.4f
 
 #define ADC_COUNT       3
-#define ADC_NEED_LEN    511
+#define ADC_NEED_LEN    9 // 511
 
 #define TIM1_PSC        16
 #define TIM1_ARR        499 // 65535
 #define TIM2_PSC        16
-#define TIM2_ARR        999 // 4294967295
+#define TIM2_ARR        4294967295 // 4294967295
 
 #define TIM_DTG_200ns   0x22
 #define TIM_DTG_300ns   0x33
