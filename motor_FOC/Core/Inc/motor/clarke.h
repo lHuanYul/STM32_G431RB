@@ -1,6 +1,12 @@
 #pragma once
 
 #include "main/config.h"
+#include "main/fn_state.h"
+
+//  1/sqrt(3) = 0.57735026918963
+#define ONEbySQRT3  0.57735026918963    /* 1/sqrt(3) */
+#define DIV_1_3     (1.0f / 3.0f)
+#define DIV_2_3     (2.0f / 3.0f)
 
 typedef struct CLARKE {
     float As;       // Input: phase-a stator variable
@@ -10,11 +16,5 @@ typedef struct CLARKE {
     float Beta;     // Output: stationary q-axis stator variable
 } CLARKE;
 
-//  1/sqrt(3) = 0.57735026918963
-#define  ONEbySQRT3   0.57735026918963    /* 1/sqrt(3) */
-
-// Clarke transform macro (with 2 currents)
-//==========================================
-#define CLARKE_MACRO(v)                         \
-    v.Alpha = v.As;                             \
-    v.Beta = (v.As + v.Bs * 2.0f) * ONEbySQRT3;
+Result CLARKE_run_ideal(volatile CLARKE *clarke);
+Result CLARKE_run_nideal(volatile CLARKE *clarke);

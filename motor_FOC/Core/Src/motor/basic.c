@@ -28,7 +28,6 @@ MotorParameter motor_0 = {
         .ELE_htimx = &htim2,
     },
     .pi_speed = {
-        .Ref = 30.0f,
         .Kp = 0.000025f,
         .Ki = 0.002f,
         .Umax = 0.1f,

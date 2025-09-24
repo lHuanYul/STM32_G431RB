@@ -35,11 +35,11 @@ typedef struct MotorParameter {
     volatile PI_CONTROLLER  pi_Id;
     volatile uint8_t    gpio_hall_last;     // GPIO trigger
     volatile uint8_t    gpio_hall_current;  // GPIO trigger
-    volatile float      gpio_angle_current; // Transfer from gpio_hall_current
-    volatile float      gpio_angle_acc;
+    // volatile float      gpio_angle_current; // Transfer from gpio_hall_current
+    volatile float      gpio_hall_angle_acc;
     volatile uint8_t    pwm_hall_last;      // PWM last hall record
     volatile uint16_t   pwm_hall_acc;       // PWM hall record total
-    volatile uint16_t   pwm_hall_same_acc;
+    volatile uint16_t   spin_stop_acc;
     volatile float      pwm_it_angle;
     volatile float      pwm_it_angle_acc;
     volatile uint16_t   pwm_count;

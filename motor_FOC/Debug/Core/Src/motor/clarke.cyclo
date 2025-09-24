@@ -1,0 +1,2 @@
+../Core/Src/motor/clarke.c:3:8:CLARKE_run_ideal	1
+../Core/Src/motor/clarke.c:10:8:CLARKE_run_nideal	1

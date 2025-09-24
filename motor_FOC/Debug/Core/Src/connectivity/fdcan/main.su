@@ -1,6 +1,9 @@
-../Core/Src/connectivity/fdcan/main.c:42:8:instant_recv_proc	56	static
-../Core/Src/connectivity/fdcan/main.c:426:24:pkt_transmit	32	static
-../Core/Src/connectivity/fdcan/main.c:438:26:trsm_pkt_proc	32	static
-../Core/Src/connectivity/fdcan/main.c:488:15:recv_pkt_proc_inner	40	static
-../Core/Src/connectivity/fdcan/main.c:536:26:recv_pkt_proc	56	static
-../Core/Src/connectivity/fdcan/main.c:548:6:StartFdCanTask	112	static
+../Core/Src/connectivity/fdcan/main.c:6:15:instant_recv_proc_inner	32	static
+../Core/Src/connectivity/fdcan/main.c:11:15:recv_pkt_proc_inner	32	static
+../Core/Src/connectivity/fdcan/main.c:16:15:trsm_pkt_proc_inner	24	static
+../Core/Src/connectivity/fdcan/main.c:510:8:instant_recv_proc	48	static
+../Core/Src/connectivity/fdcan/main.c:535:24:pkt_transmit	32	static
+../Core/Src/connectivity/fdcan/main.c:547:26:trsm_pkt_proc	32	static
+../Core/Src/connectivity/fdcan/main.c:563:15:recv_pkt_proc_e	32	static
+../Core/Src/connectivity/fdcan/main.c:573:26:recv_pkt_proc	56	static
+../Core/Src/connectivity/fdcan/main.c:585:6:StartFdCanTask	112	static

@@ -4,4 +4,4 @@
 #include "main/fn_state.h"
 #include "motor/basic.h"
 
-void motor_hall_exti(MotorParameter *motor);
+Result motor_hall_exti(MotorParameter *motor);

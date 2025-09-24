@@ -1,0 +1,4 @@
+../Core/Src/motor/pwm.c:6:8:pwm_setup	32	static
+../Core/Src/motor/pwm.c:15:17:hall_to_angle	16	static
+../Core/Src/motor/pwm.c:37:22:Vector_control_calculate	72	static
+../Core/Src/motor/pwm.c:358:8:motor_pwm_pulse	32	static

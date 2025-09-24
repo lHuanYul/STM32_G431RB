@@ -1,6 +1,7 @@
 #pragma once
 
 #include "main/config.h"
+#include "main/fn_state.h"
 
 typedef struct PARK {
     float Alpha;    // Input: stationary d-axis stator variable 
@@ -12,9 +13,7 @@ typedef struct PARK {
     float Cosine;
 } PARK;
 
-#define PARK_MACRO(v)                               \
-	v.Ds = v.Alpha * v.Cosine + v.Beta  * v.Sine;   \
-    v.Qs = v.Beta  * v.Cosine - v.Alpha * v.Sine;
+Result PARK_run(volatile PARK *park);
 
 #define PARK_MACRO_Swap(v)                          \
 	v.Ds = v.Beta  * v.Cosine + v.Alpha * v.Sine;   \
@@ -30,6 +29,4 @@ typedef struct IPARK {
     float Cosine;   // Input: Cosine term
 } IPARK;
 
-#define IPARK_MACRO(v)                                      \
-    v.Alpha = (v.Vdref * v.Cosine) - (v.Vqref * v.Sine);    \
-    v.Beta  = (v.Vqref * v.Cosine) + (v.Vdref * v.Sine);
+Result IPARK_run(volatile IPARK *ipark);

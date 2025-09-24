@@ -3,59 +3,30 @@
 #include "connectivity/cmds.h"
 #include "connectivity/fdcan/pkt_write.h"
 
-#ifdef ENABLE_CON_PKT_TEST
-uint32_t fdcan_test_pkt_c = 0;
-#endif
+__weak Result instant_recv_proc_inner(FdcanPkt* pkt, uint8_t byte0)
+{
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
+
+__weak Result recv_pkt_proc_inner(FdcanPkt* pkt, uint8_t byte0)
+{
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
+
+__weak Result trsm_pkt_proc_inner(void)
+{
+    return RESULT_OK(NULL);
+}
 
 #ifdef PRINCIPAL_PROGRAM
 #include "vehicle/basic.h"
 #include "motor/main.h"
-#endif
 
-#ifdef ANCILLARY_PROGRAM
-#include "robotic_arm/main.h"
-#include "rfid/main.h"
-#include "map/main.h"
-static Result arm_motor_set(FdcanPkt* pkt, ArmMotorParameter* arm)
+static inline Result instant_recv_proc_inner(FdcanPkt* pkt, uint8_t byte0)
 {
     uint8_t code;
-    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
-    switch (code)
+    switch (byte0)
     {
-        case CMD_ARM_B2_STOP:
-        {
-            arm_set_tim(arm, arm->tim_current);
-            return RESULT_OK(NULL);
-        }
-        case CMD_ARM_B2_SET:
-        {
-            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &code));
-            arm_set_pos(arm, code);
-            return RESULT_OK(NULL);
-        }
-        default: break;
-    }
-    return RESULT_ERROR(RES_ERR_NOT_FOUND);
-}
-#endif
-
-Result instant_recv_proc(FdcanPkt* pkt)
-{
-    uint8_t code;
-    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
-    switch (code)
-    {
-        case CMD_DATA_B0_STOP:
-        {
-            fdacn_data_store = FNC_DISABLE;
-            return RESULT_OK(NULL);
-        }
-        case CMD_DATA_B0_START:
-        {
-            fdacn_data_store = FNC_ENABLE;
-            return RESULT_OK(NULL);
-        }
-        #ifdef PRINCIPAL_PROGRAM
         case CMD_WHEEL_B0_CONTROL:
         {
             RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
@@ -309,8 +280,38 @@ Result instant_recv_proc(FdcanPkt* pkt)
             }
             break;
         }
-        #endif
-        #ifdef ANCILLARY_PROGRAM
+        default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
+    }
+}
+
+static inline Result trsm_pkt_proc_inner(void)
+{
+    FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    fdcan_data_pkt_write(pkt, DATA_TYPE_LEFT_SPEED);
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    fdcan_data_pkt_write(pkt, DATA_TYPE_LEFT_DUTY);
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    fdcan_data_pkt_write(pkt, DATA_TYPE_RIGHT_SPEED);
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    fdcan_data_pkt_write(pkt, DATA_TYPE_RIGHT_DUTY);
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    return RESULT_OK(NULL);
+}
+#endif
+
+#ifdef ANCILLARY_PROGRAM
+#include "robotic_arm/main.h"
+#include "rfid/main.h"
+#include "map/main.h"
+
+static inline Result instant_recv_proc_inner(FdcanPkt* pkt, uint8_t byte0)
+{
+    uint8_t code;
+    switch (byte0)
+    {
         case CMD_MAP_B0_CONTROL:
         {
             RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
@@ -412,86 +413,15 @@ Result instant_recv_proc(FdcanPkt* pkt)
             }
             break;
         }
-        #endif
-        default: break;
+        default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
     }
-    return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 
-static FDCAN_TxHeaderTypeDef TxHeader = {
-    .ErrorStateIndicator = FDCAN_ESI_PASSIVE,
-    .TxEventFifoControl = FDCAN_STORE_TX_EVENTS,
-};
-// static FdcanPkt fdcan_trsm_pkt = {0};
-static UNUSED_FNC void pkt_transmit(void)
-{
-    Result result = fdcan_pkt_buf_pop(&fdcan_trsm_pkt_buf);
-    if (RESULT_CHECK_RAW(result)) return;
-    FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(result);
-    // memcpy(pkt, &fdcan_trsm_pkt, sizeof(FdcanPkt));
-    TxHeader.Identifier = pkt->id;
-    TxHeader.DataLength = pkt->len;
-    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, pkt->data);
-    fdcan_pkt_pool_free(pkt);
-}
-
-static UNUSED_FNC Result trsm_pkt_proc(void)
-{
-    Result result = RESULT_OK(NULL);
-    if (fdacn_data_store == FNC_ENABLE)
-    {
-        FdcanPkt* pkt;
-        #ifdef ENABLE_CON_PKT_TEST
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_data_pkt_write(pkt, DATA_TYPE_TEST);
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        #else
-        #ifdef PRINCIPAL_PROGRAM
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_data_pkt_write(pkt, DATA_TYPE_LEFT_SPEED);
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_data_pkt_write(pkt, DATA_TYPE_LEFT_DUTY);
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_data_pkt_write(pkt, DATA_TYPE_RIGHT_SPEED);
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_data_pkt_write(pkt, DATA_TYPE_RIGHT_DUTY);
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        #endif
-        #ifdef ANCILLARY_PROGRAM
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_BOTTOM));
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_SHOULDER));
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_ELBOW_BTM));
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_ELBOW_TOP));
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_WRIST));
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_FINGER));
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        #endif
-        #endif
-    }
-    return result;
-}
-
-static Result recv_pkt_proc_inner(FdcanPkt* pkt)
+static inline Result recv_pkt_proc_inner(FdcanPkt* pkt, uint8_t byte0)
 {
     uint8_t code;
-    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
-    switch (code)
+    switch (byte0)
     {
-        #ifdef ANCILLARY_PROGRAM
         case CMD_RFID_B0_CONTROL:
         {
             RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
@@ -527,10 +457,117 @@ static Result recv_pkt_proc_inner(FdcanPkt* pkt)
             }
             break;
         }
-        #endif
+        default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
+    }
+}
+
+static inline Result trsm_pkt_proc_inner(void)
+{
+    FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_BOTTOM));
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_SHOULDER));
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_ELBOW_BTM));
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_ELBOW_TOP));
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_WRIST));
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    RESULT_CHECK_HANDLE(fdcan_data_pkt_write(pkt, DATA_TYPE_ARM_FINGER));
+    fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+    return RESULT_OK(NULL);
+}
+
+static Result arm_motor_set(FdcanPkt* pkt, ArmMotorParameter* arm)
+{
+    uint8_t code;
+    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 2, &code));
+    switch (code)
+    {
+        case CMD_ARM_B2_STOP:
+        {
+            arm_set_tim(arm, arm->tim_current);
+            return RESULT_OK(NULL);
+        }
+        case CMD_ARM_B2_SET:
+        {
+            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 3, &code));
+            arm_set_pos(arm, code);
+            return RESULT_OK(NULL);
+        }
         default: break;
     }
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
+#endif
+
+Result instant_recv_proc(FdcanPkt* pkt)
+{
+    uint8_t code;
+    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
+    switch (code)
+    {
+        case CMD_DATA_B0_STOP:
+        {
+            fdacn_data_store = FNC_DISABLE;
+            return RESULT_OK(NULL);
+        }
+        case CMD_DATA_B0_START:
+        {
+            fdacn_data_store = FNC_ENABLE;
+            return RESULT_OK(NULL);
+        }
+        default: return instant_recv_proc_inner(pkt, code);
+    }
+}
+
+static FDCAN_TxHeaderTypeDef TxHeader = {
+    .ErrorStateIndicator = FDCAN_ESI_PASSIVE,
+    .TxEventFifoControl = FDCAN_STORE_TX_EVENTS,
+};
+// static FdcanPkt fdcan_trsm_pkt = {0};
+static UNUSED_FNC void pkt_transmit(void)
+{
+    Result result = fdcan_pkt_buf_pop(&fdcan_trsm_pkt_buf);
+    if (RESULT_CHECK_RAW(result)) return;
+    FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(result);
+    // memcpy(pkt, &fdcan_trsm_pkt, sizeof(FdcanPkt));
+    TxHeader.Identifier = pkt->id;
+    TxHeader.DataLength = pkt->len;
+    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, pkt->data);
+    fdcan_pkt_pool_free(pkt);
+}
+
+static UNUSED_FNC Result trsm_pkt_proc(void)
+{
+    Result result = RESULT_OK(NULL);
+    if (fdacn_data_store == FNC_ENABLE)
+    {
+        #ifdef ENABLE_CON_PKT_TEST
+        FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_data_pkt_write(pkt, DATA_TYPE_TEST);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        #else
+        return trsm_pkt_proc_inner();
+        #endif
+    }
+    return result;
+}
+
+static Result recv_pkt_proc_e(FdcanPkt* pkt)
+{
+    uint8_t code;
+    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
+    switch (code)
+    {
+        default: return recv_pkt_proc_inner(pkt, code);
+    }
 }
 
 static UNUSED_FNC Result recv_pkt_proc(size_t count)
@@ -538,7 +575,7 @@ static UNUSED_FNC Result recv_pkt_proc(size_t count)
     for (size_t i = 0; i < count; i++)
     {
         FdcanPkt* pkt = RESULT_UNWRAP_RET_RES(fdcan_pkt_buf_pop(&fdcan_recv_pkt_buf));
-        recv_pkt_proc_inner(pkt);
+        recv_pkt_proc_e(pkt);
         fdcan_pkt_pool_free(pkt);
     }
     return RESULT_OK(NULL);
@@ -548,7 +585,7 @@ static UNUSED_FNC Result recv_pkt_proc(size_t count)
 void StartFdCanTask(void *argument)
 {
     #ifdef DISABLE_FDCAN
-    osThreadExit();
+    StopTask();
     #else
     fdcan_pkt_pool_init();
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE));

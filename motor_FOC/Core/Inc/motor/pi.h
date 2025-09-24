@@ -43,4 +43,4 @@ typedef struct PI_CONTROLLER {
 #define EPS_EQ 1e-12f
 #endif
 
-Result PI_run(PI_CONTROLLER *pi);
+Result PI_run(volatile PI_CONTROLLER *pi);

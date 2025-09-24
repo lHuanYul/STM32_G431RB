@@ -7,7 +7,7 @@
 #include "main/config.h"
 
 typedef struct SuccessResult {
-    void* obj;
+    void *obj;
 } SuccessResult;
 
 typedef enum ErrorType {
@@ -132,3 +132,9 @@ typedef struct Result {
         }                                   \
     } while (0)
 #endif
+
+#define StopTask()  \
+({                  \
+    osThreadExit(); \
+    return;         \
+})

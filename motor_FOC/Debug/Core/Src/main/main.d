@@ -34,6 +34,7 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_adc.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc_ex.h \
+ ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_cordic.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_exti.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_fdcan.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h \
@@ -46,7 +47,11 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h \
- ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h
+ ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
+ ../Core/Inc/motor/it_hall.h ../Core/Inc/main/fn_state.h \
+ ../Core/Inc/motor/basic.h ../Core/Inc/motor/pi.h \
+ ../Core/Inc/motor/clarke.h ../Core/Inc/motor/park.h \
+ ../Core/Inc/motor/svgendq.h ../Core/Inc/motor/it_timer.h
 ../Core/Inc/main/main.h:
 ../Core/Inc/main/config.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
@@ -83,6 +88,7 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_adc.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc_ex.h:
+../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_cordic.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_exti.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_fdcan.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h:
@@ -96,3 +102,11 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h:
+../Core/Inc/motor/it_hall.h:
+../Core/Inc/main/fn_state.h:
+../Core/Inc/motor/basic.h:
+../Core/Inc/motor/pi.h:
+../Core/Inc/motor/clarke.h:
+../Core/Inc/motor/park.h:
+../Core/Inc/motor/svgendq.h:
+../Core/Inc/motor/it_timer.h:

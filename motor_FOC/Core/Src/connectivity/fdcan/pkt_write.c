@@ -2,13 +2,6 @@
 #include "connectivity/cmds.h"
 #include "main/variable_cal.h"
 
-#ifdef PRINCIPAL_PROGRAM
-#include "motor/main.h"
-#endif
-#ifdef ANCILLARY_PROGRAM
-#include "robotic_arm/main.h"
-#endif
-
 static void write_u32(uint32_t value, uint8_t* container)
 {
     value = var_swap_u32(value);
@@ -26,22 +19,18 @@ static void write_f32(float value, uint8_t* container)
     write_u32(u32, container);
 }
 
-static float ftest = 0.0;
-Result fdcan_data_pkt_write(FdcanPkt* pkt, DataType type)
+__weak Result fdcan_data_pkt_write_inner(FdcanPkt* pkt, DataType type)
 {
-    if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
+
+#ifdef PRINCIPAL_PROGRAM
+#include "motor/main.h"
+
+static inline Result fdcan_data_pkt_write_inner(FdcanPkt* pkt, DataType type)
+{
     switch (type)
     {
-        case DATA_TYPE_TEST:
-        {
-            pkt->id = FDCAN_TEST_ID;
-            pkt->data[0] = CMD_DATA_B0_CONTROL;
-            pkt->data[1] = 0xFF;
-            write_f32(ftest++, pkt->data + 2);
-            pkt->len = 6;
-            return RESULT_OK(pkt);
-        }
-        #ifdef PRINCIPAL_PROGRAM
         case DATA_TYPE_LEFT_SPEED:
         {
             pkt->id = FDCAN_DATA_ID;
@@ -78,8 +67,18 @@ Result fdcan_data_pkt_write(FdcanPkt* pkt, DataType type)
             pkt->len = 3;
             return RESULT_OK(pkt);
         }
-        #endif
-        #ifdef ANCILLARY_PROGRAM
+        default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
+    }
+}
+#endif
+
+#ifdef ANCILLARY_PROGRAM
+#include "robotic_arm/main.h"
+
+static inline Result fdcan_data_pkt_write_inner(FdcanPkt* pkt, DataType type)
+{
+    switch (type)
+    {
         case DATA_TYPE_ARM_BOTTOM:
         {
             pkt->id = FDCAN_ARM_DATA_ID;
@@ -134,13 +133,10 @@ Result fdcan_data_pkt_write(FdcanPkt* pkt, DataType type)
             pkt->len = 3;
             return RESULT_OK(pkt);
         }
-        #endif
-        default: break;
+        default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
     }
-    return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 
-#ifdef ANCILLARY_PROGRAM
 Result fdcan_rfid_pkt_write(FdcanPkt* pkt, uint32_t uid, uint8_t n_exist)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
@@ -253,3 +249,23 @@ Result pkt_vehi_set_speed(FdcanPkt* pkt, Percentage value)
     return RESULT_OK(pkt);
 }
 #endif
+
+static float ftest = 0.0;
+Result fdcan_data_pkt_write(FdcanPkt* pkt, DataType type)
+{
+    if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
+    switch (type)
+    {
+        case DATA_TYPE_TEST:
+        {
+            pkt->id = FDCAN_TEST_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = 0xFF;
+            write_f32(ftest++, pkt->data + 2);
+            pkt->len = 6;
+            return RESULT_OK(pkt);
+        }
+        default: return fdcan_data_pkt_write_inner(pkt, type);
+    }
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}

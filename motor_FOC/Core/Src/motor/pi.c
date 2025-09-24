@@ -1,6 +1,6 @@
 #include "motor/pi.h"
 
-Result PI_run(PI_CONTROLLER *pi)
+Result PI_run(volatile PI_CONTROLLER *pi)
 {
     pi->up = pi->Kp * (pi->Ref - pi->Fbk);
 
@@ -17,5 +17,5 @@ Result PI_run(PI_CONTROLLER *pi)
     pi->v1 = pi->up + pi->ui;
     pi->Out = CLAMP(pi->v1, pi->Umax, pi->Umin);
     pi->w1 = (pi->Out == pi->v1) ? 1.0f : 0.0f;
-    return RESULT_OK(pi);
+    return RESULT_OK(NULL);
 }

@@ -35,6 +35,7 @@ Core/Src/connectivity/fdcan/basic.o: \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_adc.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc_ex.h \
+ ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_cordic.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_exti.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_fdcan.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h \
@@ -48,7 +49,8 @@ Core/Src/connectivity/fdcan/basic.o: \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
- ../Core/Inc/main/fn_state.h ../Core/Inc/main/typedef.h
+ ../Core/Inc/main/main.h ../Core/Inc/main/fn_state.h \
+ ../Core/Inc/main/typedef.h
 ../Core/Inc/connectivity/fdcan/basic.h:
 ../Core/Inc/main/config.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
@@ -85,6 +87,7 @@ Core/Src/connectivity/fdcan/basic.o: \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_adc.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_adc_ex.h:
+../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_cordic.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_exti.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_fdcan.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h:
@@ -98,5 +101,6 @@ Core/Src/connectivity/fdcan/basic.o: \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h:
+../Core/Inc/main/main.h:
 ../Core/Inc/main/fn_state.h:
 ../Core/Inc/main/typedef.h:

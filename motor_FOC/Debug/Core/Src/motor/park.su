@@ -1,0 +1,2 @@
+../Core/Src/motor/park.c:3:8:PARK_run	24	static
+../Core/Src/motor/park.c:10:8:IPARK_run	24	static
