@@ -1,17 +1,17 @@
 #include "motor/basic.h"
 #include "tim.h"
 
-const uint8_t hall_seq_clw[8] = {255, 3, 6, 2, 5, 1, 4, 255};  // 正轉
-const uint8_t hall_seq_ccw[8] = {255, 5, 3, 1, 6, 4, 2, 255};  // 反轉
+const uint8_t hall_seq_clw[8] = {0, 3, 6, 2, 5, 1, 4, 0};  // 正轉
+const uint8_t hall_seq_ccw[8] = {0, 5, 3, 1, 6, 4, 2, 0};  // 反轉
 
-const int8_t motor_sequence[6][3] = {
-  { MS_HIGH_PASS, MS_LOW_PASS,  MS_NONE_PASS },
-  { MS_HIGH_PASS, MS_NONE_PASS, MS_LOW_PASS  },
-  { MS_NONE_PASS, MS_HIGH_PASS, MS_LOW_PASS  },
-  { MS_LOW_PASS,  MS_HIGH_PASS, MS_NONE_PASS },
-  { MS_LOW_PASS,  MS_NONE_PASS, MS_HIGH_PASS },
-  { MS_NONE_PASS, MS_LOW_PASS,  MS_HIGH_PASS }
-};
+// const int8_t motor_sequence[6][3] = {
+//     { MS_HIGH_PASS, MS_LOW_PASS,  MS_NONE_PASS },
+//     { MS_HIGH_PASS, MS_NONE_PASS, MS_LOW_PASS  },
+//     { MS_NONE_PASS, MS_HIGH_PASS, MS_LOW_PASS  },
+//     { MS_LOW_PASS,  MS_HIGH_PASS, MS_NONE_PASS },
+//     { MS_LOW_PASS,  MS_NONE_PASS, MS_HIGH_PASS },
+//     { MS_NONE_PASS, MS_LOW_PASS,  MS_HIGH_PASS }
+// };
 
 MotorParameter motor_0 = {
     .const_h = {
@@ -51,13 +51,52 @@ MotorParameter motor_0 = {
     },
 };
 
+Result hall_to_angle(uint8_t hall, uint16_t *angle)
+{
+    switch(hall)
+    {
+        case 6:
+        {
+            *angle = 0;
+            break;
+        }
+        case 2:
+        {
+            *angle = 60;
+            break;
+        }
+        case 3:
+        {
+            *angle = 120;
+            break;
+        }
+        case 1:
+        {
+            *angle = 180;
+            break;
+        }
+        case 5:
+        {
+            *angle = 240;
+            break;
+        }
+        case 4:
+        {
+            *angle = 300;
+            break;
+        }
+        default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
+    }
+    return RESULT_OK(angle);
+}
+
 // void step_commutate(const MotorParameter *motor)
 // {
 //     const MotorConst* const_h = &motor->const_h;
 //     uint8_t i;
 //     for (i = 0; i < 3; i++)
 //     {
-//         switch (motor_sequence[motor->gpio_hall_current][i])
+//         switch (motor_sequence[motor->hall_current][i])
 //         {
 //             case MS_HIGH_PASS:
 //             {

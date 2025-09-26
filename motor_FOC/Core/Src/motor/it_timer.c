@@ -11,26 +11,11 @@ Result pwm_setup(const MotorParameter *motor)
     HAL_TIM_PWM_Start(const_h->PWM_htimx[0], const_h->PWM_TIM_CHANNEL_x[0]);
     HAL_TIM_PWM_Start(const_h->PWM_htimx[1], const_h->PWM_TIM_CHANNEL_x[1]);
     HAL_TIM_PWM_Start(const_h->PWM_htimx[2], const_h->PWM_TIM_CHANNEL_x[2]);
+    HAL_TIMEx_PWMN_Start(const_h->PWM_htimx[0], const_h->PWM_TIM_CHANNEL_x[0]);
+    HAL_TIMEx_PWMN_Start(const_h->PWM_htimx[1], const_h->PWM_TIM_CHANNEL_x[1]);
+    HAL_TIMEx_PWMN_Start(const_h->PWM_htimx[2], const_h->PWM_TIM_CHANNEL_x[2]);
     HAL_TIM_Base_Start(const_h->ELE_htimx);
     return RESULT_OK(NULL);
-}
-
-static uint16_t hall_to_angle(uint8_t value)
-{
-    switch(value)
-    {
-        case 6:	return 0;
-        case 2: return 60;
-        case 3:	return 120;
-        case 1:	return 180;
-        case 5:	return 240;
-        case 4:	return 300;
-        default:
-        {
-            Error_Handler();
-            return 0xFFFF;
-        }
-    }
 }
 
 // Thread - timer - 1
@@ -38,7 +23,7 @@ static inline Result motor_stop_check(MotorParameter *motor)
 {
     // 停轉判斷
     // 現在與上一個霍爾的總和與之前的總和相同，視為馬達靜止不動
-    uint8_t hall_current = motor->gpio_hall_current;
+    uint8_t hall_current = motor->exti_hall_curt;
     uint16_t hall_total = motor->pwm_hall_last*10 + hall_current;
     if(hall_total == motor->pwm_hall_acc)
     {
@@ -47,7 +32,6 @@ static inline Result motor_stop_check(MotorParameter *motor)
         {
             motor->spin_stop_acc = 0;
             // timerclockvalue_onecycle_electric = 0;   // 歸零一電氣週期之時間
-            motor->pwm_it_angle_acc = 59;               // 歸零角度累加
             motor->pi_speed.i1 = 0;                     // 重置i控制舊值
             motor->pi_speed.Fbk = 0;                    // 歸零速度實際值
             motor->pi_Iq.Out=0;
@@ -63,6 +47,24 @@ static inline Result motor_stop_check(MotorParameter *motor)
 }
 
 // Thread - timer - 2
+static inline Result motor_cal_speed(MotorParameter *motor)
+{
+    // 外部VR轉速設定
+    // Speed.Ref= 57 + (glo_ADC0_value[3]/30)*23;
+    motor->pwm_count++;
+    // 計算 速度PI (每100個PWM中斷)
+    if(motor->pwm_count >= 100)
+    {
+        // if(Speed.Fbk>0 && stop_flag==0)
+        PI_run(&motor->pi_speed);
+        motor->pi_speed_cmd = CLAMP((motor->pi_speed_cmd + motor->pi_speed.Out), 0.2, 0.15);
+        // else if(Speed.Fbk==0 | stop_flag==1)
+        //     motor->pi_speed_cmd=0.18;
+        motor->pwm_count = 0;
+    }
+}
+
+// Thread - timer - 3
 static const float adc_to_current = (3.3f / 4095.0f) / 0.185f; // ~ 0.004356 A/LSB
 static inline Result motor_vec_clarke(MotorParameter *motor)
 {
@@ -98,9 +100,12 @@ static inline Result motor_vec_clarke(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-// Thread - timer - 3
-static inline Result motor_vec_park(MotorParameter *motor, float foc_cal_deg)
+// Thread - timer - 4
+#define FOC_CAL_DEG_ADD 270.0f
+static inline Result motor_vec_park(MotorParameter *motor)
 {
+    motor->pwm_it_angle_acc += motor->pwm_per_it_angle_itpl;
+    float foc_cal_deg = fmodf((float)motor->exti_hall_curt_d + motor->pwm_it_angle_acc, 360.0f) + FOC_CAL_DEG_ADD;
     // park
     // Id = I alpha cos(theta) + I bata sin(theta)
     motor->park.Alpha = motor->clarke.Alpha;
@@ -123,7 +128,7 @@ static inline Result motor_vec_park(MotorParameter *motor, float foc_cal_deg)
     return RESULT_OK(NULL);
 }
 
-// Thread - timer - 4
+// Thread - timer - 5
 #define IQ_REF_ADD 0
 static inline Result motor_vec_pi_id_iq(MotorParameter *motor)
 {
@@ -169,7 +174,7 @@ static inline Result motor_vec_pi_id_iq(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-// Thread - timer - 5
+// Thread - timer - 6
 static inline Result motor_vec_ipark(MotorParameter *motor)
 {
     // ipark
@@ -189,7 +194,7 @@ static inline Result motor_vec_ipark(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-// Thread - timer - exit
+// Thread - timer - 7
 static inline Result motor_vec_svpwm(MotorParameter *motor)
 {
     // svgen  //5us
@@ -204,23 +209,23 @@ static inline Result motor_vec_svpwm(MotorParameter *motor)
 
     // --------------------------------------------------------------------------
     // 6us
-    // motor->SVPWM_Vref = sqrt(motor->svgendq.Ualpha*motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta);
+    // motor->svpwm_Vref = sqrt(motor->svgendq.Ualpha*motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta);
     
     // if(stop_flag==1)
     //     {
-    //     if(motor->SVPWM_Vref>0.0001)
+    //     if(motor->svpwm_Vref>0.0001)
     //     {
-    //         motor->SVPWM_Vref-=0.0001;
+    //         motor->svpwm_Vref-=0.0001;
     //         Iq.Out=0.18 ;
     //     }
     //     else
-    //         motor->SVPWM_Vref=0;
+    //         motor->svpwm_Vref=0;
     //     }
     // else
         float Vref = sqrt(motor->svgendq.Ualpha * motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta);
-        motor->SVPWM_Vref = Vref;
+        motor->svpwm_Vref = Vref;
 
-    // motor->SVPWM_Vref = Iq.Out;
+    // motor->svpwm_Vref = Iq.Out;
     
     // ------------------------------------
     //		motor_angle = motor_angle + deg_add;	
@@ -368,43 +373,26 @@ static inline Result motor_vec_ret(MotorParameter *motor)
 }//FOC 計算 END
 
 uint32_t running = 0;
-// Thread - timer - entrance
-#define FOC_CAL_DEG_ADD 270
+// Thread - timer - 0
 Result motor_pwm_pulse(MotorParameter *motor)
 {
     running++;
-    if((motor->gpio_hall_angle_acc + motor->pwm_it_angle) < 60) // 累計移動角度
+    // ?
+    if((motor->hall_angle_acc + motor->pwm_per_it_angle_itpl) < 60)
     {
-        motor->gpio_hall_angle_acc += motor->pwm_it_angle;
-        motor->gpio_hall_angle_acc = CLAMP(motor->gpio_hall_angle_acc , 60, 0);
+        motor->hall_angle_acc += motor->pwm_per_it_angle_itpl;
+        motor->hall_angle_acc = CLAMP(motor->hall_angle_acc , 60, 0);
     }
-
-    renew_adc(motor->const_h.adc_u_id, &motor->adc_u);
-    renew_adc(motor->const_h.adc_v_id, &motor->adc_v);
-    renew_adc(motor->const_h.adc_w_id, &motor->adc_w);
-
-    motor_stop_check(motor);
-    float motor_angle = fmodf((float)hall_to_angle(motor->gpio_hall_current) + motor->pwm_it_angle_acc, 360.0f) + (float)FOC_CAL_DEG_ADD;
-
-    // 外部VR轉速設定
-    // Speed.Ref= 57 + (glo_ADC0_value[3]/30)*23;
-    motor->pwm_count++;
-    // 計算 速度PI (每100個PWM中斷)
-    if(motor->pwm_count >= 100)
-    {
-        // if(Speed.Fbk>0 && stop_flag==0)
-        PI_run(&motor->pi_speed);
-        motor->pi_speed_cmd = CLAMP((motor->pi_speed_cmd + motor->pi_speed.Out), 0.2, 0.15);
-        // else if(Speed.Fbk==0 | stop_flag==1)
-        //     motor->pi_speed_cmd=0.18;
-        motor->pwm_count = 0;
-    }
-
-    motor_vec_clarke(motor);
-    motor_vec_park(motor, motor_angle);
-    motor_vec_pi_id_iq(motor);
-    motor_vec_ipark(motor);
-    motor_vec_svpwm(motor);
+    RESULT_CHECK_RET_RES(renew_adc(motor->const_h.adc_u_id, &motor->adc_u));
+    RESULT_CHECK_RET_RES(renew_adc(motor->const_h.adc_v_id, &motor->adc_v));
+    RESULT_CHECK_RET_RES(renew_adc(motor->const_h.adc_w_id, &motor->adc_w));
+    RESULT_CHECK_RET_RES(motor_stop_check(motor));
+    RESULT_CHECK_RET_RES(motor_cal_speed(motor));
+    RESULT_CHECK_RET_RES(motor_vec_clarke(motor));
+    RESULT_CHECK_RET_RES(motor_vec_park(motor));
+    RESULT_CHECK_RET_RES(motor_vec_pi_id_iq(motor));
+    RESULT_CHECK_RET_RES(motor_vec_ipark(motor));
+    RESULT_CHECK_RET_RES(motor_vec_svpwm(motor));
 
     return RESULT_OK(NULL);
 }
