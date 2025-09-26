@@ -61,4 +61,4 @@ typedef struct MotorParameter {
 
 extern MotorParameter motor_0;
 
-Result hall_to_angle(uint8_t hall, uint16_t *angle);
+Result hall_to_angle(uint8_t hall, volatile uint16_t *angle);

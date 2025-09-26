@@ -1,9 +1,8 @@
 ../Core/Src/motor/it_timer.c:7:8:pwm_setup	1
-../Core/Src/motor/it_timer.c:21:22:hall_to_angle	7
-../Core/Src/motor/it_timer.c:61:22:motor_stop_check	3
-../Core/Src/motor/it_timer.c:91:22:motor_vec_clarke	1
-../Core/Src/motor/it_timer.c:126:22:motor_vec_park	1
-../Core/Src/motor/it_timer.c:152:22:motor_vec_pi_id_iq	6
-../Core/Src/motor/it_timer.c:197:22:motor_vec_ipark	3
-../Core/Src/motor/it_timer.c:217:22:motor_vec_svpwm	24
-../Core/Src/motor/it_timer.c:397:8:motor_pwm_pulse	17
+../Core/Src/motor/it_timer.c:22:22:motor_stop_check	3
+../Core/Src/motor/it_timer.c:50:22:motor_cal_speed	4
+../Core/Src/motor/it_timer.c:70:22:motor_vec_clarke	1
+../Core/Src/motor/it_timer.c:106:22:motor_vec_park	1
+../Core/Src/motor/it_timer.c:134:22:motor_vec_pi_id_iq	6
+../Core/Src/motor/it_timer.c:179:22:motor_vec_ipark	3
+../Core/Src/motor/it_timer.c:378:8:motor_pwm_pulse	13

@@ -51,7 +51,7 @@ MotorParameter motor_0 = {
     },
 };
 
-Result hall_to_angle(uint8_t hall, uint16_t *angle)
+Result hall_to_angle(uint8_t hall, volatile uint16_t *angle)
 {
     switch(hall)
     {
@@ -87,7 +87,7 @@ Result hall_to_angle(uint8_t hall, uint16_t *angle)
         }
         default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
     }
-    return RESULT_OK(angle);
+    return RESULT_OK(NULL);
 }
 
 // void step_commutate(const MotorParameter *motor)

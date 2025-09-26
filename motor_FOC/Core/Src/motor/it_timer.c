@@ -62,6 +62,7 @@ static inline Result motor_cal_speed(MotorParameter *motor)
         //     motor->pi_speed_cmd=0.18;
         motor->pwm_count = 0;
     }
+    return RESULT_OK(NULL);
 }
 
 // Thread - timer - 3
@@ -392,7 +393,7 @@ Result motor_pwm_pulse(MotorParameter *motor)
     RESULT_CHECK_RET_RES(motor_vec_park(motor));
     RESULT_CHECK_RET_RES(motor_vec_pi_id_iq(motor));
     RESULT_CHECK_RET_RES(motor_vec_ipark(motor));
-    RESULT_CHECK_RET_RES(motor_vec_svpwm(motor));
+    // RESULT_CHECK_RET_RES(motor_vec_svpwm(motor));
 
     return RESULT_OK(NULL);
 }

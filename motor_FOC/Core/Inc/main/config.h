@@ -35,7 +35,7 @@
 #define ADC_NEED_LEN    9 // 511
 
 #define TIM1_PSC        16
-#define TIM1_ARR        499 // 65535
+#define TIM1_ARR        250 // 65535
 #define TIM2_PSC        16
 #define TIM2_ARR        4294967295 // 4294967295
 
