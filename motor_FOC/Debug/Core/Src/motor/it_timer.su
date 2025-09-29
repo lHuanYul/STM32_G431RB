@@ -1,8 +1,11 @@
 ../Core/Src/motor/it_timer.c:7:8:pwm_setup	32	static
 ../Core/Src/motor/it_timer.c:22:22:motor_stop_check	32	static
-../Core/Src/motor/it_timer.c:50:22:motor_cal_speed	32	static
-../Core/Src/motor/it_timer.c:70:22:motor_vec_clarke	40	static
-../Core/Src/motor/it_timer.c:106:22:motor_vec_park	40	static
-../Core/Src/motor/it_timer.c:134:22:motor_vec_pi_id_iq	32	static
-../Core/Src/motor/it_timer.c:179:22:motor_vec_ipark	32	static
-../Core/Src/motor/it_timer.c:378:8:motor_pwm_pulse	96	static
+../Core/Src/motor/it_timer.c:49:22:motor_pi_speed	32	static
+../Core/Src/motor/it_timer.c:62:22:motor_vec_clarke	40	static
+../Core/Src/motor/it_timer.c:98:22:motor_vec_park	40	static
+../Core/Src/motor/it_timer.c:130:22:motor_vec_pi_id_iq	32	static
+../Core/Src/motor/it_timer.c:175:22:motor_vec_ipark	32	static
+../Core/Src/motor/it_timer.c:194:22:motor_vec_svgen	40	static
+../Core/Src/motor/it_timer.c:211:22:motor_vec_vref	32	static
+../Core/Src/motor/it_timer.c:250:22:motor_vec_svpwm	56	static
+../Core/Src/motor/it_timer.c:389:8:motor_pwm_pulse	32	static

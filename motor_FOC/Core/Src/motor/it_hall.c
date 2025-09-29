@@ -4,22 +4,24 @@
 // Thread - hallExti - exit
 static inline Result pos_calculate(MotorParameter *motor)
 {
-    float per_elec_cyc_100ns = (float)__HAL_TIM_GET_COUNTER(motor->const_h.ELE_htimx);
+    float htim_cnt = (float)__HAL_TIM_GET_COUNTER(motor->const_h.ELE_htimx);
     __HAL_TIM_SET_COUNTER(motor->const_h.ELE_htimx, 0);
+    motor->rpm_fbk_hall = 100000000.0f / htim_cnt;
 
     // ? check
     // 電氣週期算轉速，分鐘[3G=50,000,000 (計數轉秒)*60(秒轉分鐘)] / 轉速
     // calculate speed every hall instead of  6 times
-    // agv gear ratio MOTOR_GEAR
-    motor->pi_speed.Fbk = (6000000.0f / (per_elec_cyc_100ns * (MOTOR_POLE / 2))) / 6 / MOTOR_GEAR;
-    // 單次PWM中斷時的角度變化 900000 = (1/pwm_freq)*50M*360
-    motor->pwm_per_it_angle_itpl = ((180000.0f) / per_elec_cyc_100ns) / 6 ;
+    // agv gear ratio MOTOR_42BLF01_GEAR
+    motor->pi_speed.Fbk = (6000000.0f / (htim_cnt * (MOTOR_42BLF01_POLE / 2))) / 6 / MOTOR_42BLF01_GEAR;
+    // 單次PWM中斷時的角度變化 50us*60/(0.1us*CNT)
+    motor->pwm_per_it_angle_itpl = 30000.0f / htim_cnt ;
 
     return RESULT_OK(NULL);
 }
 
 Result motor_hall_update(MotorParameter *motor)
 {
+    motor->exti_hall_cnt++;
     uint8_t hall_last = motor->exti_hall_curt;
     uint8_t hall_current =
           ((motor->const_h.Hall_GPIOx[0]->IDR & motor->const_h.Hall_GPIO_Pin_x[0]) ? 4U : 0U)
@@ -55,6 +57,6 @@ Result motor_hall_update(MotorParameter *motor)
 Result motor_hall_exti(MotorParameter *motor)
 {
     RESULT_CHECK_RET_RES(motor_hall_update(motor));
-    pos_calculate(motor);
+    RESULT_CHECK_RET_RES(pos_calculate(motor));
     return RESULT_OK(NULL);
 }

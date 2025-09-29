@@ -46,22 +46,14 @@ static inline Result motor_stop_check(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-// Thread - timer - 2
-static inline Result motor_cal_speed(MotorParameter *motor)
+static inline Result motor_pi_speed(MotorParameter *motor)
 {
-    // 外部VR轉速設定
-    // Speed.Ref= 57 + (glo_ADC0_value[3]/30)*23;
-    motor->pwm_count++;
     // 計算 速度PI (每100個PWM中斷)
-    if(motor->pwm_count >= 100)
-    {
-        // if(Speed.Fbk>0 && stop_flag==0)
-        PI_run(&motor->pi_speed);
-        motor->pi_speed_cmd = CLAMP((motor->pi_speed_cmd + motor->pi_speed.Out), 0.2, 0.15);
-        // else if(Speed.Fbk==0 | stop_flag==1)
-        //     motor->pi_speed_cmd=0.18;
-        motor->pwm_count = 0;
-    }
+    // if(Speed.Fbk>0 && stop_flag==0)
+    PI_run(&motor->pi_speed);
+    motor->pi_speed_cmd = CLAMP((motor->pi_speed_cmd + motor->pi_speed.Out), 0.2, 0.15);
+    // else if(Speed.Fbk==0 | stop_flag==1)
+    //     motor->pi_speed_cmd=0.18;
     return RESULT_OK(NULL);
 }
 
@@ -106,7 +98,11 @@ static inline Result motor_vec_clarke(MotorParameter *motor)
 static inline Result motor_vec_park(MotorParameter *motor)
 {
     motor->pwm_it_angle_acc += motor->pwm_per_it_angle_itpl;
-    float foc_cal_deg = fmodf((float)motor->exti_hall_curt_d + motor->pwm_it_angle_acc, 360.0f) + FOC_CAL_DEG_ADD;
+    float foc_cal_deg = motor->exti_hall_curt_d + motor->pwm_it_angle_acc;
+    if      (foc_cal_deg >= 360.0f) foc_cal_deg -= 360.0f;
+    else if (foc_cal_deg <    0.0f) foc_cal_deg += 360.0f;
+    foc_cal_deg += FOC_CAL_DEG_ADD;
+
     // park
     // Id = I alpha cos(theta) + I bata sin(theta)
     motor->park.Alpha = motor->clarke.Alpha;
@@ -195,19 +191,25 @@ static inline Result motor_vec_ipark(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-// Thread - timer - 7
-static inline Result motor_vec_svpwm(MotorParameter *motor)
+static inline Result motor_vec_svgen(MotorParameter *motor)
 {
     // svgen  //5us
     motor->svgendq.Ualpha = motor->ipark.Alpha;
     motor->svgendq.Ubeta = motor->ipark.Beta;
     SVGEN_run(&motor->svgendq);
-    motor->electric_theta_rad = TableSearch_atan2(motor->ipark.Beta, motor->ipark.Alpha);
-    if (motor->electric_theta_rad < 0.0f)
-        motor->electric_theta_rad += MUL_2_PI;
-    float theta_in_sector = fmodf(motor->electric_theta_rad, DIV_PI_3);
-    motor->electric_theta_deg = fmodf(motor->electric_theta_rad * RAD_TO_DEG, 360.0f);
 
+    motor->electric_theta_rad = TableSearch_atan2(motor->ipark.Beta, motor->ipark.Alpha);
+    while (motor->electric_theta_rad < 0.0f) motor->electric_theta_rad += MUL_2_PI;
+
+    float electric_theta_deg = motor->electric_theta_rad * RAD_TO_DEG;
+    while (electric_theta_deg >= 360.0f) electric_theta_deg -= 360.0f;
+    while (electric_theta_deg <    0.0f) electric_theta_deg += 360.0f;
+    motor->electric_theta_deg = electric_theta_deg;
+    return RESULT_OK(NULL);
+}
+
+static inline Result motor_vec_vref(MotorParameter *motor)
+{
     // --------------------------------------------------------------------------
     // 6us
     // motor->svpwm_Vref = sqrt(motor->svgendq.Ualpha*motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta);
@@ -223,7 +225,9 @@ static inline Result motor_vec_svpwm(MotorParameter *motor)
     //         motor->svpwm_Vref=0;
     //     }
     // else
-        float Vref = sqrt(motor->svgendq.Ualpha * motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta);
+        float Vref = sqrt(
+            motor->svgendq.Ualpha * motor->svgendq.Ualpha 
+            + motor->svgendq.Ubeta * motor->svgendq.Ubeta);
         motor->svpwm_Vref = Vref;
 
     // motor->svpwm_Vref = Iq.Out;
@@ -239,96 +243,102 @@ static inline Result motor_vec_svpwm(MotorParameter *motor)
     /*
         svpwm_interval = ((int)cmd_deg / 60) % 6;
         motor->electric_theta_deg      =  (int)cmd_deg % 60;*/
-    //------------------------------------
+    return RESULT_OK(NULL);
+}
+
+// Thread - timer - 7
+static inline Result motor_vec_svpwm(MotorParameter *motor)
+{
     float T1, T2;
+    float theta_in_sector = motor->electric_theta_rad;
+    while (theta_in_sector >= DIV_PI_3) theta_in_sector -= DIV_PI_3;
     // ? CHECK
     if(!motor->reverse)
     {
-        T1 = Vref * TableSearch_sin(DIV_PI_3 - theta_in_sector);
-        T2 = Vref * TableSearch_sin(theta_in_sector);
+        T1 = motor->svpwm_Vref * TableSearch_sin(DIV_PI_3 - theta_in_sector);
+        T2 = motor->svpwm_Vref * TableSearch_sin(theta_in_sector);
     }
     else
     {
-        T1 = Vref * TableSearch_sin(theta_in_sector);
-        T2 = Vref * TableSearch_sin(DIV_PI_3 - theta_in_sector);
+        T1 = motor->svpwm_Vref * TableSearch_sin(theta_in_sector);
+        T2 = motor->svpwm_Vref * TableSearch_sin(DIV_PI_3 - theta_in_sector);
     }
 
     //------------------------------------
     float T0div2 = (1 - (T1 + T2)) / 2;
 
-    const MotorConst* const_h = &motor->const_h;
-    switch(motor->svgendq.Sector)
-    // switch(my_hall_signal_in_decimal)
-    {
-        case 3://120~179 2 acb
-        {
-            motor->pwm_duty_u = T0div2 + T1 + T2;
-            motor->pwm_duty_v = T0div2;
-            motor->pwm_duty_w = T0div2 + T1;
-            // Ta = T0div2;
-            // Tb = T0div2+T1+T2;
-            // Tc = T0div2+T2;
-            break;
-        }
-        case 1://180~239 3 abc
-        {
-            motor->pwm_duty_u = T0div2 + T1 + T2;
-            motor->pwm_duty_v = T0div2 + T2;
-            motor->pwm_duty_w = T0div2;
-            // Ta = T0div2;
-            // Tb = T0div2+T1;
-            // Tc = T0div2+T1+T2;
-            break;
-        }
-        case 5://240~299 1    bac
-        {
-            motor->pwm_duty_u = T0div2 + T1;
-            motor->pwm_duty_v = T0div2 + T1 + T2;
-            motor->pwm_duty_w = T0div2;
-            // Ta = T0div2+T2;
-            // Tb = T0div2;
-            // Tc = T0div2+T1+T2;
-            break;
-        }
-        case 4://300~359 5  bca
-        {
-            motor->pwm_duty_u = T0div2;
-            motor->pwm_duty_v = T0div2 + T1 + T2;
-            motor->pwm_duty_w = T0div2 + T2;
-            // Ta = T0div2+T1+T2;
-            // Tb = T0div2;
-            // Tc = T0div2+T1;
-            break;
-        }
-        case 6://0~59 4 cba
-        {
-            motor->pwm_duty_u = T0div2;
-            motor->pwm_duty_v = T0div2 + T1;
-            motor->pwm_duty_w = T0div2 + T1 + T2;
-            // Ta = T0div2+T1+T2;
-            // Tb = T0div2+T2;
-            // Tc = T0div2;
-            break;
-        }
-        case 2://60~119 6 cba
-        {
-            motor->pwm_duty_u = T0div2 + T2;
-            motor->pwm_duty_v = T0div2;
-            motor->pwm_duty_w = T0div2 + T1 + T2;
-            // Ta = T0div2+T1;
-            // Tb = T0div2+T1+T2;
-            // Tc = T0div2;
-            break;
-        }
-    }
-    __HAL_TIM_SET_COMPARE(const_h->htimx[0], const_h->TIM_CHANNEL_x[0], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_u));
-    __HAL_TIM_SET_COMPARE(const_h->htimx[1], const_h->TIM_CHANNEL_x[1], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_v));
-    __HAL_TIM_SET_COMPARE(const_h->htimx[2], const_h->TIM_CHANNEL_x[2], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_w));
+    // switch(motor->svgendq.Sector)
+    // // switch(my_hall_signal_in_decimal)
+    // {
+    //     case 3://120~179 2 acb
+    //     {
+    //         motor->pwm_duty_u = T0div2 + T1 + T2;
+    //         motor->pwm_duty_v = T0div2;
+    //         motor->pwm_duty_w = T0div2 + T1;
+    //         // Ta = T0div2;
+    //         // Tb = T0div2+T1+T2;
+    //         // Tc = T0div2+T2;
+    //         break;
+    //     }
+    //     case 1://180~239 3 abc
+    //     {
+    //         motor->pwm_duty_u = T0div2 + T1 + T2;
+    //         motor->pwm_duty_v = T0div2 + T2;
+    //         motor->pwm_duty_w = T0div2;
+    //         // Ta = T0div2;
+    //         // Tb = T0div2+T1;
+    //         // Tc = T0div2+T1+T2;
+    //         break;
+    //     }
+    //     case 5://240~299 1    bac
+    //     {
+    //         motor->pwm_duty_u = T0div2 + T1;
+    //         motor->pwm_duty_v = T0div2 + T1 + T2;
+    //         motor->pwm_duty_w = T0div2;
+    //         // Ta = T0div2+T2;
+    //         // Tb = T0div2;
+    //         // Tc = T0div2+T1+T2;
+    //         break;
+    //     }
+    //     case 4://300~359 5  bca
+    //     {
+    //         motor->pwm_duty_u = T0div2;
+    //         motor->pwm_duty_v = T0div2 + T1 + T2;
+    //         motor->pwm_duty_w = T0div2 + T2;
+    //         // Ta = T0div2+T1+T2;
+    //         // Tb = T0div2;
+    //         // Tc = T0div2+T1;
+    //         break;
+    //     }
+    //     case 6://0~59 4 cba
+    //     {
+    //         motor->pwm_duty_u = T0div2;
+    //         motor->pwm_duty_v = T0div2 + T1;
+    //         motor->pwm_duty_w = T0div2 + T1 + T2;
+    //         // Ta = T0div2+T1+T2;
+    //         // Tb = T0div2+T2;
+    //         // Tc = T0div2;
+    //         break;
+    //     }
+    //     case 2://60~119 6 cba
+    //     {
+    //         motor->pwm_duty_u = T0div2 + T2;
+    //         motor->pwm_duty_v = T0div2;
+    //         motor->pwm_duty_w = T0div2 + T1 + T2;
+    //         // Ta = T0div2+T1;
+    //         // Tb = T0div2+T1+T2;
+    //         // Tc = T0div2;
+    //         break;
+    //     }
+    // }
+    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx[0], motor->const_h.TIM_CHANNEL_x[0], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_u));
+    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx[1], motor->const_h.TIM_CHANNEL_x[1], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_v));
+    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx[2], motor->const_h.TIM_CHANNEL_x[2], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_w));
     return RESULT_OK(NULL);
 }
 
 // Thread - timer - ex
-static inline Result motor_vec_ret(MotorParameter *motor)
+static UNUSED_FNC inline Result motor_vec_ret(MotorParameter *motor)
 {
 	//--------------------------------------------------------------------------
     /*
@@ -373,28 +383,41 @@ static inline Result motor_vec_ret(MotorParameter *motor)
     return RESULT_OK(NULL);
 }//FOC 計算 END
 
-uint32_t running = 0;
-// FOC
+// FOC 20kHz
 // Thread - timer - 0
 Result motor_pwm_pulse(MotorParameter *motor)
 {
-    running++;
-    // ?
-    if((motor->hall_angle_acc + motor->pwm_per_it_angle_itpl) < 60)
+    motor->pwm_count++;
+    if (motor->pwm_count % 2 == 0)
     {
-        motor->hall_angle_acc += motor->pwm_per_it_angle_itpl;
-        motor->hall_angle_acc = CLAMP(motor->hall_angle_acc , 60, 0);
+        // ?
+        if((motor->hall_angle_acc + motor->pwm_per_it_angle_itpl) < 60)
+        {
+            motor->hall_angle_acc += motor->pwm_per_it_angle_itpl;
+            motor->hall_angle_acc = CLAMP(motor->hall_angle_acc , 60, 0);
+        }
+        renew_adc(motor->const_h.adc_u_id, &motor->adc_u);
+        renew_adc(motor->const_h.adc_v_id, &motor->adc_v);
+        renew_adc(motor->const_h.adc_w_id, &motor->adc_w);
+        motor_vec_clarke(motor);
+        motor_vec_park(motor);
+        motor_vec_pi_id_iq(motor);
+        motor_vec_ipark(motor);
+        motor_vec_svgen(motor);
+        motor_vec_vref(motor);
+        motor_vec_svpwm(motor);
     }
-    RESULT_CHECK_RET_RES(renew_adc(motor->const_h.adc_u_id, &motor->adc_u));
-    RESULT_CHECK_RET_RES(renew_adc(motor->const_h.adc_v_id, &motor->adc_v));
-    RESULT_CHECK_RET_RES(renew_adc(motor->const_h.adc_w_id, &motor->adc_w));
-    RESULT_CHECK_RET_RES(motor_stop_check(motor));
-    RESULT_CHECK_RET_RES(motor_cal_speed(motor));
-    RESULT_CHECK_RET_RES(motor_vec_clarke(motor));
-    RESULT_CHECK_RET_RES(motor_vec_park(motor));
-    RESULT_CHECK_RET_RES(motor_vec_pi_id_iq(motor));
-    RESULT_CHECK_RET_RES(motor_vec_ipark(motor));
-    // RESULT_CHECK_RET_RES(motor_vec_svpwm(motor));
+    if (motor->pwm_count % 100 == 0)
+    {
+        motor_stop_check(motor);
+        motor_pi_speed(motor);
+    }
+    if (motor->pwm_count >= 1000)
+    {
+        motor->rpm_fbk_htim = motor->exti_hall_cnt * 200.0f;
+        motor->exti_hall_cnt = 0;
+        motor->pwm_count = 0;
+    }
 
     return RESULT_OK(NULL);
 }

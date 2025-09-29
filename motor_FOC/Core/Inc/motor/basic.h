@@ -29,33 +29,36 @@ typedef struct MotorConst {
 
 typedef struct MotorParameter {
     const MotorConst const_h;
+    float          rpm_fbk_hall;
+    float          rpm_fbk_htim;
     volatile PI_CONTROLLER  pi_speed;
-    volatile float          pi_speed_cmd;
-    volatile PI_CONTROLLER  pi_Iq;
-    volatile PI_CONTROLLER  pi_Id;
-    volatile uint8_t    exti_hall_last;         // GPIO trigger
+    float          pi_speed_cmd;
+    PI_CONTROLLER  pi_Iq;
+    PI_CONTROLLER  pi_Id;
+    uint8_t    exti_hall_last;         // GPIO trigger
     volatile uint8_t    exti_hall_curt;         // GPIO trigger
     volatile uint16_t   exti_hall_curt_d;       // GPIO trigger
+    volatile uint16_t   exti_hall_cnt;          // GPIO trigger
     volatile float      hall_angle_acc;         // 霍爾累積角度基準 每次霍爾相位切換時 馬達轉+60角度
-    volatile uint8_t    pwm_hall_last;          // PWM last hall record
+    uint8_t    pwm_hall_last;          // PWM last hall record
     volatile uint16_t   pwm_hall_acc;           // PWM hall record total
-    volatile uint16_t   spin_stop_acc;
-    volatile float      pwm_per_it_angle_itpl;  // PWM 中斷應補角度 (Angle Interpolation)
-    volatile float      pwm_it_angle_acc;
-    volatile uint16_t   pwm_count;
-    volatile uint16_t   adc_u;
-    volatile uint16_t   adc_v;
-    volatile uint16_t   adc_w;
-    volatile CLARKE     clarke;
-    volatile PARK       park;
-    volatile IPARK      ipark;
-    volatile SVGENDQ    svgendq;
-    volatile float      electric_theta_rad;
-    volatile float      electric_theta_deg;
-    volatile float      svpwm_Vref;
-    volatile float      pwm_duty_u;
-    volatile float      pwm_duty_v;
-    volatile float      pwm_duty_w;
+    uint16_t   spin_stop_acc;
+    volatile float  pwm_per_it_angle_itpl;  // PWM 中斷應補角度 (Angle Interpolation)
+    volatile float  pwm_it_angle_acc;
+    uint16_t   pwm_count;
+    uint16_t   adc_u;
+    uint16_t   adc_v;
+    uint16_t   adc_w;
+    CLARKE     clarke;
+    PARK       park;
+    IPARK      ipark;
+    SVGENDQ    svgendq;
+    float      electric_theta_rad;
+    float      electric_theta_deg;
+    float      svpwm_Vref;
+    float      pwm_duty_u;
+    float      pwm_duty_v;
+    float      pwm_duty_w;
     bool                reverse;
 } MotorParameter;
 

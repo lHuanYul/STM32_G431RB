@@ -1,4 +1,4 @@
-../Core/Src/analog/adc1/main.c:7:15:middle	5
+../Core/Src/analog/adc1/main.c:7:26:middle	5
 ../Core/Src/analog/adc1/main.c:31:15:average	2
 ../Core/Src/analog/adc1/main.c:43:8:renew_adc	1
 ../Core/Src/analog/adc1/main.c:48:6:StartAdcTask	0

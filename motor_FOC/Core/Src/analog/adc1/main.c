@@ -4,7 +4,7 @@
 static uint16_t ADC_Values[ADC_COUNT * ADC_NEED_LEN] = {0};
 
 static uint16_t adc_cnt[2560] = {0};
-static Result middle(uint16_t adc_id, volatile uint16_t *adc_store)
+static UNUSED_FNC Result middle(uint16_t adc_id, volatile uint16_t *adc_store)
 {
     memset(adc_cnt, 0, sizeof(adc_cnt));
     uint16_t i, val;

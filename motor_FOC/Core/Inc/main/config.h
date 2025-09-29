@@ -28,12 +28,13 @@
 // ! SYSTEM config, Change CAREFULLY --------------------
 #define STM32_DEVICE
 
-#define MOTOR_POLE      20
-#define MOTOR_GEAR      4.4f
+#define MOTOR_42BLF01_POLE  20
+#define MOTOR_42BLF01_GEAR  4.4f
 
 #define ADC_COUNT       3
 #define ADC_NEED_LEN    9 // 511
 
+// 20kHz 50us
 #define TIM1_PSC        16
 #define TIM1_ARR        250 // 250 (Max: 65535)
 #define TIM2_PSC        16
