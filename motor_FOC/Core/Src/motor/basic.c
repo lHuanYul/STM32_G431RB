@@ -4,27 +4,32 @@
 const uint8_t hall_seq_clw[8] = {0, 3, 6, 2, 5, 1, 4, 0};  // 正轉
 const uint8_t hall_seq_ccw[8] = {0, 5, 3, 1, 6, 4, 2, 0};  // 反轉
 
-// const int8_t motor_sequence[6][3] = {
-//     { MS_HIGH_PASS, MS_LOW_PASS,  MS_NONE_PASS },
-//     { MS_HIGH_PASS, MS_NONE_PASS, MS_LOW_PASS  },
-//     { MS_NONE_PASS, MS_HIGH_PASS, MS_LOW_PASS  },
-//     { MS_LOW_PASS,  MS_HIGH_PASS, MS_NONE_PASS },
-//     { MS_LOW_PASS,  MS_NONE_PASS, MS_HIGH_PASS },
-//     { MS_NONE_PASS, MS_LOW_PASS,  MS_HIGH_PASS }
-// };
+// Commutation right_SEQUENCE for 120 degree control
+#define HIGH_PASS   1
+#define NONE_PASS   0
+#define LOW_PASS   -1
+static const int8_t SEQUENCE[6][3] = {
+    { HIGH_PASS, LOW_PASS,  NONE_PASS },
+    { HIGH_PASS, NONE_PASS, LOW_PASS  },
+    { NONE_PASS, HIGH_PASS, LOW_PASS  },
+    { LOW_PASS,  HIGH_PASS, NONE_PASS },
+    { LOW_PASS,  NONE_PASS, HIGH_PASS },
+    { NONE_PASS, LOW_PASS,  HIGH_PASS }
+};
 
 MotorParameter motor_0 = {
     .const_h = {
         .adc_u_id = 0,
         .adc_v_id = 1,
         .adc_w_id = 2,
-        .Hall_GPIOx         = { GPIOC,       GPIOC,       GPIOC     },
-        .Hall_GPIO_Pin_x    = { GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12},
-        // PC0 PC1 PC2
-        .PWM_htimx          = { &htim1,        &htim1,        &htim1        },
-        .PWM_TIM_CHANNEL_x  = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3 },
-        // .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
-        // .Coil_GPIO_Pin_x    = { GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15 },
+        .Hall_GPIOx         = { GPIOC,       GPIOC,       GPIOC       },
+        .Hall_GPIO_Pin_x    = { GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12 },
+        // H: PC0 PC1 PC2 // L: PB13 PB14 PB15
+        .htimx          = { &htim1,        &htim1,        &htim1        },
+        .TIM_CHANNEL_x  = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3 },
+        // 120 deg control L
+        .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
+        .Coil_GPIO_Pin_x    = { GPIO_PIN_5,  GPIO_PIN_4,  GPIO_PIN_10 },
         .ELE_htimx = &htim2,
     },
     .pi_speed = {
@@ -90,37 +95,33 @@ Result hall_to_angle(uint8_t hall, volatile uint16_t *angle)
     return RESULT_OK(NULL);
 }
 
-// void step_commutate(const MotorParameter *motor)
-// {
-//     const MotorConst* const_h = &motor->const_h;
-//     uint8_t i;
-//     for (i = 0; i < 3; i++)
-//     {
-//         switch (motor_sequence[motor->hall_current][i])
-//         {
-//             case MS_HIGH_PASS:
-//             {
-//                 __HAL_TIM_SET_COMPARE(const_h->PWM_htimx[i], const_h->PWM_TIM_CHANNEL_x[i], motor->pwm_compare);
-//                 HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
-//                 break;
-//             }
-//             case MS_NONE_PASS:
-//             {
-//                 __HAL_TIM_SET_COMPARE(const_h->PWM_htimx[i], const_h->PWM_TIM_CHANNEL_x[i], 0);
-//                 HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
-//                 break;
-//             }
-//             case MS_LOW_PASS:
-//             {
-//                 __HAL_TIM_SET_COMPARE(const_h->PWM_htimx[i], const_h->PWM_TIM_CHANNEL_x[i], 0);
-//                 HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
-//                 break;
-//             }
-//             default:
-//             {
-//                 Error_Handler();
-//                 break;
-//             }
-//         }
-//     }
-// }
+// 120 deg cntrol
+void step_commutate_120(const MotorParameter *motor)
+{
+    const MotorConst* const_h = &motor->const_h;
+    uint8_t i;
+    for (i = 0; i < 3; i++)
+    {
+        switch (SEQUENCE[motor->exti_hall_curt][i])
+        {
+            case HIGH_PASS:
+            {
+                __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], motor->pwm_duty_u);
+                HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+                break;
+            }
+            case LOW_PASS:
+            {
+                __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], 0);
+                HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
+                break;
+            }
+            default:
+            {
+                __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], 0);
+                HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+                break;
+            }
+        }
+    }
+}

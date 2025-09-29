@@ -31,6 +31,9 @@ Result motor_hall_update(MotorParameter *motor)
     {
         return RESULT_ERROR(RES_ERR_FAIL);
     }
+    // 120 deg cntrol
+    step_commutate_120(motor);
+    
     RESULT_CHECK_RET_RES(hall_to_angle(hall_current, &motor->exti_hall_curt_d));
     uint16_t expected = (!motor->reverse)
         ? hall_seq_clw[hall_last]

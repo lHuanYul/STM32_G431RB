@@ -7,13 +7,13 @@
 Result pwm_setup(const MotorParameter *motor)
 {
     const MotorConst* const_h = &motor->const_h;
-    HAL_TIM_Base_Start_IT(const_h->PWM_htimx[0]);
-    HAL_TIM_PWM_Start(const_h->PWM_htimx[0], const_h->PWM_TIM_CHANNEL_x[0]);
-    HAL_TIM_PWM_Start(const_h->PWM_htimx[1], const_h->PWM_TIM_CHANNEL_x[1]);
-    HAL_TIM_PWM_Start(const_h->PWM_htimx[2], const_h->PWM_TIM_CHANNEL_x[2]);
-    HAL_TIMEx_PWMN_Start(const_h->PWM_htimx[0], const_h->PWM_TIM_CHANNEL_x[0]);
-    HAL_TIMEx_PWMN_Start(const_h->PWM_htimx[1], const_h->PWM_TIM_CHANNEL_x[1]);
-    HAL_TIMEx_PWMN_Start(const_h->PWM_htimx[2], const_h->PWM_TIM_CHANNEL_x[2]);
+    HAL_TIM_Base_Start_IT(const_h->htimx[0]);
+    HAL_TIM_PWM_Start(const_h->htimx[0], const_h->TIM_CHANNEL_x[0]);
+    HAL_TIM_PWM_Start(const_h->htimx[1], const_h->TIM_CHANNEL_x[1]);
+    HAL_TIM_PWM_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
+    HAL_TIMEx_PWMN_Start(const_h->htimx[0], const_h->TIM_CHANNEL_x[0]);
+    HAL_TIMEx_PWMN_Start(const_h->htimx[1], const_h->TIM_CHANNEL_x[1]);
+    HAL_TIMEx_PWMN_Start(const_h->htimx[2], const_h->TIM_CHANNEL_x[2]);
     HAL_TIM_Base_Start(const_h->ELE_htimx);
     return RESULT_OK(NULL);
 }
@@ -321,9 +321,9 @@ static inline Result motor_vec_svpwm(MotorParameter *motor)
             break;
         }
     }
-    __HAL_TIM_SET_COMPARE(const_h->PWM_htimx[0], const_h->PWM_TIM_CHANNEL_x[0], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_u));
-    __HAL_TIM_SET_COMPARE(const_h->PWM_htimx[1], const_h->PWM_TIM_CHANNEL_x[1], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_v));
-    __HAL_TIM_SET_COMPARE(const_h->PWM_htimx[2], const_h->PWM_TIM_CHANNEL_x[2], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_w));
+    __HAL_TIM_SET_COMPARE(const_h->htimx[0], const_h->TIM_CHANNEL_x[0], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_u));
+    __HAL_TIM_SET_COMPARE(const_h->htimx[1], const_h->TIM_CHANNEL_x[1], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_v));
+    __HAL_TIM_SET_COMPARE(const_h->htimx[2], const_h->TIM_CHANNEL_x[2], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_w));
     return RESULT_OK(NULL);
 }
 
@@ -374,6 +374,7 @@ static inline Result motor_vec_ret(MotorParameter *motor)
 }//FOC 計算 END
 
 uint32_t running = 0;
+// FOC
 // Thread - timer - 0
 Result motor_pwm_pulse(MotorParameter *motor)
 {

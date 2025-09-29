@@ -15,7 +15,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 inline void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    if (htim == motor_0.const_h.PWM_htimx[0])
+    if (htim == motor_0.const_h.htimx[0])
     {
         motor_pwm_pulse(&motor_0);
     }
