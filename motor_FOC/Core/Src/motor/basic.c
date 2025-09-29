@@ -106,7 +106,7 @@ void step_commutate_120(const MotorParameter *motor)
         {
             case HIGH_PASS:
             {
-                __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], motor->pwm_duty_u);
+                __HAL_TIM_SET_COMPARE(const_h->htimx[i], const_h->TIM_CHANNEL_x[i], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_u));
                 HAL_GPIO_WritePin(const_h->Coil_GPIOx[i], const_h->Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
                 break;
             }
