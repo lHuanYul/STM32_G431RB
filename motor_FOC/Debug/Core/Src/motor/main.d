@@ -1,5 +1,5 @@
 Core/Src/motor/main.o: ../Core/Src/motor/main.c ../Core/Inc/motor/main.h \
- ../Core/Inc/main/config.h \
+ ../Core/Inc/motor/basic.h ../Core/Inc/main/config.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
  ../Core/Inc/FreeRTOSConfig.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h \
@@ -48,12 +48,13 @@ Core/Src/motor/main.o: ../Core/Src/motor/main.c ../Core/Inc/motor/main.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
- ../Core/Inc/main/main.h ../Core/Inc/main/fn_state.h \
- ../Core/Inc/motor/basic.h ../Core/Inc/motor/pi.h \
- ../Core/Inc/motor/clarke.h ../Core/Inc/motor/park.h \
- ../Core/Inc/motor/svgendq.h ../Core/Inc/motor/it_hall.h \
- ../Core/Inc/motor/it_timer.h ../Core/Inc/analog/adc1/main.h
+ ../Core/Inc/main/main.h ../Core/Inc/motor/pi.h \
+ ../Core/Inc/main/fn_state.h ../Core/Inc/motor/clarke.h \
+ ../Core/Inc/motor/park.h ../Core/Inc/motor/svgendq.h \
+ ../Core/Inc/motor/ctrl_120.h ../Core/Inc/motor/ctrl_foc.h \
+ ../Core/Inc/analog/adc1/main.h
 ../Core/Inc/motor/main.h:
+../Core/Inc/motor/basic.h:
 ../Core/Inc/main/config.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
@@ -104,12 +105,11 @@ Core/Src/motor/main.o: ../Core/Src/motor/main.c ../Core/Inc/motor/main.h \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h:
 ../Core/Inc/main/main.h:
-../Core/Inc/main/fn_state.h:
-../Core/Inc/motor/basic.h:
 ../Core/Inc/motor/pi.h:
+../Core/Inc/main/fn_state.h:
 ../Core/Inc/motor/clarke.h:
 ../Core/Inc/motor/park.h:
 ../Core/Inc/motor/svgendq.h:
-../Core/Inc/motor/it_hall.h:
-../Core/Inc/motor/it_timer.h:
+../Core/Inc/motor/ctrl_120.h:
+../Core/Inc/motor/ctrl_foc.h:
 ../Core/Inc/analog/adc1/main.h:

@@ -1,4 +1,5 @@
-Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
+Core/Src/motor/ctrl_120.o: ../Core/Src/motor/ctrl_120.c \
+ ../Core/Inc/motor/ctrl_120.h ../Core/Inc/motor/basic.h \
  ../Core/Inc/main/config.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
  ../Core/Inc/FreeRTOSConfig.h \
@@ -48,11 +49,14 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
- ../Core/Inc/motor/main.h ../Core/Inc/motor/basic.h \
- ../Core/Inc/motor/pi.h ../Core/Inc/main/fn_state.h \
- ../Core/Inc/motor/clarke.h ../Core/Inc/motor/park.h \
- ../Core/Inc/motor/svgendq.h
-../Core/Inc/main/main.h:
+ ../Core/Inc/main/main.h ../Core/Inc/motor/pi.h \
+ ../Core/Inc/main/fn_state.h ../Core/Inc/motor/clarke.h \
+ ../Core/Inc/motor/park.h ../Core/Inc/motor/svgendq.h ../Core/Inc/tim.h \
+ ../Core/Inc/main.h ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h \
+ ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
+ ../Core/Inc/stm32g4xx_nucleo_conf.h
+../Core/Inc/motor/ctrl_120.h:
+../Core/Inc/motor/basic.h:
 ../Core/Inc/main/config.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
@@ -102,10 +106,14 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h:
-../Core/Inc/motor/main.h:
-../Core/Inc/motor/basic.h:
+../Core/Inc/main/main.h:
 ../Core/Inc/motor/pi.h:
 ../Core/Inc/main/fn_state.h:
 ../Core/Inc/motor/clarke.h:
 ../Core/Inc/motor/park.h:
 ../Core/Inc/motor/svgendq.h:
+../Core/Inc/tim.h:
+../Core/Inc/main.h:
+../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h:
+../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h:
+../Core/Inc/stm32g4xx_nucleo_conf.h:

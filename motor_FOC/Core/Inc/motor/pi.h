@@ -3,7 +3,7 @@
 #include "main/config.h"
 #include "main/fn_state.h"
 
-typedef struct PI_CONTROLLER {
+typedef struct PI_CTRL {
     float Ref;  // Input: reference set-point
     float Fbk;  // Input: feedback
     float Out;  // Output: controller output 
@@ -17,7 +17,7 @@ typedef struct PI_CONTROLLER {
     float i1;   // Data: integrator storage: ui(k-1)
     float w1;   // Data: saturation record: [u(k-1) - v(k-1)]
     float delta;
-} PI_CONTROLLER;
+} PI_CTRL;
 
 #define PI_CONTROLLER_DEFAULTS { \
     0f,     \
@@ -43,4 +43,4 @@ typedef struct PI_CONTROLLER {
 #define EPS_EQ 1e-12f
 #endif
 
-Result PI_run(volatile PI_CONTROLLER *pi);
+Result PI_run(volatile PI_CTRL *pi);

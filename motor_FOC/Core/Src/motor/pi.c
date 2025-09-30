@@ -1,6 +1,6 @@
 #include "motor/pi.h"
 
-Result PI_run(volatile PI_CONTROLLER *pi)
+Result PI_run(volatile PI_CTRL *pi)
 {
     pi->up = pi->Kp * (pi->Ref - pi->Fbk);
 

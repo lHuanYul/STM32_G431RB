@@ -1,6 +1,5 @@
 #include "main/main.h"
-#include "motor/it_hall.h"
-#include "motor/it_timer.h"
+#include "motor/main.h"
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -15,7 +14,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 inline void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    if (htim == motor_0.const_h.htimx[0])
+    if (htim == motor_0.const_h.htimx)
     {
         motor_pwm_pulse(&motor_0);
     }
