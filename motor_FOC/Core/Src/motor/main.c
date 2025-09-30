@@ -22,7 +22,7 @@ void motor_hall_exti(MotorParameter *motor)
     motor->exti_hall_last = hall_last;
     motor->exti_hall_curt = hall_current;
     if (hall_current == 0 || hall_current == 7) return;
-    motor_120_hall_update(motor);
+    // motor_120_hall_update(motor);
     motor_foc_hall_update(motor);
 }
 
@@ -36,6 +36,6 @@ void StartMotorTask(void *argument)
     tim_setup(&motor_0);
     motor_hall_exti(&motor_0);
     motor_0.pi_speed.Ref = 20.0f;
-    motor_0.pwm_duty_u = 0.5f;
+    motor_0.pwm_duty_u = 1.0f;
     StopTask();
 }

@@ -1,3 +1,3 @@
-../Core/Src/motor/trigonometric.c:1826:7:TableSearch_sin	6
-../Core/Src/motor/trigonometric.c:1843:7:TableSearch_atan	3
-../Core/Src/motor/trigonometric.c:1851:7:TableSearch_atan2	6
+../Core/Src/motor/trigonometric.c:1827:7:TableSearch_sin	6
+../Core/Src/motor/trigonometric.c:1845:7:TableSearch_atan	3
+../Core/Src/motor/trigonometric.c:1853:7:TableSearch_atan2	6
