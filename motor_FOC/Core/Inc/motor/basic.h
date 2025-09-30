@@ -63,6 +63,9 @@ typedef struct MotorParameter {
     float       elec_theta_rad;
     float       elec_theta_deg;
     float       svpwm_Vref;
+    float       svpwm_T0;
+    float       svpwm_T1;
+    float       svpwm_T2;
     float       pwm_duty_u;
     float       pwm_duty_v;
     float       pwm_duty_w;

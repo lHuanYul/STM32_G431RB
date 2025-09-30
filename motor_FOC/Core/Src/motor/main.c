@@ -32,13 +32,13 @@ void motor_hall_exti(MotorParameter *motor)
         }
         return;
     }
-    motor_120_hall_update(motor);
-    // motor_foc_hall_update(motor);
+    // motor_120_hall_update(motor);
+    motor_foc_hall_update(motor);
 }
 
 void motor_pwm_pulse(MotorParameter *motor)
 {
-    // motor_foc_pwm_pulse(motor);
+    motor_foc_pwm_pulse(motor);
 }
 
 void StartMotorTask(void *argument)

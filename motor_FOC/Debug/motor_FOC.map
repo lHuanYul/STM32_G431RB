@@ -4358,7 +4358,7 @@ Discarded input sections
                 0x00000000       0xac ./Core/Src/motor/ctrl_foc.o
  .text.pi_speed
                 0x00000000       0xb8 ./Core/Src/motor/ctrl_foc.o
- .rodata.adc_to_current
+ .rodata.ADC_TO_CURRENT
                 0x00000000        0x4 ./Core/Src/motor/ctrl_foc.o
  .text.vec_ctrl_clarke
                 0x00000000       0xcc ./Core/Src/motor/ctrl_foc.o
