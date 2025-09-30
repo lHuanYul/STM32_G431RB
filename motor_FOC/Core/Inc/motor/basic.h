@@ -63,9 +63,6 @@ typedef struct MotorParameter {
     float       elec_theta_rad;
     float       elec_theta_deg;
     float       svpwm_Vref;
-    float       svpwm_T0;
-    float       svpwm_T1;
-    float       svpwm_T2;
     float       pwm_duty_u;
     float       pwm_duty_v;
     float       pwm_duty_w;
@@ -73,4 +70,4 @@ typedef struct MotorParameter {
 } MotorParameter;
 extern MotorParameter motor_0;
 
-Result motor_hall_to_angle(volatile uint8_t hall, float *angle);
+Result motor_hall_to_angle(uint8_t hall, float *angle);

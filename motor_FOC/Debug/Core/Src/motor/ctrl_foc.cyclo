@@ -8,5 +8,5 @@
 ../Core/Src/motor/ctrl_foc.c:205:22:vec_ctrl_ipark	3
 ../Core/Src/motor/ctrl_foc.c:224:22:vec_ctrl_svgen	4
 ../Core/Src/motor/ctrl_foc.c:242:22:vec_ctrl_vref	1
-../Core/Src/motor/ctrl_foc.c:281:22:vec_ctrl_svpwm	9
-../Core/Src/motor/ctrl_foc.c:402:8:motor_foc_pwm_pulse	7
+../Core/Src/motor/ctrl_foc.c:281:22:vec_ctrl_svpwm	3
+../Core/Src/motor/ctrl_foc.c:419:8:motor_foc_pwm_pulse	7

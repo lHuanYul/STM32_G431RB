@@ -22,13 +22,14 @@ void motor_120_hall_update(const MotorParameter *motor)
     uint32_t compare = (uint32_t)((float)TIM1_ARR * motor->pwm_duty_u);
     for (i = 0; i < 3; i++)
     {
+        // motor_seq_index[motor->exti_hall_curt]
         switch (motor_seq_map[motor_seq_index[motor->exti_hall_curt]][i])
         {
             case HIGH_PASS:
             {
                 __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i], compare);
                 HAL_TIM_PWM_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
-                // HAL_TIMEx_PWMN_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+                HAL_TIMEx_PWMN_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
                 HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
                 break;
             }
@@ -36,7 +37,7 @@ void motor_120_hall_update(const MotorParameter *motor)
             {
                 __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i], compare);
                 HAL_TIM_PWM_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
-                // HAL_TIMEx_PWMN_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+                HAL_TIMEx_PWMN_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
                 HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
                 break;
             }
@@ -44,7 +45,7 @@ void motor_120_hall_update(const MotorParameter *motor)
             {
                 __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i], 0);
                 HAL_TIM_PWM_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
-                // HAL_TIMEx_PWMN_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+                HAL_TIMEx_PWMN_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
                 HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
                 break;
             }

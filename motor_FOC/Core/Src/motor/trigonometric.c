@@ -1823,10 +1823,8 @@ int16_t Table_atan[1501]={
     15042	 //0.1500
 }; // Table_atan END
 
-float theta_g;
 float TableSearch_sin(float theta)
 {
-    theta_g = theta;
     while (theta >= MUL_2_PI) theta -= MUL_2_PI;
     while (theta < 0.0f)      theta += MUL_2_PI;
 

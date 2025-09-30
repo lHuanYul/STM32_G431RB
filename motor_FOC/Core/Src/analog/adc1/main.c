@@ -28,7 +28,7 @@ static UNUSED_FNC Result middle(uint16_t adc_id, volatile uint16_t *adc_store)
     return RESULT_OK(NULL);
 }
 
-static Result average(uint16_t adc_id, uint16_t *adc_store)
+static Result average(uint16_t adc_id, volatile uint16_t *adc_store)
 {
     uint16_t i;
     uint32_t total = 0;
@@ -40,7 +40,7 @@ static Result average(uint16_t adc_id, uint16_t *adc_store)
     return RESULT_OK(NULL);
 }
 
-Result renew_adc(uint16_t adc_id, uint16_t *adc_store)
+Result renew_adc(uint16_t adc_id, volatile uint16_t *adc_store)
 {
     return average(adc_id, adc_store);
 }

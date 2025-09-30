@@ -1,8 +1,8 @@
 #include "motor/basic.h"
 #include "tim.h"
 
-const uint8_t hall_seq_clw[8] = {0, 5, 3, 1, 6, 4, 2, 0};
-const uint8_t hall_seq_ccw[8] = {0, 3, 6, 2, 5, 1, 4, 0};
+const uint8_t hall_seq_clw[8] = {0, 3, 6, 2, 5, 1, 4, 0};  // 正轉
+const uint8_t hall_seq_ccw[8] = {0, 5, 3, 1, 6, 4, 2, 0};  // 反轉
 
 MotorParameter motor_0 = {
     .const_h = {
@@ -43,7 +43,7 @@ MotorParameter motor_0 = {
     },
 };
 
-Result motor_hall_to_angle(volatile uint8_t hall, float *angle)
+Result motor_hall_to_angle(uint8_t hall, float *angle)
 {
     switch(hall)
     {

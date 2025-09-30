@@ -7,7 +7,7 @@ static Result tim_setup(const MotorParameter *motor)
 {
     HAL_TIM_Base_Start_IT(motor->const_h.htimx);
     HAL_TIM_Base_Start(motor->const_h.ELE_htimx);
-    motor_foc_tim_setup(motor);
+    // motor_foc_tim_setup(motor);
     return RESULT_OK(NULL);
 }
 
@@ -21,14 +21,24 @@ void motor_hall_exti(MotorParameter *motor)
         | ((motor->const_h.Hall_GPIOx[2]->IDR & motor->const_h.Hall_GPIO_Pin_x[2]) ? 1U : 0U);
     motor->exti_hall_last = hall_last;
     motor->exti_hall_curt = hall_current;
-    if (hall_current == 0 || hall_current == 7) return;
-    // motor_120_hall_update(motor);
-    motor_foc_hall_update(motor);
+    if (hall_current == 0 || hall_current == 7) 
+    {
+        uint8_t i;
+        for (i = 0; i < 3; i++)
+        {
+            HAL_TIM_PWM_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+            HAL_TIMEx_PWMN_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+            HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+        }
+        return;
+    }
+    motor_120_hall_update(motor);
+    // motor_foc_hall_update(motor);
 }
 
 void motor_pwm_pulse(MotorParameter *motor)
 {
-    motor_foc_pwm_pulse(motor);
+    // motor_foc_pwm_pulse(motor);
 }
 
 void StartMotorTask(void *argument)
@@ -36,6 +46,6 @@ void StartMotorTask(void *argument)
     tim_setup(&motor_0);
     motor_hall_exti(&motor_0);
     motor_0.pi_speed.Ref = 20.0f;
-    motor_0.pwm_duty_u = 1.0f;
+    motor_0.pwm_duty_u = 0.5f;
     StopTask();
 }
