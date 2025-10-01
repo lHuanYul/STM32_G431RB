@@ -81,3 +81,10 @@ Result motor_hall_to_angle(uint8_t hall, float *angle)
     }
     return RESULT_OK(NULL);
 }
+
+float clampf(float val, float min, float max)
+{
+    if (val > max) return max;
+    if (val < min) return min;
+    return val;
+}

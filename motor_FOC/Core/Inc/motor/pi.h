@@ -35,10 +35,6 @@ typedef struct PI_CTRL {
     0.0f    \
 }
 
-#ifndef CLAMP
-#define CLAMP(v, max, min)  ((v) > (max) ? (max) : ((v) < (min) ? (min) : (v)))
-#endif
-
 #ifndef EPS_EQ
 #define EPS_EQ 1e-12f
 #endif

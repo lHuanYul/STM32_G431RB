@@ -84,7 +84,7 @@ static inline Result pi_speed(MotorParameter *motor)
     // 計算 速度PI (每100個PWM中斷)
     // if(Speed.Fbk>0 && stop_flag==0)
     PI_run(&motor->pi_speed);
-    motor->pi_speed_cmd = CLAMP((motor->pi_speed_cmd + motor->pi_speed.Out), 0.2, 0.15);
+    motor->pi_speed_cmd = clampf((motor->pi_speed_cmd + motor->pi_speed.Out), 0.15f, 0.2f);
     // else if(Speed.Fbk==0 | stop_flag==1)
     //     motor->pi_speed_cmd=0.18;
     return RESULT_OK(NULL);
@@ -181,7 +181,7 @@ static inline Result vec_ctrl_pi_id_iq(MotorParameter *motor)
         // else
         //     Id.delta = -0.002;
         
-        motor->pi_Id.Out = CLAMP((motor->pi_Id.Out), 0.01, -0.01);//限制最大與最小參數
+        motor->pi_Id.Out = clampf(motor->pi_Id.Out, -0.01f, 0.01f);//限制最大與最小參數
         
         // Id.Out=CLAMP((Id.Out + Id.delta), 0.08, -0.08);//限制最大與最小參數
         
@@ -198,7 +198,7 @@ static inline Result vec_ctrl_pi_id_iq(MotorParameter *motor)
         motor->pi_Iq.Fbk = motor->park.Qs;                    // q 軸量測
         PI_run(&motor->pi_Iq);                                // 統一用 PI_run + anti-windup
         // 視匯流排/過調制上限，做一次幅值限幅（可留在這或放到 Vqref 指派前）
-        motor->pi_Iq.Out = CLAMP(motor->pi_Iq.Out, 0.75f, 0.0f);
+        motor->pi_Iq.Out = clampf(motor->pi_Iq.Out, 0.0f, 0.75f);
 
     }
     else
@@ -217,7 +217,7 @@ static inline Result vec_ctrl_ipark(MotorParameter *motor)
 
     //限制最大與最小參數
     // ? motor->ipark.Vdref = CLAMP((motor->ipark.Vdref += motor->pi_Id.Out), 0.06, -0.06);
-    motor->ipark.Vdref = CLAMP(motor->pi_Id.Out, 0.06, -0.06);
+    motor->ipark.Vdref = clampf(motor->pi_Id.Out, -0.06f, 0.06f);
 
     motor->ipark.Vqref = motor->pi_Iq.Out;
 
@@ -417,7 +417,7 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
         if((motor->hall_angle_acc + motor->pwm_per_it_angle_itpl) < 60)
         {
             motor->hall_angle_acc += motor->pwm_per_it_angle_itpl;
-            motor->hall_angle_acc = CLAMP(motor->hall_angle_acc , 60, 0);
+            motor->hall_angle_acc = clampf(motor->hall_angle_acc, 0.0f, 60.0f);
         }
         cycle[1] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[0];
         renew_adc(motor->const_h.adc_u_id, &motor->adc_u);

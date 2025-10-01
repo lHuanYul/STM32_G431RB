@@ -74,3 +74,4 @@ typedef struct MotorParameter {
 extern MotorParameter motor_h;
 
 Result motor_hall_to_angle(uint8_t hall, float *angle);
+float clampf(float val, float min, float max);
