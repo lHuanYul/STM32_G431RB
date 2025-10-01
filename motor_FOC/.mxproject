@@ -6,6 +6,9 @@ SourceFiles=Core\Src\main.c;Core\Src\gpio.c;Core\Src\app_freertos.c;Core\Src\adc
 HeaderPath=Drivers\STM32G4xx_HAL_Driver\Inc;Drivers\STM32G4xx_HAL_Driver\Inc\Legacy;Middlewares\Third_Party\FreeRTOS\Source\include;Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2;Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F;Drivers\BSP\STM32G4xx_Nucleo;Drivers\CMSIS\Device\ST\STM32G4xx\Include;Drivers\CMSIS\Include;Core\Inc;
 CDefines=USE_NUCLEO_64;USE_HAL_DRIVER;STM32G431xx;USE_HAL_DRIVER;USE_HAL_DRIVER;
 
+[]
+SourceFiles=;;
+
 [PreviousGenFiles]
 AdvancedFolderStructure=true
 HeaderFileListSize=12

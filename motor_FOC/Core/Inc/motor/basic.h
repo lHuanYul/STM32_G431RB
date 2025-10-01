@@ -71,6 +71,6 @@ typedef struct MotorParameter {
     float       pwm_duty_w;
     bool        reverse;
 } MotorParameter;
-extern MotorParameter motor_0;
+extern MotorParameter motor_h;
 
 Result motor_hall_to_angle(uint8_t hall, float *angle);

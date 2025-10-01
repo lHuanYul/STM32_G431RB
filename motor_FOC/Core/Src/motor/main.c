@@ -3,14 +3,6 @@
 #include "motor/ctrl_foc.h"
 #include "analog/adc1/main.h"
 
-static Result tim_setup(const MotorParameter *motor)
-{
-    HAL_TIM_Base_Start_IT(motor->const_h.htimx);
-    HAL_TIM_Base_Start(motor->const_h.ELE_htimx);
-    // motor_foc_tim_setup(motor);
-    return RESULT_OK(NULL);
-}
-
 void motor_hall_exti(MotorParameter *motor)
 {
     motor->exti_hall_cnt++;
@@ -32,20 +24,50 @@ void motor_hall_exti(MotorParameter *motor)
         }
         return;
     }
-    // motor_120_hall_update(motor);
-    motor_foc_hall_update(motor);
+    switch (motor->mode)
+    {
+        case MOTOR_CTRL_120:
+        {
+            motor_120_hall_update(motor);
+            break;
+        }
+        case MOTOR_CTRL_FOC:
+        {
+            motor_foc_hall_update(motor);
+            break;
+        }
+    }
 }
 
 void motor_pwm_pulse(MotorParameter *motor)
 {
-    motor_foc_pwm_pulse(motor);
+    switch (motor->mode)
+    {
+        case MOTOR_CTRL_120:
+        {
+            break;
+        }
+        case MOTOR_CTRL_FOC:
+        {
+            motor_foc_pwm_pulse(motor);
+            break;
+        }
+    }
 }
 
 void StartMotorTask(void *argument)
 {
-    tim_setup(&motor_0);
-    motor_hall_exti(&motor_0);
-    motor_0.pi_speed.Ref = 20.0f;
-    motor_0.pwm_duty_u = 0.5f;
+    motor_h.pi_speed.Ref = 80.0f;
+    motor_h.pwm_duty_u = 1.0f;
+    // motor_h.reverse = true;
+
+    HAL_TIM_Base_Start_IT(motor_h.const_h.htimx);
+    HAL_TIM_Base_Start(motor_h.const_h.htimx);
+    motor_hall_exti(&motor_h);
+    motor_h.mode = MOTOR_CTRL_120;
+    osDelay(5000);
+    motor_foc_tim_setup(&motor_h);
+    motor_hall_exti(&motor_h);
+    motor_h.mode = MOTOR_CTRL_FOC;
     StopTask();
 }

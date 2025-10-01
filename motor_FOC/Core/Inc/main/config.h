@@ -18,6 +18,7 @@
 #include "stm32g431xx.h"
 #include "stm32g4xx_hal.h"
 #include "main.h"
+#include "tim.h"
 
 #define UNUSED_FNC          __attribute__((unused))
 #define BOARD_LED_TOGGLE    HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
@@ -36,9 +37,11 @@
 
 // 20kHz 50us
 #define TIM1_PSC        16
-#define TIM1_ARR        250 // 250 (Max: 65535)
-#define TIM2_PSC        16
-#define TIM2_ARR        4294967295 // 4294967295
+#define TIM1_ARR        250 // Max: 65535
+#define TIM2_PSC        0
+#define TIM2_ARR        4294967295 // Max: 4294967295
+#define TIM3_PSC        16
+#define TIM3_ARR        65535 // Max: 65535
 
 #define TIM_DTG_200ns   0x22
 #define TIM_DTG_300ns   0x33

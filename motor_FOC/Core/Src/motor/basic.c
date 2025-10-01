@@ -1,10 +1,9 @@
 #include "motor/basic.h"
-#include "tim.h"
 
 const uint8_t hall_seq_clw[8] = {0, 5, 3, 1, 6, 4, 2, 0};
 const uint8_t hall_seq_ccw[8] = {0, 3, 6, 2, 5, 1, 4, 0};
 
-MotorParameter motor_0 = {
+MotorParameter motor_h = {
     .const_h = {
         .adc_u_id = 0,
         .adc_v_id = 1,
@@ -17,7 +16,7 @@ MotorParameter motor_0 = {
         // 120 deg control L
         .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
         .Coil_GPIO_Pin_x    = { GPIO_PIN_5,  GPIO_PIN_4,  GPIO_PIN_10 },
-        .ELE_htimx = &htim2,
+        .ELE_htimx = &htim3,
     },
     .pi_speed = {
         .Kp = 0.000025f,
@@ -41,6 +40,7 @@ MotorParameter motor_0 = {
         .Umin = -0.01f,
         .w1 = 1.0f,
     },
+    .pwm_it_angle_acc = 0.0f,
 };
 
 Result motor_hall_to_angle(uint8_t hall, float *angle)

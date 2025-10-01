@@ -3,6 +3,8 @@
 #include "motor/trigonometric.h"
 #include "analog/adc1/main.h"
 
+uint32_t cycle[16] = {0};
+
 Result motor_foc_tim_setup(const MotorParameter *motor)
 {
     HAL_TIM_PWM_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[0]);
@@ -11,6 +13,8 @@ Result motor_foc_tim_setup(const MotorParameter *motor)
     HAL_TIMEx_PWMN_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[0]);
     HAL_TIMEx_PWMN_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[1]);
     HAL_TIMEx_PWMN_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[2]);
+    HAL_TIM_Base_Start(motor->const_h.ELE_htimx);
+    HAL_TIM_Base_Start(&htim2);
     return RESULT_OK(NULL);
 }
 
@@ -56,13 +60,14 @@ static inline Result stop_check(MotorParameter *motor)
     if(hall_total == motor->pwm_hall_acc)
     {
         motor->spin_stop_acc++;
-        if (motor->spin_stop_acc >= 3000)
+        if (motor->spin_stop_acc >= 50)
         {
             motor->spin_stop_acc = 0;
             // timerclockvalue_onecycle_electric = 0;   // 歸零一電氣週期之時間
             motor->pi_speed.i1 = 0;                     // 重置i控制舊值
             motor->pi_speed.Fbk = 0;                    // 歸零速度實際值
             motor->pi_Iq.Out=0;
+            motor->pwm_it_angle_acc = 0.0f;
         }
     }
     else
@@ -121,25 +126,27 @@ static inline Result vec_ctrl_clarke(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
+float hytest;
 // Thread - pwmIt - 4
 static inline Result vec_ctrl_park(MotorParameter *motor)
 {
     motor->pwm_it_angle_acc += motor->pwm_per_it_angle_itpl;
-    float foc_cal_rad;
-    motor_hall_to_angle(motor->exti_hall_curt, &foc_cal_rad);
-    foc_cal_rad += motor->pwm_it_angle_acc;
+    float foc_park_cal_rad;
+    motor_hall_to_angle(motor->exti_hall_curt, &foc_park_cal_rad);
+    hytest = foc_park_cal_rad;
+    foc_park_cal_rad += motor->pwm_it_angle_acc;
 
-    if      (foc_cal_rad >= MUL_2_PI) foc_cal_rad -= MUL_2_PI;
-    else if (foc_cal_rad <      0.0f) foc_cal_rad += MUL_2_PI;
-    foc_cal_rad += DIV_PI_2 * 3;
+    if      (foc_park_cal_rad >= MUL_2_PI) foc_park_cal_rad -= MUL_2_PI;
+    else if (foc_park_cal_rad <      0.0f) foc_park_cal_rad += MUL_2_PI;
+    foc_park_cal_rad += DIV_PI_2 * 3;
 
     // park
     // Id = I alpha cos(theta) + I bata sin(theta)
     motor->park.Alpha = motor->clarke.Alpha;
     motor->park.Beta = motor->clarke.Beta;
 
-    motor->park.Sine = TableSearch_sin(foc_cal_rad);
-    motor->park.Cosine = TableSearch_sin(foc_cal_rad + DIV_PI_2);
+    motor->park.Sine = TableSearch_sin(foc_park_cal_rad);
+    motor->park.Cosine = TableSearch_sin(foc_park_cal_rad + DIV_PI_2);
     
     PARK_run(&motor->park);
     
@@ -404,27 +411,43 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
     motor->pwm_count++;
     if (motor->pwm_count % 2 == 0)
     {
+        __HAL_TIM_SET_COUNTER(&htim2, 0);
+        cycle[0] = __HAL_TIM_GET_COUNTER(&htim2);
         // ?
         if((motor->hall_angle_acc + motor->pwm_per_it_angle_itpl) < 60)
         {
             motor->hall_angle_acc += motor->pwm_per_it_angle_itpl;
             motor->hall_angle_acc = CLAMP(motor->hall_angle_acc , 60, 0);
         }
+        cycle[1] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[0];
         renew_adc(motor->const_h.adc_u_id, &motor->adc_u);
+        cycle[2] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[1];
         renew_adc(motor->const_h.adc_v_id, &motor->adc_v);
+        cycle[3] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[2];
         renew_adc(motor->const_h.adc_w_id, &motor->adc_w);
+        cycle[4] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[3];
         vec_ctrl_clarke(motor);
+        cycle[5] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[4];
         vec_ctrl_park(motor);
+        cycle[6] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[5];
         vec_ctrl_pi_id_iq(motor);
-        vec_ctrl_ipark(motor);
+        cycle[7] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[6];
+        vec_ctrl_ipark(motor); // !
+        cycle[8] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[7];
         vec_ctrl_svgen(motor);
-        vec_ctrl_vref(motor);
+        cycle[9] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[8];
+        vec_ctrl_vref(motor);  // !
+        cycle[10] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[9];
         vec_ctrl_svpwm(motor);
+        cycle[11] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[10];
     }
     if (motor->pwm_count % 100 == 0)
     {
+        cycle[12] = __HAL_TIM_GET_COUNTER(&htim2);
         stop_check(motor);
-        pi_speed(motor);
+        cycle[13] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[12];
+        pi_speed(motor); // !
+        cycle[14] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[13];
     }
     if (motor->pwm_count >= 1000)
     {

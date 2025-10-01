@@ -4,19 +4,19 @@
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (
-           (GPIO_Pin == motor_0.const_h.Hall_GPIO_Pin_x[0])
-        || (GPIO_Pin == motor_0.const_h.Hall_GPIO_Pin_x[1])
-        || (GPIO_Pin == motor_0.const_h.Hall_GPIO_Pin_x[2])
+           (GPIO_Pin == motor_h.const_h.Hall_GPIO_Pin_x[0])
+        || (GPIO_Pin == motor_h.const_h.Hall_GPIO_Pin_x[1])
+        || (GPIO_Pin == motor_h.const_h.Hall_GPIO_Pin_x[2])
     ) {
-        motor_hall_exti(&motor_0);
+        motor_hall_exti(&motor_h);
     }
 }
 
 inline void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    if (htim == motor_0.const_h.htimx)
+    if (htim == motor_h.const_h.htimx)
     {
-        motor_pwm_pulse(&motor_0);
+        motor_pwm_pulse(&motor_h);
     }
 }
 
