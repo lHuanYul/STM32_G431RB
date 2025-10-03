@@ -397,6 +397,7 @@ static UNUSED_FNC inline Result data_ret(MotorParameter *motor)
 // Thread - pwmIt - 0
 Result motor_foc_pwm_pulse(MotorParameter *motor)
 {
+    __HAL_TIM_SET_COUNTER(&htim2, 0);
     if (motor->pwm_count % 100 == 0)
     {
         __HAL_TIM_SET_COUNTER(&htim2, 0);
