@@ -88,3 +88,30 @@ float32_t clampf(float32_t val, float32_t min, float32_t max)
     if (val < min) return min;
     return val;
 }
+
+float32_t wrap_0_2pi(float32_t x)
+{
+    int32_t n = (int32_t)(x / MUL_2_PI);
+    x -= (float32_t)n * MUL_2_PI;
+    if (x < 0) x += MUL_2_PI;
+    return x;
+}
+
+float32_t wrap_m1_1pi(float32_t x)
+{
+    int32_t n = (int32_t)(x / MUL_2_PI);
+    x -= (float32_t)n * MUL_2_PI;
+    if      (x < -PI) x += MUL_2_PI;
+    else if (x >= PI) x -= MUL_2_PI;
+    return x;
+}
+
+inline float32_t fast_fabsf(float32_t x)
+{
+    union {
+        float32_t f;
+        uint32_t u;
+    } v = { x };
+    v.u &= 0x7FFFFFFF;  // 清除最高位 sign bit
+    return v.f;
+}

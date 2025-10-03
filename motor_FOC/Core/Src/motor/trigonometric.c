@@ -1826,9 +1826,7 @@ static const int16_t Table_atan[1501]={
 
 static inline float32_t TableSearch_sin(float32_t theta)
 {
-    while (theta >= MUL_2_PI) theta -= MUL_2_PI;
-    while (theta < 0.0f)      theta += MUL_2_PI;
-
+    theta = wrap_0_2pi(theta);
     bool minus_flag = false;
     if (theta > PI) {
         minus_flag = true;
@@ -1868,25 +1866,7 @@ static inline float32_t TableSearch_atan2(float32_t y, float32_t x)
     }
 }
 
-static float wrap_0_2pi(float x)
-{
-    int32_t n = (int32_t)(x / MUL_2_PI);
-    x -= (float)n * MUL_2_PI;
-    if (x < 0) x += MUL_2_PI;
-    return x;
-}
-
-static inline float32_t fast_fabsf(float32_t x) {
-    union {
-        float32_t f;
-        uint32_t u;
-    } v = { x };
-    v.u &= 0x7FFFFFFF;  // 清除最高位 sign bit
-    return v.f;
-}
-
-static CORDIC_ConfigTypeDef *cordic_currunt;
-static const CORDIC_ConfigTypeDef cordic_cfg_sin_cos = {
+static CORDIC_ConfigTypeDef cordic_cfg_sin_cos = {
     .Function   = CORDIC_FUNCTION_SINE,
     .Precision  = CORDIC_PRECISION_7CYCLES,
     .Scale      = CORDIC_SCALE_0,
@@ -1895,7 +1875,7 @@ static const CORDIC_ConfigTypeDef cordic_cfg_sin_cos = {
     .InSize     = CORDIC_INSIZE_32BITS,
     .OutSize    = CORDIC_OUTSIZE_32BITS,
 };
-static const CORDIC_ConfigTypeDef cordic_cfg_atan = {
+static CORDIC_ConfigTypeDef cordic_cfg_atan = {
     .Function   = CORDIC_FUNCTION_PHASE,
     .Precision  = CORDIC_PRECISION_7CYCLES,
     .Scale      = CORDIC_SCALE_0,
@@ -1904,6 +1884,7 @@ static const CORDIC_ConfigTypeDef cordic_cfg_atan = {
     .InSize     = CORDIC_INSIZE_32BITS,
     .OutSize    = CORDIC_OUTSIZE_32BITS,
 };
+static CORDIC_ConfigTypeDef *cordic_currunt;
 
 Result trigo_sin_cosf(float32_t theta, float32_t *sin, float32_t *cos)
 {
@@ -1912,7 +1893,7 @@ Result trigo_sin_cosf(float32_t theta, float32_t *sin, float32_t *cos)
         cordic_currunt = &cordic_cfg_sin_cos;
         ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Configure(&hcordic, cordic_currunt));
     }
-    int32_t in = (int32_t)(wrap_0_2pi(theta) * 2147483648.0f);
+    int32_t in = (int32_t)(wrap_m1_1pi(theta) * 2147483648.0f);
     int32_t out[2];
     ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Calculate(&hcordic, &in, out, 1, HAL_MAX_DELAY));
     *sin = (float32_t)out[0] / 2147483648.0f;
@@ -1930,6 +1911,7 @@ Result trigo_atan(float32_t x, float32_t y, float32_t *theta)
     float32_t ax = fast_fabsf(x);
     float32_t ay = fast_fabsf(y);
     float32_t norm = (ax > ay) ? ax : ay;
+    // !
     if (norm == 0.0f) return RESULT_ERROR(RES_ERR_FAIL);
     x /= norm;
     y /= norm;

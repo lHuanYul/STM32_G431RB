@@ -97,6 +97,7 @@ static inline Result angal_cal(MotorParameter *motor)
         motor->hall_angle_acc += motor->pwm_per_it_angle_itpl;
         motor->hall_angle_acc = clampf(motor->hall_angle_acc, 0.0f, 60.0f);
     }
+    return RESULT_OK(NULL);
 }
 
 #define ADC_TO_CURRENT (3.3f / 4095.0f / 0.185f ) // ~ 0.004356 A/LSB
@@ -134,13 +135,11 @@ static inline Result vec_ctrl_clarke(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-float32_t hytest;
 static inline Result vec_ctrl_park(MotorParameter *motor)
 {
     motor->pwm_it_angle_acc += motor->pwm_per_it_angle_itpl;
     float32_t foc_park_cal_rad;
     motor_hall_to_angle(motor->exti_hall_curt, &foc_park_cal_rad);
-    hytest = foc_park_cal_rad;
     foc_park_cal_rad += motor->pwm_it_angle_acc;
 
     if      (foc_park_cal_rad >= MUL_2_PI) foc_park_cal_rad -= MUL_2_PI;
@@ -218,17 +217,15 @@ static inline Result vec_ctrl_ipark(MotorParameter *motor)
     // ipark
     // V alpha = Vd cos(theta) - Vq sin(theta)
     // V bata = Vd sin(theta) + Vq cos(theta)
-
     //限制最大與最小參數
     // ? motor->ipark.Vdref = CLAMP((motor->ipark.Vdref += motor->pi_Id.Out), 0.06, -0.06);
     motor->ipark.Vdref = clampf(motor->pi_Id.Out, -0.06f, 0.06f);
-
     motor->ipark.Vqref = motor->pi_Iq.Out;
-
     motor->ipark.Sine = motor->park.Sine;
     motor->ipark.Cosine = motor->park.Cosine;
-
     IPARK_run(&motor->ipark);
+    RESULT_CHECK_HANDLE(trigo_atan(motor->ipark.Alpha, motor->ipark.Beta, &motor->elec_theta_rad));
+    // motor->elec_theta_deg = motor->elec_theta_rad * RAD_TO_DEG;
     return RESULT_OK(NULL);
 }
 
@@ -238,21 +235,11 @@ static inline Result vec_ctrl_svgen(MotorParameter *motor)
     motor->svgendq.Ualpha = motor->ipark.Alpha;
     motor->svgendq.Ubeta = motor->ipark.Beta;
     SVGEN_run(&motor->svgendq);
-
-    RESULT_CHECK_HANDLE(trigo_atan(motor->ipark.Alpha, motor->ipark.Beta, &motor->elec_theta_rad));
-    while (motor->elec_theta_rad < 0.0f) motor->elec_theta_rad += MUL_2_PI;
-
-    float32_t elec_theta_deg = motor->elec_theta_rad * RAD_TO_DEG;
-    while (elec_theta_deg >= 360.0f) elec_theta_deg -= 360.0f;
-    while (elec_theta_deg <    0.0f) elec_theta_deg += 360.0f;
-    motor->elec_theta_deg = elec_theta_deg;
-
     return RESULT_OK(NULL);
 }
 
 static inline Result vec_ctrl_vref(MotorParameter *motor)
 {
-    // --------------------------------------------------------------------------
     // 6us
     // motor->svpwm_Vref = sqrt(motor->svgendq.Ualpha*motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta);
     
@@ -273,7 +260,6 @@ static inline Result vec_ctrl_vref(MotorParameter *motor)
 
     // motor->svpwm_Vref = Iq.Out;
     
-    // ------------------------------------
     //		motor_angle = motor_angle + deg_add;	
     //		if(motor_angle < 0)
     //			motor_angle = motor_angle + 360;
@@ -291,7 +277,9 @@ static inline Result vec_ctrl_svpwm(MotorParameter *motor)
 {
     float32_t T1, T2, TX;
     float32_t theta_in_sector = motor->elec_theta_rad;
-    while (theta_in_sector >= DIV_PI_3) theta_in_sector -= DIV_PI_3;
+    int32_t n = (int32_t)(theta_in_sector / DIV_PI_3);
+    theta_in_sector -= (float32_t)n * DIV_PI_3;
+    if (theta_in_sector < 0) theta_in_sector += DIV_PI_3;
     // ? CHECK
     if(!motor->reverse)
     {
@@ -309,7 +297,6 @@ static inline Result vec_ctrl_svpwm(MotorParameter *motor)
     motor->svpwm_T2 = T2;
 
     switch(motor->svgendq.Sector)
-    // switch(my_hall_signal_in_decimal)
     {
         case 5://240~299 1    bac
         {
@@ -354,9 +341,9 @@ static inline Result vec_ctrl_svpwm(MotorParameter *motor)
             break;
         }
     }
-    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[0], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u));
-    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[1], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_v));
-    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[2], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_w));
+    __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[0], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u));
+    __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[1], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_v));
+    __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[2], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_w));
     return RESULT_OK(NULL);
 }
 
@@ -405,68 +392,56 @@ static UNUSED_FNC inline Result data_ret(MotorParameter *motor)
     return RESULT_OK(NULL);
 }//FOC 計算 END
 
-static void cycle_cnt(uint8_t id)
-{
-    if (id == 0) 
-    {
-        cycle[id] = __HAL_TIM_GET_COUNTER(&htim2);
-    }
-    else
-    {
-        cycle[id] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[id-1];
-    }
-}
-
+#define CYCLE_CNT(id) ({cycle[id] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[id-1];})
 // FOC 20kHz
 // Thread - pwmIt - 0
 Result motor_foc_pwm_pulse(MotorParameter *motor)
 {
-    motor->pwm_count++;
-    if (motor->pwm_count % 2 == 0)
-    {
-        __HAL_TIM_SET_COUNTER(&htim2, 0);
-        cycle_cnt(0);
-        // Thread - pwmIt - 1
-        renew_adc(motor->const_h.adc_u_id, &motor->adc_u);
-        cycle_cnt(1);
-        renew_adc(motor->const_h.adc_v_id, &motor->adc_v);
-        cycle_cnt(2);
-        renew_adc(motor->const_h.adc_w_id, &motor->adc_w);
-        cycle_cnt(3);
-        // Thread - pwmIt - 2
-        angal_cal(motor);
-        cycle_cnt(4);
-        // Thread - pwmIt - 3
-        vec_ctrl_clarke(motor);
-        cycle_cnt(5);
-        // Thread - pwmIt - 4
-        vec_ctrl_park(motor);
-        cycle_cnt(6);
-        // Thread - pwmIt - 5
-        vec_ctrl_pi_id_iq(motor);
-        cycle_cnt(7);
-        // Thread - pwmIt - 6
-        vec_ctrl_ipark(motor); // !
-        cycle_cnt(8);
-        // Thread - pwmIt - 7
-        vec_ctrl_svgen(motor);
-        cycle_cnt(9);
-        // Thread - pwmIt - 8
-        vec_ctrl_vref(motor);  // !
-        cycle_cnt(10);
-        // Thread - pwmIt - 9
-        vec_ctrl_svpwm(motor);
-        cycle_cnt(11);
-    }
     if (motor->pwm_count % 100 == 0)
     {
-        cycle_cnt(12);
+        __HAL_TIM_SET_COUNTER(&htim2, 0);
+        cycle[0] = __HAL_TIM_GET_COUNTER(&htim2);
         // Thread - pwmIt(100) - 1
         stop_check(motor);
-        cycle_cnt(13);
+        CYCLE_CNT(1);
         // Thread - pwmIt(100) - 2
         pi_speed(motor); // !
-        cycle_cnt(14);
+        CYCLE_CNT(2);
+    }
+    if (motor->pwm_count % 2 == 0)
+    {
+        CYCLE_CNT(3);
+        // Thread - pwmIt - 1
+        renew_adc(motor->const_h.adc_u_id, &motor->adc_u);
+        CYCLE_CNT(4);
+        renew_adc(motor->const_h.adc_v_id, &motor->adc_v);
+        CYCLE_CNT(5);
+        renew_adc(motor->const_h.adc_w_id, &motor->adc_w);
+        CYCLE_CNT(6);
+        // Thread - pwmIt - 2
+        angal_cal(motor);
+        CYCLE_CNT(7);
+        // Thread - pwmIt - 3
+        vec_ctrl_clarke(motor);
+        CYCLE_CNT(8);
+        // Thread - pwmIt - 4
+        vec_ctrl_park(motor);
+        CYCLE_CNT(9);
+        // Thread - pwmIt - 5
+        vec_ctrl_pi_id_iq(motor);
+        CYCLE_CNT(10);
+        // Thread - pwmIt - 6
+        vec_ctrl_ipark(motor); // !
+        CYCLE_CNT(11);
+        // Thread - pwmIt - 7
+        vec_ctrl_svgen(motor);
+        CYCLE_CNT(12);
+        // Thread - pwmIt - 8
+        vec_ctrl_vref(motor);  // !
+        CYCLE_CNT(13);
+        // Thread - pwmIt - 9
+        vec_ctrl_svpwm(motor);
+        CYCLE_CNT(14);
     }
     if (motor->pwm_count >= 1000)
     {
@@ -474,5 +449,6 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
         motor->rpm_fbk_htim = motor->exti_hall_cnt * 200.0f;
         motor->exti_hall_cnt = 0;
     }
+    motor->pwm_count++;
     return RESULT_OK(NULL);
 }

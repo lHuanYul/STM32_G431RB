@@ -52,3 +52,14 @@ void motor_120_hall_update(const MotorParameter *motor)
         }
     }
 }
+
+void motor_120_ctrl_stop(const MotorParameter *motor)
+{
+    uint8_t i;
+    for (i = 0; i < 3; i++)
+    {
+        HAL_TIM_PWM_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+        HAL_TIMEx_PWMN_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+        // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+    }
+}

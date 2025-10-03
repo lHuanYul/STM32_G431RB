@@ -1,1 +1,2 @@
 ../Core/Src/motor/ctrl_120.c:18:6:motor_120_hall_update	15
+../Core/Src/motor/ctrl_120.c:56:6:motor_120_ctrl_stop	2

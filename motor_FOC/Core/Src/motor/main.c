@@ -62,13 +62,16 @@ void StartMotorTask(void *argument)
     // motor_h.reverse = true;
 
     HAL_TIM_Base_Start_IT(motor_h.const_h.htimx);
-    HAL_TIM_Base_Start(motor_h.const_h.htimx);
+    // HAL_TIM_Base_Start(motor_h.const_h.htimx);
+    
     motor_hall_exti(&motor_h);
     motor_h.mode = MOTOR_CTRL_120;
-    osDelay(5000);
+    osDelay(3000);
+    motor_120_ctrl_stop(&motor_h);
 
     motor_foc_tim_setup(&motor_h);
     motor_hall_exti(&motor_h);
     motor_h.mode = MOTOR_CTRL_FOC;
+
     StopTask();
 }

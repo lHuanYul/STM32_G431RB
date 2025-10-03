@@ -1,1 +1,5 @@
 ../Core/Src/motor/basic.c:46:8:motor_hall_to_angle	7
+../Core/Src/motor/basic.c:85:11:clampf	3
+../Core/Src/motor/basic.c:92:11:wrap_0_2pi	2
+../Core/Src/motor/basic.c:100:11:wrap_m1_1pi	3
+../Core/Src/motor/basic.c:109:18:fast_fabsf	1

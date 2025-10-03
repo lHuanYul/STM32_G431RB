@@ -3,7 +3,7 @@
 #include "main/config.h"
 #include "main/fn_state.h"
 
-#define PI          3.14159265358979323846f // 180 deg
+// #define PI          3.14159265358979323846f // 180 deg
 #define MUL_2_PI    (2.0f * PI)     // 360 deg
 #define DIV_PI_2    (PI / 2.0f)     // 90 deg
 #define DIV_PI_3    (PI / 3.0f)     // 60 deg

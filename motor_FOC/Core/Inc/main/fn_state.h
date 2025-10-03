@@ -107,9 +107,9 @@ typedef struct Result {
 #define RESULT_CHECK_CLEANUP(expr)              \
     do {                                        \
         result = (expr);                        \
-        if (RESULT_CHECK_RAW(result))          \
+        if (RESULT_CHECK_RAW(result))           \
         {                                       \
-            last_error = result.result.error;  \
+            last_error = result.result.error;   \
             goto cleanup;                       \
         }                                       \
     } while (0)
@@ -138,6 +138,7 @@ typedef struct Result {
         HAL_StatusTypeDef _err = (expr);    \
         if (_err != HAL_OK)                 \
         {                                   \
+            last_error = _err;              \
             Error_Handler();                \
         }                                   \
     } while (0)

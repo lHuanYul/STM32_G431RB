@@ -1,5 +1,7 @@
 Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
- ../Core/Inc/main/config.h \
+ ../Core/Inc/main/config.h ../Middlewares/ST/ARM/DSP/Inc/arm_math.h \
+ ../Drivers/CMSIS/Include/cmsis_compiler.h \
+ ../Drivers/CMSIS/Include/cmsis_gcc.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
  ../Core/Inc/FreeRTOSConfig.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h \
@@ -15,7 +17,6 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
  ../Drivers/CMSIS/Include/core_cm4.h \
  ../Drivers/CMSIS/Include/cmsis_version.h \
  ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Drivers/CMSIS/Include/cmsis_gcc.h \
  ../Drivers/CMSIS/Include/mpu_armv7.h \
  ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h \
@@ -54,9 +55,13 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
  ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/motor/main.h \
  ../Core/Inc/motor/basic.h ../Core/Inc/motor/pi.h \
  ../Core/Inc/main/fn_state.h ../Core/Inc/motor/clarke.h \
- ../Core/Inc/motor/park.h ../Core/Inc/motor/svgendq.h
+ ../Core/Inc/motor/park.h ../Core/Inc/motor/svgendq.h \
+ ../Core/Inc/main/variable_cal.h ../Core/Inc/cordic.h
 ../Core/Inc/main/main.h:
 ../Core/Inc/main/config.h:
+../Middlewares/ST/ARM/DSP/Inc/arm_math.h:
+../Drivers/CMSIS/Include/cmsis_compiler.h:
+../Drivers/CMSIS/Include/cmsis_gcc.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h:
@@ -72,7 +77,6 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
 ../Drivers/CMSIS/Include/core_cm4.h:
 ../Drivers/CMSIS/Include/cmsis_version.h:
 ../Drivers/CMSIS/Include/cmsis_compiler.h:
-../Drivers/CMSIS/Include/cmsis_gcc.h:
 ../Drivers/CMSIS/Include/mpu_armv7.h:
 ../Drivers/CMSIS/Device/ST/STM32G4xx/Include/system_stm32g4xx.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
@@ -117,3 +121,5 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
 ../Core/Inc/motor/clarke.h:
 ../Core/Inc/motor/park.h:
 ../Core/Inc/motor/svgendq.h:
+../Core/Inc/main/variable_cal.h:
+../Core/Inc/cordic.h:

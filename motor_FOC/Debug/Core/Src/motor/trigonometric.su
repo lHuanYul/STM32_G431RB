@@ -1,3 +1,2 @@
-../Core/Src/motor/trigonometric.c:1826:7:TableSearch_sin	24	static
-../Core/Src/motor/trigonometric.c:1843:7:TableSearch_atan	24	static
-../Core/Src/motor/trigonometric.c:1851:7:TableSearch_atan2	24	static
+../Core/Src/motor/trigonometric.c:1889:8:trigo_sin_cosf	72	static
+../Core/Src/motor/trigonometric.c:1904:8:trigo_atan	104	static

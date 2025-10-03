@@ -71,3 +71,6 @@ extern MotorParameter motor_h;
 
 Result motor_hall_to_angle(uint8_t hall, float32_t *angle);
 float32_t clampf(float32_t val, float32_t min, float32_t max);
+float32_t wrap_0_2pi(float32_t x);
+float32_t wrap_m1_1pi(float32_t x);
+float32_t fast_fabsf(float32_t x);
