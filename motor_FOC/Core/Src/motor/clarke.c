@@ -1,4 +1,5 @@
 #include "motor/clarke.h"
+#include "motor/basic.h"
 
 Result CLARKE_run_ideal(volatile CLARKE *clarke)
 {

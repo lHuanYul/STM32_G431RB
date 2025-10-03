@@ -21,7 +21,7 @@ Result motor_foc_tim_setup(const MotorParameter *motor)
 // Thread - hallExti - 0
 Result motor_foc_hall_update(MotorParameter *motor)
 {
-    float htim_cnt = (float)__HAL_TIM_GET_COUNTER(motor->const_h.ELE_htimx);
+    float32_t htim_cnt = (float32_t)__HAL_TIM_GET_COUNTER(motor->const_h.ELE_htimx);
     __HAL_TIM_SET_COUNTER(motor->const_h.ELE_htimx, 0);
     motor->rpm_fbk_hall = 100000000.0f / htim_cnt;
 
@@ -50,7 +50,6 @@ Result motor_foc_hall_update(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-// Thread - pwmIt - 1
 static inline Result stop_check(MotorParameter *motor)
 {
     // 停轉判斷
@@ -90,7 +89,16 @@ static inline Result pi_speed(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-// Thread - pwmIt - 3
+static inline Result angal_cal(MotorParameter *motor)
+{
+    // ?
+    if((motor->hall_angle_acc + motor->pwm_per_it_angle_itpl) < 60)
+    {
+        motor->hall_angle_acc += motor->pwm_per_it_angle_itpl;
+        motor->hall_angle_acc = clampf(motor->hall_angle_acc, 0.0f, 60.0f);
+    }
+}
+
 #define ADC_TO_CURRENT (3.3f / 4095.0f / 0.185f ) // ~ 0.004356 A/LSB
 static inline Result vec_ctrl_clarke(MotorParameter *motor)
 {
@@ -103,22 +111,22 @@ static inline Result vec_ctrl_clarke(MotorParameter *motor)
     // (根號3/3) = 0.57735
 
     // 三相電流向量
-    float adc_zero = (float)(motor->adc_u + motor->adc_v + motor->adc_w) / 3 ;
-    motor->clarke.As = ((float)motor->adc_u - adc_zero) * ADC_TO_CURRENT;
-    motor->clarke.Bs = ((float)motor->adc_v - adc_zero) * ADC_TO_CURRENT;
-    motor->clarke.Cs = ((float)motor->adc_w - adc_zero) * ADC_TO_CURRENT;
+    float32_t adc_zero = ((float32_t)motor->adc_u + (float32_t)motor->adc_v +(float32_t) motor->adc_w) / 3.0f ;
+    motor->clarke.As = ((float32_t)motor->adc_u - adc_zero) * ADC_TO_CURRENT;
+    motor->clarke.Bs = ((float32_t)motor->adc_v - adc_zero) * ADC_TO_CURRENT;
+    motor->clarke.Cs = ((float32_t)motor->adc_w - adc_zero) * ADC_TO_CURRENT;
 
     // 數位濾波
-    // PeriodStateVar_u += ( ( (float)motor->clarke.As - (float)PeriodFilter_u)*(float)PeriodKFilter );
-    // PeriodFilter_u = (float)PeriodStateVar_u;//0.9
+    // PeriodStateVar_u += ( ( (float32_t)motor->clarke.As - (float32_t)PeriodFilter_u)*(float32_t)PeriodKFilter );
+    // PeriodFilter_u = (float32_t)PeriodStateVar_u;//0.9
     // motor->clarke.As =PeriodFilter_u;
     //		
-    // PeriodStateVar_v += ( ( (float)motor->clarke.Bs - (float)PeriodFilter_v)*(float)PeriodKFilter );
-    // PeriodFilter_v = (float)PeriodStateVar_v;//0.9
+    // PeriodStateVar_v += ( ( (float32_t)motor->clarke.Bs - (float32_t)PeriodFilter_v)*(float32_t)PeriodKFilter );
+    // PeriodFilter_v = (float32_t)PeriodStateVar_v;//0.9
     // motor->clarke.Bs =PeriodFilter_v;
 
-    // PeriodStateVar_w += ( ( (float)motor->clarke.Cs - (float)PeriodFilter_w)*(float)PeriodKFilter );
-    // PeriodFilter_w = (float)PeriodStateVar_w;//0.9
+    // PeriodStateVar_w += ( ( (float32_t)motor->clarke.Cs - (float32_t)PeriodFilter_w)*(float32_t)PeriodKFilter );
+    // PeriodFilter_w = (float32_t)PeriodStateVar_w;//0.9
     // motor->clarke.Cs =PeriodFilter_w;
 		
     CLARKE_run_ideal(&motor->clarke);//Id.Out=CLAMP((Id.Out + Id.delta), 0.1, 0)
@@ -126,12 +134,11 @@ static inline Result vec_ctrl_clarke(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-float hytest;
-// Thread - pwmIt - 4
+float32_t hytest;
 static inline Result vec_ctrl_park(MotorParameter *motor)
 {
     motor->pwm_it_angle_acc += motor->pwm_per_it_angle_itpl;
-    float foc_park_cal_rad;
+    float32_t foc_park_cal_rad;
     motor_hall_to_angle(motor->exti_hall_curt, &foc_park_cal_rad);
     hytest = foc_park_cal_rad;
     foc_park_cal_rad += motor->pwm_it_angle_acc;
@@ -145,24 +152,22 @@ static inline Result vec_ctrl_park(MotorParameter *motor)
     motor->park.Alpha = motor->clarke.Alpha;
     motor->park.Beta = motor->clarke.Beta;
 
-    motor->park.Sine = TableSearch_sin(foc_park_cal_rad);
-    motor->park.Cosine = TableSearch_sin(foc_park_cal_rad + DIV_PI_2);
+    RESULT_CHECK_HANDLE(trigo_sin_cosf(foc_park_cal_rad, &motor->park.Sine, &motor->park.Cosine));
     
     PARK_run(&motor->park);
     
     // PARK_MACRO_Swap(motor->park);
     
-    // PeriodStateVar_id += ( ( (float)motor->park.Ds - (float)PeriodFilter_id)*(float)PeriodKFilter );
-    // PeriodFilter_id = (float)PeriodStateVar_id;
+    // PeriodStateVar_id += ( ( (float32_t)motor->park.Ds - (float32_t)PeriodFilter_id)*(float32_t)PeriodKFilter );
+    // PeriodFilter_id = (float32_t)PeriodStateVar_id;
     // motor->park.Ds = PeriodFilter_id;
         
-    // PeriodStateVar_iq += ( ( (float)motor->park.Qs - (float)PeriodFilter_iq)*(float)PeriodKFilter );
-    // PeriodFilter_iq = (float)PeriodStateVar_iq;
+    // PeriodStateVar_iq += ( ( (float32_t)motor->park.Qs - (float32_t)PeriodFilter_iq)*(float32_t)PeriodKFilter );
+    // PeriodFilter_iq = (float32_t)PeriodStateVar_iq;
     // motor->park.Qs = PeriodFilter_iq;
     return RESULT_OK(NULL);
 }
 
-// Thread - pwmIt - 5
 #define IQ_REF_ADD 0
 static inline Result vec_ctrl_pi_id_iq(MotorParameter *motor)
 {
@@ -208,7 +213,6 @@ static inline Result vec_ctrl_pi_id_iq(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-// Thread - pwmIt - 6
 static inline Result vec_ctrl_ipark(MotorParameter *motor)
 {
     // ipark
@@ -235,10 +239,10 @@ static inline Result vec_ctrl_svgen(MotorParameter *motor)
     motor->svgendq.Ubeta = motor->ipark.Beta;
     SVGEN_run(&motor->svgendq);
 
-    motor->elec_theta_rad = TableSearch_atan2(motor->ipark.Beta, motor->ipark.Alpha);
+    RESULT_CHECK_HANDLE(trigo_atan(motor->ipark.Alpha, motor->ipark.Beta, &motor->elec_theta_rad));
     while (motor->elec_theta_rad < 0.0f) motor->elec_theta_rad += MUL_2_PI;
 
-    float elec_theta_deg = motor->elec_theta_rad * RAD_TO_DEG;
+    float32_t elec_theta_deg = motor->elec_theta_rad * RAD_TO_DEG;
     while (elec_theta_deg >= 360.0f) elec_theta_deg -= 360.0f;
     while (elec_theta_deg <    0.0f) elec_theta_deg += 360.0f;
     motor->elec_theta_deg = elec_theta_deg;
@@ -263,10 +267,9 @@ static inline Result vec_ctrl_vref(MotorParameter *motor)
     //         motor->svpwm_Vref=0;
     //     }
     // else
-        float Vref = sqrt(
-            motor->svgendq.Ualpha * motor->svgendq.Ualpha 
-            + motor->svgendq.Ubeta * motor->svgendq.Ubeta);
-        motor->svpwm_Vref = Vref;
+    arm_sqrt_f32(motor->svgendq.Ualpha * motor->svgendq.Ualpha 
+            + motor->svgendq.Ubeta * motor->svgendq.Ubeta,
+        &motor->svpwm_Vref);
 
     // motor->svpwm_Vref = Iq.Out;
     
@@ -284,24 +287,23 @@ static inline Result vec_ctrl_vref(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-// Thread - pwmIt - 7
 static inline Result vec_ctrl_svpwm(MotorParameter *motor)
 {
-    float T1, T2;
-    float theta_in_sector = motor->elec_theta_rad;
+    float32_t T1, T2, TX;
+    float32_t theta_in_sector = motor->elec_theta_rad;
     while (theta_in_sector >= DIV_PI_3) theta_in_sector -= DIV_PI_3;
     // ? CHECK
     if(!motor->reverse)
     {
-        T1 = motor->svpwm_Vref * TableSearch_sin(DIV_PI_3 - theta_in_sector);
-        T2 = motor->svpwm_Vref * TableSearch_sin(theta_in_sector);
+        RESULT_CHECK_HANDLE(trigo_sin_cosf(DIV_PI_3 - theta_in_sector, &T1, &TX));
+        RESULT_CHECK_HANDLE(trigo_sin_cosf(theta_in_sector, &T2, &TX));
     }
     else
     {
-        T1 = motor->svpwm_Vref * TableSearch_sin(theta_in_sector);
-        T2 = motor->svpwm_Vref * TableSearch_sin(DIV_PI_3 - theta_in_sector);
+        RESULT_CHECK_HANDLE(trigo_sin_cosf(theta_in_sector, &T1, &TX));
+        RESULT_CHECK_HANDLE(trigo_sin_cosf(DIV_PI_3 - theta_in_sector, &T2, &TX));
     }
-    float T0div2 = (1 - (T1 + T2)) / 2;
+    float32_t T0div2 = (1 - (T1 + T2)) / 2;
     motor->svpwm_T0 = T0div2;
     motor->svpwm_T1 = T1;
     motor->svpwm_T2 = T2;
@@ -352,13 +354,12 @@ static inline Result vec_ctrl_svpwm(MotorParameter *motor)
             break;
         }
     }
-    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[0], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_u));
-    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[1], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_v));
-    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[2], (uint32_t)((float)TIM1_ARR * motor->pwm_duty_w));
+    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[0], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u));
+    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[1], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_v));
+    // __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[2], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_w));
     return RESULT_OK(NULL);
 }
 
-// Thread - pwmIt - ex
 static UNUSED_FNC inline Result data_ret(MotorParameter *motor)
 {
 	//--------------------------------------------------------------------------
@@ -404,6 +405,18 @@ static UNUSED_FNC inline Result data_ret(MotorParameter *motor)
     return RESULT_OK(NULL);
 }//FOC 計算 END
 
+static void cycle_cnt(uint8_t id)
+{
+    if (id == 0) 
+    {
+        cycle[id] = __HAL_TIM_GET_COUNTER(&htim2);
+    }
+    else
+    {
+        cycle[id] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[id-1];
+    }
+}
+
 // FOC 20kHz
 // Thread - pwmIt - 0
 Result motor_foc_pwm_pulse(MotorParameter *motor)
@@ -412,48 +425,54 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
     if (motor->pwm_count % 2 == 0)
     {
         __HAL_TIM_SET_COUNTER(&htim2, 0);
-        cycle[0] = __HAL_TIM_GET_COUNTER(&htim2);
-        // ?
-        if((motor->hall_angle_acc + motor->pwm_per_it_angle_itpl) < 60)
-        {
-            motor->hall_angle_acc += motor->pwm_per_it_angle_itpl;
-            motor->hall_angle_acc = clampf(motor->hall_angle_acc, 0.0f, 60.0f);
-        }
-        cycle[1] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[0];
+        cycle_cnt(0);
+        // Thread - pwmIt - 1
         renew_adc(motor->const_h.adc_u_id, &motor->adc_u);
-        cycle[2] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[1];
+        cycle_cnt(1);
         renew_adc(motor->const_h.adc_v_id, &motor->adc_v);
-        cycle[3] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[2];
+        cycle_cnt(2);
         renew_adc(motor->const_h.adc_w_id, &motor->adc_w);
-        cycle[4] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[3];
+        cycle_cnt(3);
+        // Thread - pwmIt - 2
+        angal_cal(motor);
+        cycle_cnt(4);
+        // Thread - pwmIt - 3
         vec_ctrl_clarke(motor);
-        cycle[5] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[4];
+        cycle_cnt(5);
+        // Thread - pwmIt - 4
         vec_ctrl_park(motor);
-        cycle[6] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[5];
+        cycle_cnt(6);
+        // Thread - pwmIt - 5
         vec_ctrl_pi_id_iq(motor);
-        cycle[7] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[6];
+        cycle_cnt(7);
+        // Thread - pwmIt - 6
         vec_ctrl_ipark(motor); // !
-        cycle[8] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[7];
+        cycle_cnt(8);
+        // Thread - pwmIt - 7
         vec_ctrl_svgen(motor);
-        cycle[9] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[8];
+        cycle_cnt(9);
+        // Thread - pwmIt - 8
         vec_ctrl_vref(motor);  // !
-        cycle[10] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[9];
+        cycle_cnt(10);
+        // Thread - pwmIt - 9
         vec_ctrl_svpwm(motor);
-        cycle[11] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[10];
+        cycle_cnt(11);
     }
     if (motor->pwm_count % 100 == 0)
     {
-        cycle[12] = __HAL_TIM_GET_COUNTER(&htim2);
+        cycle_cnt(12);
+        // Thread - pwmIt(100) - 1
         stop_check(motor);
-        cycle[13] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[12];
+        cycle_cnt(13);
+        // Thread - pwmIt(100) - 2
         pi_speed(motor); // !
-        cycle[14] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[13];
+        cycle_cnt(14);
     }
     if (motor->pwm_count >= 1000)
     {
+        motor->pwm_count = 0;
         motor->rpm_fbk_htim = motor->exti_hall_cnt * 200.0f;
         motor->exti_hall_cnt = 0;
-        motor->pwm_count = 0;
     }
     return RESULT_OK(NULL);
 }

@@ -43,7 +43,7 @@ MotorParameter motor_h = {
     .pwm_it_angle_acc = 0.0f,
 };
 
-Result motor_hall_to_angle(uint8_t hall, float *angle)
+Result motor_hall_to_angle(uint8_t hall, float32_t *angle)
 {
     switch(hall)
     {
@@ -82,7 +82,7 @@ Result motor_hall_to_angle(uint8_t hall, float *angle)
     return RESULT_OK(NULL);
 }
 
-float clampf(float val, float min, float max)
+float32_t clampf(float32_t val, float32_t min, float32_t max)
 {
     if (val > max) return max;
     if (val < min) return min;

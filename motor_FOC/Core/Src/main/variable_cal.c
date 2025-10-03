@@ -35,7 +35,7 @@ int32_t var_swap_i32(int32_t value)
     return value;
 }
 
-float var_swap_f32(float value)
+float32_t var_swap_f32(float32_t value)
 {
     uint32_t out;
     memcpy(&out, &value, sizeof out);

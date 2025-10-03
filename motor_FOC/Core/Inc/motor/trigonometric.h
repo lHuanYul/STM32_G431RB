@@ -3,6 +3,5 @@
 #include "motor/basic.h"
 #include "main/fn_state.h"
 
-float TableSearch_sin(float input);
-float TableSearch_atan(float theta);
-float TableSearch_atan2(float y, float x);
+Result trigo_sin_cosf(float32_t angle, float32_t *sin, float32_t *cos);
+Result trigo_atan(float32_t x, float32_t y, float32_t *theta);

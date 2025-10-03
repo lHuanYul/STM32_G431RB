@@ -12,10 +12,11 @@ typedef struct SuccessResult {
 
 typedef enum ErrorType {
     RES_ERR_INVALID = -1,
-    RES_ERR_FAIL,
+    RES_ERR_UND     = 0,
+    RES_ERR_FAIL    = 1,
+    RES_ERR_BUSY    = 2,
+    RES_ERR_TIMEOUT = 3,
     RES_ERR_MEMORY_ERROR,
-    RES_ERR_BUSY,
-    RES_ERR_TIMEOUT,
     RES_ERR_EMPTY,
     RES_ERR_FULL,
     RES_ERR_OVERFLOW,
@@ -114,12 +115,21 @@ typedef struct Result {
     } while (0)
 
 #ifdef STM32_DEVICE
-#define ERROR_CHECK_HAL_RETERN(expr)        \
+#define ERROR_CHECK_HAL_RET_HAL(expr)       \
     do {                                    \
         HAL_StatusTypeDef _err = (expr);    \
         if (_err != HAL_OK)                 \
         {                                   \
             return _err;                    \
+        }                                   \
+    } while (0)
+
+#define ERROR_CHECK_HAL_RET_RES(expr)       \
+    do {                                    \
+        HAL_StatusTypeDef _err = (expr);    \
+        if (_err != HAL_OK)                 \
+        {                                   \
+            return RESULT_ERROR(_err);      \
         }                                   \
     } while (0)
 

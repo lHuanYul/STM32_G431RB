@@ -21,7 +21,7 @@ void motor_120_hall_update(const MotorParameter *motor)
     if (motor->reverse) idx = (idx + 3) % 6; // CCW
     // idx = 5;
     uint8_t i;
-    uint32_t compare = (uint32_t)((float)TIM1_ARR * motor->pwm_duty_u);
+    uint32_t compare = (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u);
     for (i = 0; i < 3; i++)
     {
         switch (motor_seq_map[idx][i])

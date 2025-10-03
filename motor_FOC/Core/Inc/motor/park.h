@@ -4,13 +4,13 @@
 #include "main/fn_state.h"
 
 typedef struct PARK {
-    float Alpha;    // Input: stationary d-axis stator variable 
-    float Beta;     // Input: stationary q-axis stator variable 
-    float Angle;    // Input: rotating angle (pu) 
-    float Ds;       // Output: rotating d-axis stator variable 
-    float Qs;       // Output: rotating q-axis stator variable
-    float Sine;
-    float Cosine;
+    float32_t Alpha;    // Input: stationary d-axis stator variable 
+    float32_t Beta;     // Input: stationary q-axis stator variable 
+    float32_t Angle;    // Input: rotating angle (pu) 
+    float32_t Ds;       // Output: rotating d-axis stator variable 
+    float32_t Qs;       // Output: rotating q-axis stator variable
+    float32_t Sine;
+    float32_t Cosine;
 } PARK;
 
 Result PARK_run(volatile PARK *park);
@@ -20,13 +20,13 @@ Result PARK_run(volatile PARK *park);
     v.Qs = v.Alpha * v.Cosine - v.Beta  * v.Sine;
 
 typedef struct IPARK {
-    float Alpha;    // Output: stationary d-axis stator variable
-    float Beta;     // Output: stationary q-axis stator variable
-    float Angle;    // Input: rotating angle (pu)
-    float Vdref;    // Input: rotating d-axis stator variable
-    float Vqref;    // Input: rotating q-axis stator variable
-    float Sine;     // Input: Sine term
-    float Cosine;   // Input: Cosine term
+    float32_t Alpha;    // Output: stationary d-axis stator variable
+    float32_t Beta;     // Output: stationary q-axis stator variable
+    float32_t Angle;    // Input: rotating angle (pu)
+    float32_t Vdref;    // Input: rotating d-axis stator variable
+    float32_t Vqref;    // Input: rotating q-axis stator variable
+    float32_t Sine;     // Input: Sine term
+    float32_t Cosine;   // Input: Cosine term
 } IPARK;
 
 Result IPARK_run(volatile IPARK *ipark);

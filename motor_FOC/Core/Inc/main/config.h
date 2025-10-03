@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <float.h>
 #include <string.h>
-#include <math.h>
+#include "arm_math.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"

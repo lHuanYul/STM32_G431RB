@@ -2,8 +2,8 @@
 
 Result SVGEN_run(volatile SVGENDQ *svgq)
 {
-    float t1 = svgq->Ubeta * 0.5f;
-    float t2 = 0.8660254f * svgq->Ualpha;   // sqrt(3)/2
+    float32_t t1 = svgq->Ubeta * 0.5f;
+    float32_t t2 = 0.8660254f * svgq->Ualpha;   // sqrt(3)/2
     // Inverse clarke transformation
     svgq->Va = svgq->Ubeta;
     svgq->Vb = -t1 + t2;

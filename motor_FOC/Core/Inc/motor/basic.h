@@ -5,13 +5,9 @@
 #include "motor/clarke.h"
 #include "motor/park.h"
 #include "motor/svgendq.h"
-
-#define PI          3.14159265358979323846f // 180 deg
-#define MUL_2_PI    (2.0f * PI)     // 360 deg
-#define DIV_PI_2    (PI / 2.0f)     // 90 deg
-#define DIV_PI_3    (PI / 3.0f)     // 60 deg
-#define DEG_TO_RAD  0.01745329252f  // π/180
-#define RAD_TO_DEG  57.2957795131f  // 180/π
+#include "main/variable_cal.h"
+#include "arm_math.h"
+#include "cordic.h"
 
 extern const uint8_t hall_seq_clw[8];
 extern const uint8_t hall_seq_ccw[8];
@@ -37,41 +33,41 @@ typedef enum MotorCtrlMode {
 typedef struct MotorParameter {
     const MotorConst    const_h;
     MotorCtrlMode       mode;
-    float               rpm_fbk_hall;
-    float               rpm_fbk_htim;
+    float32_t           rpm_fbk_hall;
+    float32_t           rpm_fbk_htim;
     uint8_t             exti_hall_last;         // GPIO trigger
     volatile uint8_t    exti_hall_curt;         // GPIO trigger
     volatile uint16_t   exti_hall_cnt;          // GPIO trigger
-    volatile float      hall_angle_acc;         // 霍爾累積角度基準 每次霍爾相位切換時 馬達轉+60角度
+    volatile float32_t  hall_angle_acc;         // 霍爾累積角度基準 每次霍爾相位切換時 馬達轉+60角度
     uint8_t             pwm_hall_last;          // PWM last hall record
     volatile uint16_t   pwm_hall_acc;           // PWM hall record total
-    volatile float      pwm_per_it_angle_itpl;  // PWM 中斷應補角度 (Angle Interpolation)
-    volatile float      pwm_it_angle_acc;
+    volatile float32_t  pwm_per_it_angle_itpl;  // PWM 中斷應補角度 (Angle Interpolation)
+    volatile float32_t  pwm_it_angle_acc;
     uint16_t            pwm_count;
-    uint16_t    spin_stop_acc;
-    uint16_t    adc_u;
-    uint16_t    adc_v;
-    uint16_t    adc_w;
+    uint16_t            spin_stop_acc;
+    uint16_t            adc_u;
+    uint16_t            adc_v;
+    uint16_t            adc_w;
     volatile PI_CTRL    pi_speed;
-    float               pi_speed_cmd;
+    float32_t           pi_speed_cmd;
     PI_CTRL             pi_Iq;
     PI_CTRL             pi_Id;
-    CLARKE      clarke;
-    PARK        park;
-    IPARK       ipark;
-    SVGENDQ     svgendq;
-    float       elec_theta_rad;
-    float       elec_theta_deg;
-    float       svpwm_Vref;
-    float       svpwm_T0;
-    float       svpwm_T1;
-    float       svpwm_T2;
-    float       pwm_duty_u;
-    float       pwm_duty_v;
-    float       pwm_duty_w;
-    bool        reverse;
+    CLARKE              clarke;
+    PARK                park;
+    IPARK               ipark;
+    SVGENDQ             svgendq;
+    float32_t           elec_theta_rad;
+    float32_t           elec_theta_deg;
+    float32_t           svpwm_Vref;
+    float32_t           svpwm_T0;
+    float32_t           svpwm_T1;
+    float32_t           svpwm_T2;
+    float32_t           pwm_duty_u;
+    float32_t           pwm_duty_v;
+    float32_t           pwm_duty_w;
+    bool                reverse;
 } MotorParameter;
 extern MotorParameter motor_h;
 
-Result motor_hall_to_angle(uint8_t hall, float *angle);
-float clampf(float val, float min, float max);
+Result motor_hall_to_angle(uint8_t hall, float32_t *angle);
+float32_t clampf(float32_t val, float32_t min, float32_t max);

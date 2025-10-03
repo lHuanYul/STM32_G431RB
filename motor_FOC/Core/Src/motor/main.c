@@ -66,6 +66,7 @@ void StartMotorTask(void *argument)
     motor_hall_exti(&motor_h);
     motor_h.mode = MOTOR_CTRL_120;
     osDelay(5000);
+
     motor_foc_tim_setup(&motor_h);
     motor_hall_exti(&motor_h);
     motor_h.mode = MOTOR_CTRL_FOC;

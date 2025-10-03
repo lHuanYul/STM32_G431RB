@@ -1,6 +1,7 @@
 #include "motor/trigonometric.h"
+#include <math.h>
 
-float Table_sin[316] = {
+static const float32_t Table_sin[316] = {
     0,           //	0
     0.01,        //	0.01
     0.019999,    //	0.02
@@ -319,7 +320,7 @@ float Table_sin[316] = {
     -0.008407	 //	3.15
 };//Table_sin END
 
-int16_t Table_atan[1501]={
+static const int16_t Table_atan[1501]={
     0,    //0.00
     100,    //0.01
     200,    //0.02
@@ -1823,7 +1824,7 @@ int16_t Table_atan[1501]={
     15042	 //0.1500
 }; // Table_atan END
 
-float TableSearch_sin(float theta)
+static inline float32_t TableSearch_sin(float32_t theta)
 {
     while (theta >= MUL_2_PI) theta -= MUL_2_PI;
     while (theta < 0.0f)      theta += MUL_2_PI;
@@ -1836,19 +1837,19 @@ float TableSearch_sin(float theta)
 
     uint16_t idx = (uint16_t)(theta * 100.0f);
     if (idx >= 316) idx = 315;
-    float result = Table_sin[idx];
+    float32_t result = Table_sin[idx];
     return minus_flag ? -result : result;
 }
 
-float TableSearch_atan(float theta)
+static inline float32_t TableSearch_atan(float32_t theta)
 {
     uint16_t idx = (uint16_t)fabsf(theta * 100.0f);
     if (idx > 1500) idx = 1500;
-    float output_abs = (float)Table_atan[idx] / 10000.0f;
+    float32_t output_abs = (float32_t)Table_atan[idx] / 10000.0f;
     return (theta >= 0.0f) ? output_abs : -output_abs;
 }
 
-float TableSearch_atan2(float y, float x)
+static inline float32_t TableSearch_atan2(float32_t y, float32_t x)
 {
     if (x == 0.0f) {
         if      (y > 0.0f) return  DIV_PI_2;
@@ -1856,7 +1857,7 @@ float TableSearch_atan2(float y, float x)
         else               return 0.0f; // (0,0) → 定義為 0
     }
 
-    float base = TableSearch_atan(y / x);
+    float32_t base = TableSearch_atan(y / x);
     if (x > 0.0f)
     {
         return base; // Phase 1,4
@@ -1865,4 +1866,79 @@ float TableSearch_atan2(float y, float x)
     {
         return (y >= 0.0f) ? (base + PI) : (base - PI); // Phase 2,3
     }
+}
+
+static float wrap_0_2pi(float x)
+{
+    int32_t n = (int32_t)(x / MUL_2_PI);
+    x -= (float)n * MUL_2_PI;
+    if (x < 0) x += MUL_2_PI;
+    return x;
+}
+
+static inline float32_t fast_fabsf(float32_t x) {
+    union {
+        float32_t f;
+        uint32_t u;
+    } v = { x };
+    v.u &= 0x7FFFFFFF;  // 清除最高位 sign bit
+    return v.f;
+}
+
+static CORDIC_ConfigTypeDef *cordic_currunt;
+static const CORDIC_ConfigTypeDef cordic_cfg_sin_cos = {
+    .Function   = CORDIC_FUNCTION_SINE,
+    .Precision  = CORDIC_PRECISION_7CYCLES,
+    .Scale      = CORDIC_SCALE_0,
+    .NbWrite    = CORDIC_NBWRITE_1,
+    .NbRead     = CORDIC_NBREAD_2,
+    .InSize     = CORDIC_INSIZE_32BITS,
+    .OutSize    = CORDIC_OUTSIZE_32BITS,
+};
+static const CORDIC_ConfigTypeDef cordic_cfg_atan = {
+    .Function   = CORDIC_FUNCTION_PHASE,
+    .Precision  = CORDIC_PRECISION_7CYCLES,
+    .Scale      = CORDIC_SCALE_0,
+    .NbWrite    = CORDIC_NBWRITE_2,
+    .NbRead     = CORDIC_NBREAD_1,
+    .InSize     = CORDIC_INSIZE_32BITS,
+    .OutSize    = CORDIC_OUTSIZE_32BITS,
+};
+
+Result trigo_sin_cosf(float32_t theta, float32_t *sin, float32_t *cos)
+{
+    if (cordic_currunt != &cordic_cfg_sin_cos)
+    {
+        cordic_currunt = &cordic_cfg_sin_cos;
+        ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Configure(&hcordic, cordic_currunt));
+    }
+    int32_t in = (int32_t)(wrap_0_2pi(theta) * 2147483648.0f);
+    int32_t out[2];
+    ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Calculate(&hcordic, &in, out, 1, HAL_MAX_DELAY));
+    *sin = (float32_t)out[0] / 2147483648.0f;
+    *cos = (float32_t)out[1] / 2147483648.0f;
+    return RESULT_OK(NULL);
+}
+
+Result trigo_atan(float32_t x, float32_t y, float32_t *theta)
+{
+    if (cordic_currunt != &cordic_cfg_atan)
+    {
+        cordic_currunt = &cordic_cfg_atan;
+        ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Configure(&hcordic, cordic_currunt));
+    }
+    float32_t ax = fast_fabsf(x);
+    float32_t ay = fast_fabsf(y);
+    float32_t norm = (ax > ay) ? ax : ay;
+    if (norm == 0.0f) return RESULT_ERROR(RES_ERR_FAIL);
+    x /= norm;
+    y /= norm;
+    int32_t in[2], out;
+    in[0] = (int32_t)(x * 2147483648.0f);  
+    in[1] = (int32_t)(y * 2147483648.0f);
+    ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Calculate(&hcordic, in, &out, 1, HAL_MAX_DELAY));
+    float32_t angle = (float32_t)out / 2147483648.0f; // [-π, π)
+    if (angle < 0) angle += MUL_2_PI;
+    *theta = angle;
+    return RESULT_OK(NULL);
 }
