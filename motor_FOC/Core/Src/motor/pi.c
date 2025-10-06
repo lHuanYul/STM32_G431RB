@@ -1,7 +1,7 @@
 #include "motor/pi.h"
 #include "motor/basic.h"
 
-Result PI_run(volatile PI_CTRL *pi)
+void PI_run(volatile PI_CTRL *pi)
 {
     pi->up = pi->Kp * (pi->Ref - pi->Fbk);
 
@@ -17,5 +17,4 @@ Result PI_run(volatile PI_CTRL *pi)
     pi->v1 = pi->up + pi->ui;
     pi->Out = clampf(pi->v1, pi->Umin, pi->Umax);
     pi->w1 = (pi->Out == pi->v1) ? 1.0f : 0.0f;
-    return RESULT_OK(NULL);
 }

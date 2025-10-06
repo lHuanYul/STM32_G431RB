@@ -33,7 +33,7 @@
 #define MOTOR_42BLF01_GEAR  4.4f
 
 #define ADC_COUNT       3
-#define ADC_NEED_LEN    9 // 511
+#define ADC_NEED_LEN    3 // 511
 
 // 20kHz 50us
 #define TIM1_PSC        16

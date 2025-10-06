@@ -13,7 +13,7 @@ typedef struct PARK {
     float32_t Cosine;
 } PARK;
 
-Result PARK_run(volatile PARK *park);
+void PARK_run(volatile PARK *park);
 
 #define PARK_MACRO_Swap(v)                          \
 	v.Ds = v.Beta  * v.Cosine + v.Alpha * v.Sine;   \
@@ -29,4 +29,4 @@ typedef struct IPARK {
     float32_t Cosine;   // Input: Cosine term
 } IPARK;
 
-Result IPARK_run(volatile IPARK *ipark);
+void IPARK_run(volatile IPARK *ipark);

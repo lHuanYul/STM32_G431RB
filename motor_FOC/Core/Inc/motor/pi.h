@@ -35,8 +35,4 @@ typedef struct PI_CTRL {
     0.0f    \
 }
 
-#ifndef EPS_EQ
-#define EPS_EQ 1e-12f
-#endif
-
-Result PI_run(volatile PI_CTRL *pi);
+void PI_run(volatile PI_CTRL *pi);

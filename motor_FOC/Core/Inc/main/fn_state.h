@@ -6,11 +6,13 @@
 
 #include "main/config.h"
 
-typedef struct SuccessResult {
+typedef struct SuccessResult
+{
     void *obj;
 } SuccessResult;
 
-typedef enum ErrorType {
+typedef enum ErrorType
+{
     RES_ERR_INVALID = -1,
     RES_ERR_UND     = 0,
     RES_ERR_FAIL    = 1,
@@ -23,13 +25,16 @@ typedef enum ErrorType {
     RES_ERR_NOT_FOUND,
     RES_ERR_NOT_MOVE,
     RES_ERR_REMOVE_FAIL,
+    RES_ERR_DIV_0,
 } ErrorType;
 
 extern ErrorType last_error;
 
-typedef struct Result {
+typedef struct Result
+{
     bool is_ok;
-    union {
+    union
+    {
         SuccessResult success;
         ErrorType error;
     } result;

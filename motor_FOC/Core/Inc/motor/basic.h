@@ -12,10 +12,11 @@
 extern const uint8_t hall_seq_clw[8];
 extern const uint8_t hall_seq_ccw[8];
 
-typedef struct MotorConst {
-    uint8_t adc_u_id;
-    uint8_t adc_v_id;
-    uint8_t adc_w_id;
+typedef struct MotorConst
+{
+    uint8_t             adc_u_id;
+    uint8_t             adc_v_id;
+    uint8_t             adc_w_id;
     GPIO_TypeDef*       Hall_GPIOx[3];
     uint16_t            Hall_GPIO_Pin_x[3];
     TIM_HandleTypeDef*  htimx;
@@ -25,18 +26,21 @@ typedef struct MotorConst {
     TIM_HandleTypeDef*  ELE_htimx;
 } MotorConst;
 
-typedef enum MotorCtrlMode {
+typedef enum MotorCtrlMode
+{
     MOTOR_CTRL_120,
     MOTOR_CTRL_FOC,
 } MotorCtrlMode;
 
-typedef struct MotorParameter {
+typedef struct MotorParameter
+{
     const MotorConst    const_h;
     MotorCtrlMode       mode;
     float32_t           rpm_fbk_hall;
     float32_t           rpm_fbk_htim;
     uint8_t             exti_hall_last;         // GPIO trigger
     volatile uint8_t    exti_hall_curt;         // GPIO trigger
+    volatile float32_t  exti_hall_angal;
     volatile uint16_t   exti_hall_cnt;          // GPIO trigger
     volatile float32_t  hall_angle_acc;         // 霍爾累積角度基準 每次霍爾相位切換時 馬達轉+60角度
     uint8_t             pwm_hall_last;          // PWM last hall record
@@ -45,9 +49,9 @@ typedef struct MotorParameter {
     volatile float32_t  pwm_it_angle_acc;
     uint16_t            pwm_count;
     uint16_t            spin_stop_acc;
-    uint16_t            adc_u;
-    uint16_t            adc_v;
-    uint16_t            adc_w;
+    float32_t           adc_u;
+    float32_t           adc_v;
+    float32_t           adc_w;
     volatile PI_CTRL    pi_speed;
     float32_t           pi_speed_cmd;
     PI_CTRL             pi_Iq;

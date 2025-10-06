@@ -11,5 +11,5 @@ typedef struct CLARKE {
     float32_t Beta;     // Output: stationary q-axis stator variable
 } CLARKE;
 
-Result CLARKE_run_ideal(volatile CLARKE *clarke);
-Result CLARKE_run_nideal(volatile CLARKE *clarke);
+void CLARKE_run_ideal(volatile CLARKE *clarke);
+void CLARKE_run_nideal(volatile CLARKE *clarke);

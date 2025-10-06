@@ -1911,8 +1911,7 @@ Result trigo_atan(float32_t x, float32_t y, float32_t *theta)
     float32_t ax = fast_fabsf(x);
     float32_t ay = fast_fabsf(y);
     float32_t norm = (ax > ay) ? ax : ay;
-    // !
-    if (norm == 0.0f) return RESULT_ERROR(RES_ERR_FAIL);
+    if (norm == 0.0f) return RESULT_ERROR(RES_ERR_DIV_0);
     x /= norm;
     y /= norm;
     int32_t in[2], out;

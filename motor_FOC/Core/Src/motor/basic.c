@@ -43,7 +43,7 @@ MotorParameter motor_h = {
     .pwm_it_angle_acc = 0.0f,
 };
 
-Result motor_hall_to_angle(uint8_t hall, float32_t *angle)
+inline Result motor_hall_to_angle(uint8_t hall, float32_t *angle)
 {
     switch(hall)
     {
@@ -82,14 +82,14 @@ Result motor_hall_to_angle(uint8_t hall, float32_t *angle)
     return RESULT_OK(NULL);
 }
 
-float32_t clampf(float32_t val, float32_t min, float32_t max)
+inline float32_t clampf(float32_t val, float32_t min, float32_t max)
 {
     if (val > max) return max;
     if (val < min) return min;
     return val;
 }
 
-float32_t wrap_0_2pi(float32_t x)
+inline float32_t wrap_0_2pi(float32_t x)
 {
     int32_t n = (int32_t)(x / MUL_2_PI);
     x -= (float32_t)n * MUL_2_PI;
@@ -97,7 +97,7 @@ float32_t wrap_0_2pi(float32_t x)
     return x;
 }
 
-float32_t wrap_m1_1pi(float32_t x)
+inline float32_t wrap_m1_1pi(float32_t x)
 {
     int32_t n = (int32_t)(x / MUL_2_PI);
     x -= (float32_t)n * MUL_2_PI;
