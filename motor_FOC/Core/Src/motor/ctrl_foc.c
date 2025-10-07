@@ -289,46 +289,46 @@ static inline Result vec_ctrl_svpwm(MotorParameter *motor)
 
     switch(motor->svgendq.Sector)
     {
-        case 5://240~299 1    bac
-        {
-            motor->pwm_duty_u = T0div2 + T1;
-            motor->pwm_duty_v = T0div2 + T1 + T2;
-            motor->pwm_duty_w = T0div2;
-            break;
-        }
-        case 4://300~359 5  bca
-        {
-            motor->pwm_duty_u = T0div2;
-            motor->pwm_duty_v = T0div2 + T1 + T2;
-            motor->pwm_duty_w = T0div2 + T2;
-            break;
-        }
-        case 6://0~59 4 cba
+        case 5: // 0~59 4 cba
         {
             motor->pwm_duty_u = T0div2;
             motor->pwm_duty_v = T0div2 + T1;
             motor->pwm_duty_w = T0div2 + T1 + T2;
             break;
         }
-        case 2://60~119 6 cba
+        case 4: // 60~119 6 cba
         {
             motor->pwm_duty_u = T0div2 + T2;
             motor->pwm_duty_v = T0div2;
             motor->pwm_duty_w = T0div2 + T1 + T2;
             break;
         }
-        case 3://120~179 2 acb
+        case 6: // 120~179 2 acb
         {
             motor->pwm_duty_u = T0div2 + T1 + T2;
             motor->pwm_duty_v = T0div2;
             motor->pwm_duty_w = T0div2 + T1;
             break;
         }
-        case 1://180~239 3 abc
+        case 2: // 180~239 3 abc
         {
             motor->pwm_duty_u = T0div2 + T1 + T2;
             motor->pwm_duty_v = T0div2 + T2;
             motor->pwm_duty_w = T0div2;
+            break;
+        }
+        case 3: // 240~299 1    bac
+        {
+            motor->pwm_duty_u = T0div2 + T1;
+            motor->pwm_duty_v = T0div2 + T1 + T2;
+            motor->pwm_duty_w = T0div2;
+            break;
+        }
+        case 1: // 300~359 5  bca
+        {
+            motor->pwm_duty_u = T0div2;
+            motor->pwm_duty_v = T0div2 + T1 + T2;
+            motor->pwm_duty_w = T0div2 + T2;
             break;
         }
     }
