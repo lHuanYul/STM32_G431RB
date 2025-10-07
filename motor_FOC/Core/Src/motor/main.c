@@ -2,6 +2,7 @@
 #include "motor/ctrl_120.h"
 #include "motor/ctrl_foc.h"
 #include "analog/adc1/main.h"
+#include "motor/trigonometric.h"
 
 void motor_hall_exti(MotorParameter *motor)
 {
@@ -24,6 +25,7 @@ void motor_hall_exti(MotorParameter *motor)
         }
         return;
     }
+    RESULT_CHECK_RET_VOID(motor_hall_to_angle(hall_current, &motor->exti_hall_angal));
     switch (motor->mode)
     {
         case MOTOR_CTRL_120:
@@ -60,18 +62,16 @@ void StartMotorTask(void *argument)
     motor_h.pi_speed.Ref = 80.0f;
     motor_h.pwm_duty_u = 1.0f;
     // motor_h.reverse = true;
-
     HAL_TIM_Base_Start_IT(motor_h.const_h.htimx);
-    // HAL_TIM_Base_Start(motor_h.const_h.htimx);
     
-    motor_hall_exti(&motor_h);
     motor_h.mode = MOTOR_CTRL_120;
+    motor_hall_exti(&motor_h);
     osDelay(3000);
     motor_120_ctrl_stop(&motor_h);
 
+    motor_h.mode = MOTOR_CTRL_FOC;
     motor_foc_tim_setup(&motor_h);
     motor_hall_exti(&motor_h);
-    motor_h.mode = MOTOR_CTRL_FOC;
 
     StopTask();
 }

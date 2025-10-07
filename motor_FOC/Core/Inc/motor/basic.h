@@ -63,9 +63,6 @@ typedef struct MotorParameter
     float32_t           elec_theta_rad;
     float32_t           elec_theta_deg;
     float32_t           svpwm_Vref;
-    float32_t           svpwm_T0;
-    float32_t           svpwm_T1;
-    float32_t           svpwm_T2;
     float32_t           pwm_duty_u;
     float32_t           pwm_duty_v;
     float32_t           pwm_duty_w;
@@ -73,7 +70,7 @@ typedef struct MotorParameter
 } MotorParameter;
 extern MotorParameter motor_h;
 
-Result motor_hall_to_angle(uint8_t hall, float32_t *angle);
+Result motor_hall_to_angle(uint8_t hall, volatile float32_t *angle);
 float32_t clampf(float32_t val, float32_t min, float32_t max);
 float32_t wrap_0_2pi(float32_t x);
 float32_t wrap_m1_1pi(float32_t x);

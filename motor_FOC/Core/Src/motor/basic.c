@@ -43,36 +43,36 @@ MotorParameter motor_h = {
     .pwm_it_angle_acc = 0.0f,
 };
 
-inline Result motor_hall_to_angle(uint8_t hall, float32_t *angle)
+inline Result motor_hall_to_angle(uint8_t hall, volatile float32_t *angle)
 {
     switch(hall)
     {
-        case 5:
+        case 6:
         {
             *angle = 0.0f * DEG_TO_RAD;
             break;
         }
-        case 4:
+        case 2:
         {
             *angle = 60.0f * DEG_TO_RAD;
             break;
         }
-        case 6:
+        case 3:
         {
             *angle = 120.0f * DEG_TO_RAD;
             break;
         }
-        case 2:
+        case 1:
         {
             *angle = 180.0f * DEG_TO_RAD;
             break;
         }
-        case 3:
+        case 5:
         {
             *angle = 240.0f * DEG_TO_RAD;
             break;
         }
-        case 1:
+        case 4:
         {
             *angle = 300.0f * DEG_TO_RAD;
             break;

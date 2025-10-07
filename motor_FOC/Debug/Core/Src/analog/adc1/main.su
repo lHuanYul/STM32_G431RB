@@ -1,4 +1,4 @@
 ../Core/Src/analog/adc1/main.c:7:26:middle	40	static
-../Core/Src/analog/adc1/main.c:31:15:average	40	static
-../Core/Src/analog/adc1/main.c:43:8:renew_adc	24	static
-../Core/Src/analog/adc1/main.c:48:6:StartAdcTask	16	static
+../Core/Src/analog/adc1/main.c:31:13:average	24	static
+../Core/Src/analog/adc1/main.c:48:8:renew_adc	32	static
+../Core/Src/analog/adc1/main.c:54:6:StartAdcTask	16	static

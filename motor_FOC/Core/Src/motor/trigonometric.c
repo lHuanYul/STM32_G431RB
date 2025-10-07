@@ -1870,7 +1870,7 @@ static CORDIC_ConfigTypeDef cordic_cfg_sin_cos = {
     .Function   = CORDIC_FUNCTION_SINE,
     .Precision  = CORDIC_PRECISION_7CYCLES,
     .Scale      = CORDIC_SCALE_0,
-    .NbWrite    = CORDIC_NBWRITE_1,
+    .NbWrite    = CORDIC_NBWRITE_2,
     .NbRead     = CORDIC_NBREAD_2,
     .InSize     = CORDIC_INSIZE_32BITS,
     .OutSize    = CORDIC_OUTSIZE_32BITS,
@@ -1893,9 +1893,11 @@ Result trigo_sin_cosf(float32_t theta, float32_t *sin, float32_t *cos)
         cordic_currunt = &cordic_cfg_sin_cos;
         ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Configure(&hcordic, cordic_currunt));
     }
-    int32_t in = (int32_t)(wrap_m1_1pi(theta) * 2147483648.0f);
+    int32_t in[2];
+    in[0] = (int32_t)((wrap_m1_1pi(theta) / PI) * 2147483648.0f);
+    in[1] = 0x7FFFFFFF;
     int32_t out[2];
-    ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Calculate(&hcordic, &in, out, 1, HAL_MAX_DELAY));
+    ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Calculate(&hcordic, in, out, 1, HAL_MAX_DELAY));
     *sin = (float32_t)out[0] / 2147483648.0f;
     *cos = (float32_t)out[1] / 2147483648.0f;
     return RESULT_OK(NULL);

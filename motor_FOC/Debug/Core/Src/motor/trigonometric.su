@@ -1,2 +1,2 @@
-../Core/Src/motor/trigonometric.c:1889:8:trigo_sin_cosf	72	static
-../Core/Src/motor/trigonometric.c:1904:8:trigo_atan	104	static
+../Core/Src/motor/trigonometric.c:1889:8:trigo_sin_cosf	80	static
+../Core/Src/motor/trigonometric.c:1906:8:trigo_atan	104	static

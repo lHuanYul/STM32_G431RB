@@ -21,7 +21,6 @@ Result motor_foc_tim_setup(const MotorParameter *motor)
 // Thread - hallExti - 0
 Result motor_foc_hall_update(MotorParameter *motor)
 {
-    RESULT_CHECK_RET_RES(motor_hall_to_angle(motor->exti_hall_curt, &motor->exti_hall_angal));
     float32_t htim_cnt = (float32_t)__HAL_TIM_GET_COUNTER(motor->const_h.ELE_htimx);
     __HAL_TIM_SET_COUNTER(motor->const_h.ELE_htimx, 0);
     motor->rpm_fbk_hall = 100000000.0f / htim_cnt;
@@ -133,6 +132,7 @@ static inline Result vec_ctrl_clarke(MotorParameter *motor)
     // motor->clarke.Cs =PeriodFilter_w;
 
     CLARKE_run_ideal(&motor->clarke);//Id.Out=CLAMP((Id.Out + Id.delta), 0.1, 0)
+    return RESULT_OK(NULL);
 }
 
 static inline Result vec_ctrl_park(MotorParameter *motor)
@@ -142,7 +142,7 @@ static inline Result vec_ctrl_park(MotorParameter *motor)
     motor->park.Alpha = motor->clarke.Alpha;
     motor->park.Beta = motor->clarke.Beta;
     RESULT_CHECK_RET_RES(trigo_sin_cosf(
-        wrap_0_2pi(motor->exti_hall_angal + motor->pwm_it_angle_acc) + DIV_PI_2 * 3.0f,
+        motor->exti_hall_angal + motor->pwm_it_angle_acc + DIV_PI_2 * 3.0f,
         &motor->park.Sine, &motor->park.Cosine
     ));
     PARK_run(&motor->park);
@@ -190,7 +190,8 @@ static inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
         // motor->pi_Iq.delta = CLAMP((motor->pi_Iq.delta), 0.1, -0.1);//限制最大與最小參數
         // motor->pi_Iq.Out = CLAMP((motor->pi_Iq.Ref + motor->pi_Iq.delta), 0.75, 0);//限制最大與最小參數
 
-        motor->pi_Iq.Ref = motor->pi_speed_cmd + IQ_REF_ADD;  // 外環給轉矩命令
+        // motor->pi_Iq.Ref = motor->pi_speed_cmd + IQ_REF_ADD;  // 外環給轉矩命令
+        motor->pi_Iq.Ref = 0.3f;
         motor->pi_Iq.Fbk = motor->park.Qs;                    // q 軸量測
         PI_run(&motor->pi_Iq);                                // 統一用 PI_run + anti-windup
         // 視匯流排/過調制上限，做一次幅值限幅（可留在這或放到 Vqref 指派前）
@@ -215,7 +216,8 @@ static inline Result vec_ctrl_ipark(MotorParameter *motor)
     motor->ipark.Cosine = motor->park.Cosine;
     IPARK_run(&motor->ipark);
     RESULT_CHECK_RET_RES(trigo_atan(motor->ipark.Alpha, motor->ipark.Beta, &motor->elec_theta_rad));
-    // motor->elec_theta_deg = motor->elec_theta_rad * RAD_TO_DEG;
+    motor->elec_theta_rad = wrap_0_2pi(motor->elec_theta_rad);
+    motor->elec_theta_deg = motor->elec_theta_rad * RAD_TO_DEG;
     return RESULT_OK(NULL);
 }
 
@@ -264,67 +266,64 @@ static inline Result vec_ctrl_vref(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
+float32_t thete_t[6];
 static inline Result vec_ctrl_svpwm(MotorParameter *motor)
 {
-    float32_t T1, T2, TX;
-    float32_t theta_in_sector = motor->elec_theta_rad;
-    int32_t n = (int32_t)(theta_in_sector / DIV_PI_3);
-    theta_in_sector -= (float32_t)n * DIV_PI_3;
-    if (theta_in_sector < 0) theta_in_sector += DIV_PI_3;
+    float32_t theta = motor->elec_theta_rad;
+    int32_t n = (int32_t)(theta / DIV_PI_3);
+    theta -= (float32_t)n * DIV_PI_3;
+    if (theta < 0) theta += DIV_PI_3;
     // ? CHECK
+    float32_t T1, T2;
     if(!motor->reverse)
     {
-        RESULT_CHECK_RET_RES(trigo_sin_cosf(DIV_PI_3 - theta_in_sector, &T1, &TX));
-        RESULT_CHECK_RET_RES(trigo_sin_cosf(theta_in_sector, &T2, &TX));
+        RESULT_CHECK_RET_RES(trigo_sin_cosf(DIV_PI_3 - theta, &T1, NULL));
+        RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T2, NULL));
     }
     else
     {
-        RESULT_CHECK_RET_RES(trigo_sin_cosf(theta_in_sector, &T1, &TX));
-        RESULT_CHECK_RET_RES(trigo_sin_cosf(DIV_PI_3 - theta_in_sector, &T2, &TX));
+        RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T1, NULL));
+        RESULT_CHECK_RET_RES(trigo_sin_cosf(DIV_PI_3 - theta, &T2, NULL));
     }
     float32_t T0div2 = (1 - (T1 + T2)) / 2;
-    motor->svpwm_T0 = T0div2;
-    motor->svpwm_T1 = T1;
-    motor->svpwm_T2 = T2;
-
     switch(motor->svgendq.Sector)
     {
-        case 5: // 0~59 4 cba
+        case 6: // 0~59 4 cba
         {
             motor->pwm_duty_u = T0div2;
             motor->pwm_duty_v = T0div2 + T1;
             motor->pwm_duty_w = T0div2 + T1 + T2;
             break;
         }
-        case 4: // 60~119 6 cba
+        case 2: // 60~119 6 cba
         {
             motor->pwm_duty_u = T0div2 + T2;
             motor->pwm_duty_v = T0div2;
             motor->pwm_duty_w = T0div2 + T1 + T2;
             break;
         }
-        case 6: // 120~179 2 acb
+        case 3: // 120~179 2 acb
         {
             motor->pwm_duty_u = T0div2 + T1 + T2;
             motor->pwm_duty_v = T0div2;
             motor->pwm_duty_w = T0div2 + T1;
             break;
         }
-        case 2: // 180~239 3 abc
+        case 1: // 180~239 3 abc
         {
             motor->pwm_duty_u = T0div2 + T1 + T2;
             motor->pwm_duty_v = T0div2 + T2;
             motor->pwm_duty_w = T0div2;
             break;
         }
-        case 3: // 240~299 1    bac
+        case 5: // 240~299 1    bac
         {
             motor->pwm_duty_u = T0div2 + T1;
             motor->pwm_duty_v = T0div2 + T1 + T2;
             motor->pwm_duty_w = T0div2;
             break;
         }
-        case 1: // 300~359 5  bca
+        case 4: // 300~359 5  bca
         {
             motor->pwm_duty_u = T0div2;
             motor->pwm_duty_v = T0div2 + T1 + T2;
@@ -389,7 +388,6 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
     __HAL_TIM_SET_COUNTER(&htim2, 0);
     if (motor->pwm_count % 100 == 0)
     {
-        __HAL_TIM_SET_COUNTER(&htim2, 0);
         cycle[0] = __HAL_TIM_GET_COUNTER(&htim2);
         // Thread - pwmIt(100) - 1
         stop_check(motor);
