@@ -396,9 +396,10 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
         pi_speed(motor); // !
         CYCLE_CNT(2);
     }
+    // motor->pwm_count % 2 == 0
     if (motor->pwm_count % 2 == 0)
     {
-        CYCLE_CNT(3);
+        cycle[3] = __HAL_TIM_GET_COUNTER(&htim2);
         // Thread - pwmIt - 1
         angal_cal(motor);
         CYCLE_CNT(4);
