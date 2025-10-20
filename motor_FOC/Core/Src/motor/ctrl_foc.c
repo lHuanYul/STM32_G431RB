@@ -98,7 +98,7 @@ static inline void angal_cal(MotorParameter *motor)
     motor->pwm_it_angle_acc += motor->pwm_per_it_angle_itpl;
 }
 
-#define ADC_TO_CURRENT (3.3f / 4095.0f / 0.185f ) // ~ 0.004356 A/LSB
+// #define ADC_TO_CURRENT (3.3f / 4095.0f / 0.185f ) // ~ 0.004356 A/LSB
 static inline Result vec_ctrl_clarke(MotorParameter *motor)
 {
     // clarke ideal
@@ -110,13 +110,14 @@ static inline Result vec_ctrl_clarke(MotorParameter *motor)
     // (根號3/3) = 0.57735
 
     // 三相電流向量
-    RESULT_CHECK_RET_RES(renew_adc(motor->const_h.adc_u_id, &motor->adc_u));
-    RESULT_CHECK_RET_RES(renew_adc(motor->const_h.adc_v_id, &motor->adc_v));
-    RESULT_CHECK_RET_RES(renew_adc(motor->const_h.adc_w_id, &motor->adc_w));
-    float32_t adc_zero = (motor->adc_u + motor->adc_v + motor->adc_w) / 3.0f ;
-    motor->clarke.As = (motor->adc_u - adc_zero) * ADC_TO_CURRENT;
-    motor->clarke.Bs = (motor->adc_v - adc_zero) * ADC_TO_CURRENT;
-    motor->clarke.Cs = (motor->adc_w - adc_zero) * ADC_TO_CURRENT;
+    // RESULT_CHECK_RET_RES(adc_renew(&adc_test));
+    RESULT_CHECK_RET_RES(adc_renew(motor->adc_u, &motor->clarke.As));
+    RESULT_CHECK_RET_RES(adc_renew(motor->adc_v, &motor->clarke.Bs));
+    RESULT_CHECK_RET_RES(adc_renew(motor->adc_w, &motor->clarke.Cs));
+    // float32_t adc_zero = (motor->adc_u.value + motor->adc_v.value + motor->adc_w.value) / 3.0f;
+    // motor->clarke.As = (motor->adc_u.value - adc_zero) * ADC_TO_CURRENT;
+    // motor->clarke.Bs = (motor->adc_v.value - adc_zero) * ADC_TO_CURRENT;
+    // motor->clarke.Cs = (motor->adc_w.value - adc_zero) * ADC_TO_CURRENT;
 
     // 數位濾波
     // PeriodStateVar_u += ( ( (float32_t)motor->clarke.As - (float32_t)PeriodFilter_u)*(float32_t)PeriodKFilter );

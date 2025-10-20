@@ -5,12 +5,15 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Core/Src/analog/adc1/basic.c \
 ../Core/Src/analog/adc1/main.c 
 
 OBJS += \
+./Core/Src/analog/adc1/basic.o \
 ./Core/Src/analog/adc1/main.o 
 
 C_DEPS += \
+./Core/Src/analog/adc1/basic.d \
 ./Core/Src/analog/adc1/main.d 
 
 
@@ -21,7 +24,7 @@ Core/Src/analog/adc1/%.o Core/Src/analog/adc1/%.su Core/Src/analog/adc1/%.cyclo:
 clean: clean-Core-2f-Src-2f-analog-2f-adc1
 
 clean-Core-2f-Src-2f-analog-2f-adc1:
-	-$(RM) ./Core/Src/analog/adc1/main.cyclo ./Core/Src/analog/adc1/main.d ./Core/Src/analog/adc1/main.o ./Core/Src/analog/adc1/main.su
+	-$(RM) ./Core/Src/analog/adc1/basic.cyclo ./Core/Src/analog/adc1/basic.d ./Core/Src/analog/adc1/basic.o ./Core/Src/analog/adc1/basic.su ./Core/Src/analog/adc1/main.cyclo ./Core/Src/analog/adc1/main.d ./Core/Src/analog/adc1/main.o ./Core/Src/analog/adc1/main.su
 
 .PHONY: clean-Core-2f-Src-2f-analog-2f-adc1
 
