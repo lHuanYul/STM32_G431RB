@@ -39,7 +39,7 @@ static void average(uint8_t adc_id, float32_t *adc_store)
     *adc_store = total / (float32_t)ADC_NEED_LEN;
 }
 
-#define ALPHA 0.2f  
+#define ALPHA 0.1f
 static inline void iir(uint8_t adc_id, float32_t *adc_store)
 {
     *adc_store += ALPHA * ((float32_t)ADC_Values[adc_id] - *adc_store);
@@ -52,7 +52,9 @@ Result adc_renew(ADC_OWN *adc, float32_t *current)
     return RESULT_OK(NULL);
 }
 
-#define ADC_TRANS (3.3f / 4095.0f * 2.0f / 3.0f)
+#define ADC_TO_VOL (3.3f/4095.0f)
+#define VOL_SEP (2.0f/3.0f)
+#define ADC_TRANS ADC_TO_VOL/VOL_SEP
 static void adc_init(ADC_OWN *adc)
 {
     adc->current_trs = ADC_TRANS / adc->const_h.sensitive;
@@ -60,12 +62,24 @@ static void adc_init(ADC_OWN *adc)
     adc->zero = adc->value;
 }
 
+bool adc_ready = 0;
+float32_t current_h[3];
 void StartAdcTask(void *argument)
 {
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Values, ADC_COUNT * ADC_NEED_LEN);
-    osDelay(1);
-    adc_init(&adc_u);
-    adc_init(&adc_v);
-    adc_init(&adc_w);
+    ERROR_CHECK_HAL_HANDLE(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Values, ADC_COUNT * ADC_NEED_LEN));
+    for(;;)
+    {
+        RESULT_CHECK_HANDLE(adc_renew(&adc_u, &current_h[0]));
+        RESULT_CHECK_HANDLE(adc_renew(&adc_v, &current_h[1]));
+        RESULT_CHECK_HANDLE(adc_renew(&adc_w, &current_h[2]));
+        if (!adc_ready && HAL_GetTick() >= 1000)
+        {
+            adc_ready = 1;
+            adc_init(&adc_u);
+            adc_init(&adc_v);
+            adc_init(&adc_w);
+        }
+        osDelay(10);
+    }
     StopTask();
 }
