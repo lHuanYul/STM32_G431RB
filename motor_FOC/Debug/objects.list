@@ -13,6 +13,7 @@
 "./Core/Src/sysmem.o"
 "./Core/Src/system_stm32g4xx.o"
 "./Core/Src/tim.o"
+"./Core/Src/analog/adc1/basic.o"
 "./Core/Src/analog/adc1/main.o"
 "./Core/Src/connectivity/fdcan/basic.o"
 "./Core/Src/connectivity/fdcan/callback.o"

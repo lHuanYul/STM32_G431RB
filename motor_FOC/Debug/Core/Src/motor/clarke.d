@@ -56,7 +56,8 @@ Core/Src/motor/clarke.o: ../Core/Src/motor/clarke.c \
  ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/main/fn_state.h \
  ../Core/Inc/motor/basic.h ../Core/Inc/motor/pi.h \
  ../Core/Inc/motor/park.h ../Core/Inc/motor/svgendq.h \
- ../Core/Inc/main/variable_cal.h ../Core/Inc/cordic.h
+ ../Core/Inc/main/variable_cal.h ../Core/Inc/analog/adc1/basic.h \
+ ../Core/Inc/cordic.h
 ../Core/Inc/motor/clarke.h:
 ../Core/Inc/main/config.h:
 ../Middlewares/ST/ARM/DSP/Inc/arm_math.h:
@@ -121,4 +122,5 @@ Core/Src/motor/clarke.o: ../Core/Src/motor/clarke.c \
 ../Core/Inc/motor/park.h:
 ../Core/Inc/motor/svgendq.h:
 ../Core/Inc/main/variable_cal.h:
+../Core/Inc/analog/adc1/basic.h:
 ../Core/Inc/cordic.h:

@@ -6,6 +6,7 @@
 #include "motor/park.h"
 #include "motor/svgendq.h"
 #include "main/variable_cal.h"
+#include "analog/adc1/basic.h"
 #include "arm_math.h"
 #include "cordic.h"
 
@@ -14,9 +15,6 @@ extern const uint8_t hall_seq_ccw[8];
 
 typedef struct MotorConst
 {
-    uint8_t             adc_u_id;
-    uint8_t             adc_v_id;
-    uint8_t             adc_w_id;
     GPIO_TypeDef*       Hall_GPIOx[3];
     uint16_t            Hall_GPIO_Pin_x[3];
     TIM_HandleTypeDef*  htimx;
@@ -49,9 +47,9 @@ typedef struct MotorParameter
     volatile float32_t  pwm_it_angle_acc;
     uint16_t            pwm_count;
     uint16_t            spin_stop_acc;
-    float32_t           adc_u;
-    float32_t           adc_v;
-    float32_t           adc_w;
+    ADC_OWN             *adc_u;
+    ADC_OWN             *adc_v;
+    ADC_OWN             *adc_w;
     volatile PI_CTRL    pi_speed;
     float32_t           pi_speed_cmd;
     PI_CTRL             pi_Iq;

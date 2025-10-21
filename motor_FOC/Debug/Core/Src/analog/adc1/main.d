@@ -54,7 +54,7 @@ Core/Src/analog/adc1/main.o: ../Core/Src/analog/adc1/main.c \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
  ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/main/fn_state.h \
- ../Core/Inc/adc.h
+ ../Core/Inc/analog/adc1/basic.h ../Core/Inc/adc.h
 ../Core/Inc/analog/adc1/main.h:
 ../Core/Inc/main/config.h:
 ../Middlewares/ST/ARM/DSP/Inc/arm_math.h:
@@ -114,4 +114,5 @@ Core/Src/analog/adc1/main.o: ../Core/Src/analog/adc1/main.c \
 ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h:
 ../Core/Inc/stm32g4xx_nucleo_conf.h:
 ../Core/Inc/main/fn_state.h:
+../Core/Inc/analog/adc1/basic.h:
 ../Core/Inc/adc.h:

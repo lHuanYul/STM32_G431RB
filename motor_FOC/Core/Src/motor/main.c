@@ -62,6 +62,7 @@ void StartMotorTask(void *argument)
     motor_h.pi_speed.Ref = 80.0f;
     motor_h.pwm_duty_u = 1.0f;
     // motor_h.reverse = true;
+    osDelay(3000);
     HAL_TIM_Base_Start_IT(motor_h.const_h.htimx);
     
     motor_h.mode = MOTOR_CTRL_120;

@@ -5,9 +5,6 @@ const uint8_t hall_seq_ccw[8] = {0, 3, 6, 2, 5, 1, 4, 0};
 
 MotorParameter motor_h = {
     .const_h = {
-        .adc_u_id = 0,
-        .adc_v_id = 1,
-        .adc_w_id = 2,
         .Hall_GPIOx         = { GPIOC,       GPIOC,       GPIOC       },
         .Hall_GPIO_Pin_x    = { GPIO_PIN_12, GPIO_PIN_11, GPIO_PIN_10 },
         // H: PC0 PC1 PC2 // L: PB13 PB14 PB15
@@ -18,6 +15,9 @@ MotorParameter motor_h = {
         .Coil_GPIO_Pin_x    = { GPIO_PIN_5,  GPIO_PIN_4,  GPIO_PIN_10 },
         .ELE_htimx = &htim3,
     },
+    .adc_u = &adc_u,
+    .adc_v = &adc_v,
+    .adc_w = &adc_w,
     .pi_speed = {
         .Kp = 0.000025f,
         .Ki = 0.002f,

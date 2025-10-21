@@ -2,5 +2,6 @@
 
 #include "main/config.h"
 #include "main/fn_state.h"
+#include "analog/adc1/basic.h"
 
-Result renew_adc(uint8_t adc_id, float32_t *adc_store);
+Result adc_renew(ADC_OWN *adc, float32_t *current);

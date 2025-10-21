@@ -23,7 +23,6 @@
 #include "cordic.h"
 #include "dma.h"
 #include "fdcan.h"
-#include "i2c.h"
 #include "tim.h"
 #include "gpio.h"
 
@@ -100,7 +99,6 @@ int main(void)
   MX_ADC1_Init();
   MX_FDCAN1_Init();
   MX_TIM1_Init();
-  MX_I2C1_Init();
   MX_TIM2_Init();
   MX_CORDIC_Init();
   MX_TIM3_Init();
