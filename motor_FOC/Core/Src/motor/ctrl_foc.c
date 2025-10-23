@@ -1,5 +1,5 @@
 #include "motor/ctrl_foc.h"
-#include "main.h"
+#include "tim.h"
 #include "motor/trigonometric.h"
 #include "analog/adc1/main.h"
 
@@ -7,12 +7,12 @@ uint32_t cycle[16] = {0};
 
 Result motor_foc_tim_setup(const MotorParameter *motor)
 {
-    HAL_TIM_PWM_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[0]);
-    HAL_TIM_PWM_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[1]);
-    HAL_TIM_PWM_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[2]);
-    HAL_TIMEx_PWMN_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[0]);
-    HAL_TIMEx_PWMN_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[1]);
-    HAL_TIMEx_PWMN_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[2]);
+    HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0]);
+    HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1]);
+    HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2]);
+    HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0]);
+    HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1]);
+    HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2]);
     HAL_TIM_Base_Start(motor->const_h.ELE_htimx);
     HAL_TIM_Base_Start(&htim2);
     return RESULT_OK(NULL);
@@ -23,7 +23,9 @@ Result motor_foc_hall_update(MotorParameter *motor)
 {
     float32_t htim_cnt = (float32_t)__HAL_TIM_GET_COUNTER(motor->const_h.ELE_htimx);
     __HAL_TIM_SET_COUNTER(motor->const_h.ELE_htimx, 0);
-    motor->rpm_fbk_hall = 100000000.0f / htim_cnt;
+    if (htim_cnt == 0U) htim_cnt = 1U;
+    motor->rpm_fbk = motor->rpm_fbk_trans / htim_cnt;
+    motor->pwm_per_it_angle_itpl = motor->pwm_per_it_angle_itpl_trans / htim_cnt;
 
     uint16_t expected = (!motor->reverse)
         ? hall_seq_clw[motor->exti_hall_last]
@@ -38,15 +40,7 @@ Result motor_foc_hall_update(MotorParameter *motor)
         motor->hall_angle_acc = 0;
         motor->pwm_it_angle_acc = 0;
     }
-
-    // ? check
-    // 電氣週期算轉速，分鐘[3G=50,000,000 (計數轉秒)*60(秒轉分鐘)] / 轉速
-    // calculate speed every hall instead of  6 times
-    // agv gear ratio MOTOR_42BLF01_GEAR
-    motor->pi_speed.Fbk = (6000000.0f / (htim_cnt * (MOTOR_42BLF01_POLE / 2))) / 6 / MOTOR_42BLF01_GEAR;
-    // 單次PWM中斷時的角度變化 50us*60/(0.1us*CNT)
-    motor->pwm_per_it_angle_itpl = 30000.0f * DEG_TO_RAD / htim_cnt;
-
+    
     return RESULT_OK(NULL);
 }
 
@@ -55,11 +49,11 @@ static inline void stop_check(MotorParameter *motor)
     // 停轉判斷
     // 現在與上一個霍爾的總和與之前的總和相同，視為馬達靜止不動
     uint8_t hall_current = motor->exti_hall_curt;
-    uint16_t hall_total = motor->pwm_hall_last*10 + hall_current;
+    uint16_t hall_total = motor->pwm_hall_last * 10 + hall_current;
     if(hall_total == motor->pwm_hall_acc)
     {
         motor->spin_stop_acc++;
-        if (motor->spin_stop_acc >= 50)
+        if (motor->spin_stop_acc >= MOTOR_STOP_TRI)
         {
             motor->spin_stop_acc = 0;
             // timerclockvalue_onecycle_electric = 0;   // 歸零一電氣週期之時間
@@ -81,6 +75,7 @@ static inline void pi_speed(MotorParameter *motor)
 {
     // 計算 速度PI (每100個PWM中斷)
     // if(Speed.Fbk>0 && stop_flag==0)
+    motor->pi_speed.Fbk = motor->rpm_fbk;
     PI_run(&motor->pi_speed);
     motor->pi_speed_cmd = clampf((motor->pi_speed_cmd + motor->pi_speed.Out), 0.15f, 0.2f);
     // else if(Speed.Fbk==0 | stop_flag==1)
@@ -332,9 +327,9 @@ static inline Result vec_ctrl_svpwm(MotorParameter *motor)
             break;
         }
     }
-    __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[0], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u));
-    __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[1], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_v));
-    __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[2], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_w));
+    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u));
+    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_v));
+    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_w));
     return RESULT_OK(NULL);
 }
 
@@ -429,7 +424,6 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
     if (motor->pwm_count >= 1000)
     {
         motor->pwm_count = 0;
-        motor->rpm_fbk_htim = motor->exti_hall_cnt * 200.0f;
         motor->exti_hall_cnt = 0;
     }
     motor->pwm_count++;

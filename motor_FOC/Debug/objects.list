@@ -20,6 +20,7 @@
 "./Core/Src/connectivity/fdcan/pkt_write.o"
 "./Core/Src/main/fn_state.o"
 "./Core/Src/main/main.o"
+"./Core/Src/main/tim.o"
 "./Core/Src/main/variable_cal.o"
 "./Core/Src/motor/basic.o"
 "./Core/Src/motor/clarke.o"

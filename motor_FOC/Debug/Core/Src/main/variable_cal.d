@@ -48,10 +48,7 @@ Core/Src/main/variable_cal.o: ../Core/Src/main/variable_cal.c \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
- ../Core/Inc/main/main.h ../Core/Inc/tim.h ../Core/Inc/main.h \
- ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h \
- ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
- ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/main/fn_state.h
+ ../Core/Inc/main/fn_state.h ../Core/Inc/main/main.h
 ../Core/Inc/main/variable_cal.h:
 ../Core/Inc/main/config.h:
 ../Middlewares/ST/ARM/DSP/Inc/arm_math.h:
@@ -102,10 +99,5 @@ Core/Src/main/variable_cal.o: ../Core/Src/main/variable_cal.c \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h:
-../Core/Inc/main/main.h:
-../Core/Inc/tim.h:
-../Core/Inc/main.h:
-../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h:
-../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h:
-../Core/Inc/stm32g4xx_nucleo_conf.h:
 ../Core/Inc/main/fn_state.h:
+../Core/Inc/main/main.h:

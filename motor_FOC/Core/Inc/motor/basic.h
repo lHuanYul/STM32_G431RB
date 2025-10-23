@@ -7,7 +7,6 @@
 #include "motor/svgendq.h"
 #include "main/variable_cal.h"
 #include "analog/adc1/basic.h"
-#include "arm_math.h"
 #include "cordic.h"
 
 extern const uint8_t hall_seq_clw[8];
@@ -15,13 +14,16 @@ extern const uint8_t hall_seq_ccw[8];
 
 typedef struct MotorConst
 {
-    GPIO_TypeDef*       Hall_GPIOx[3];
+    GPIO_TypeDef        *Hall_GPIOx[3];
     uint16_t            Hall_GPIO_Pin_x[3];
-    TIM_HandleTypeDef*  htimx;
-    uint32_t            TIM_CHANNEL_x[3];
-    GPIO_TypeDef*       Coil_GPIOx[3];
+    TIM_HandleTypeDef   *PWM_htimx;
+    uint32_t            PWM_TIM_CHANNEL_x[3];
+    TIM_HandleTypeDef   *TIM_htimx;
+    uint32_t            *TIM_tim_clk;
+    GPIO_TypeDef        *Coil_GPIOx[3];
     uint16_t            Coil_GPIO_Pin_x[3];
-    TIM_HandleTypeDef*  ELE_htimx;
+    TIM_HandleTypeDef   *ELE_htimx;
+    uint32_t            *ELE_tim_clk;
 } MotorConst;
 
 typedef enum MotorCtrlMode
@@ -33,9 +35,10 @@ typedef enum MotorCtrlMode
 typedef struct MotorParameter
 {
     const MotorConst    const_h;
+    float32_t           rpm_fbk_trans;
+    float32_t           pwm_per_it_angle_itpl_trans;
     MotorCtrlMode       mode;
-    float32_t           rpm_fbk_hall;
-    float32_t           rpm_fbk_htim;
+    float32_t           rpm_fbk;
     uint8_t             exti_hall_last;         // GPIO trigger
     volatile uint8_t    exti_hall_curt;         // GPIO trigger
     volatile float32_t  exti_hall_angal;

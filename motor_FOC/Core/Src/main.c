@@ -103,7 +103,7 @@ int main(void)
   MX_CORDIC_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-
+  INIT_OWN();
   /* USER CODE END 2 */
 
   /* Init scheduler */

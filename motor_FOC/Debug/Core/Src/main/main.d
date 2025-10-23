@@ -47,15 +47,15 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
- ../Core/Inc/tim.h ../Core/Inc/main.h \
- ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h \
- ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
- ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/motor/main.h \
+ ../Core/Inc/main/tim.h ../Core/Inc/motor/main.h \
  ../Core/Inc/motor/basic.h ../Core/Inc/motor/pi.h \
  ../Core/Inc/main/fn_state.h ../Core/Inc/motor/clarke.h \
  ../Core/Inc/motor/park.h ../Core/Inc/motor/svgendq.h \
  ../Core/Inc/main/variable_cal.h ../Core/Inc/analog/adc1/basic.h \
- ../Core/Inc/cordic.h
+ ../Core/Inc/cordic.h ../Core/Inc/main.h \
+ ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h \
+ ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
+ ../Core/Inc/stm32g4xx_nucleo_conf.h
 ../Core/Inc/main/main.h:
 ../Core/Inc/main/config.h:
 ../Middlewares/ST/ARM/DSP/Inc/arm_math.h:
@@ -106,11 +106,7 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h:
-../Core/Inc/tim.h:
-../Core/Inc/main.h:
-../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h:
-../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h:
-../Core/Inc/stm32g4xx_nucleo_conf.h:
+../Core/Inc/main/tim.h:
 ../Core/Inc/motor/main.h:
 ../Core/Inc/motor/basic.h:
 ../Core/Inc/motor/pi.h:
@@ -121,3 +117,7 @@ Core/Src/main/main.o: ../Core/Src/main/main.c ../Core/Inc/main/main.h \
 ../Core/Inc/main/variable_cal.h:
 ../Core/Inc/analog/adc1/basic.h:
 ../Core/Inc/cordic.h:
+../Core/Inc/main.h:
+../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h:
+../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h:
+../Core/Inc/stm32g4xx_nucleo_conf.h:

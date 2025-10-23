@@ -28,24 +28,24 @@ void motor_120_hall_update(const MotorParameter *motor)
         {
             case HIGH_PASS:
             {
-                __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i], compare);
-                HAL_TIM_PWM_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
-                HAL_TIMEx_PWMN_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+                __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i], compare);
+                HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+                HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
                 break;
             }
             case LOW_PASS:
             {
-                HAL_TIM_PWM_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
-                __HAL_TIM_SET_COMPARE(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i], TIM1_ARR);
-                HAL_TIMEx_PWMN_Start(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+                HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+                __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i], TIM1_ARR);
+                HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
                 break;
             }
             default:
             {
-                HAL_TIM_PWM_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
-                HAL_TIMEx_PWMN_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+                HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+                HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
                 break;
             }
@@ -58,8 +58,8 @@ void motor_120_ctrl_stop(const MotorParameter *motor)
     uint8_t i;
     for (i = 0; i < 3; i++)
     {
-        HAL_TIM_PWM_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
-        HAL_TIMEx_PWMN_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+        HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+        HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
         // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
     }
 }

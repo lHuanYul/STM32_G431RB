@@ -7,16 +7,19 @@
 C_SRCS += \
 ../Core/Src/main/fn_state.c \
 ../Core/Src/main/main.c \
+../Core/Src/main/tim.c \
 ../Core/Src/main/variable_cal.c 
 
 OBJS += \
 ./Core/Src/main/fn_state.o \
 ./Core/Src/main/main.o \
+./Core/Src/main/tim.o \
 ./Core/Src/main/variable_cal.o 
 
 C_DEPS += \
 ./Core/Src/main/fn_state.d \
 ./Core/Src/main/main.d \
+./Core/Src/main/tim.d \
 ./Core/Src/main/variable_cal.d 
 
 
@@ -27,7 +30,7 @@ Core/Src/main/%.o Core/Src/main/%.su Core/Src/main/%.cyclo: ../Core/Src/main/%.c
 clean: clean-Core-2f-Src-2f-main
 
 clean-Core-2f-Src-2f-main:
-	-$(RM) ./Core/Src/main/fn_state.cyclo ./Core/Src/main/fn_state.d ./Core/Src/main/fn_state.o ./Core/Src/main/fn_state.su ./Core/Src/main/main.cyclo ./Core/Src/main/main.d ./Core/Src/main/main.o ./Core/Src/main/main.su ./Core/Src/main/variable_cal.cyclo ./Core/Src/main/variable_cal.d ./Core/Src/main/variable_cal.o ./Core/Src/main/variable_cal.su
+	-$(RM) ./Core/Src/main/fn_state.cyclo ./Core/Src/main/fn_state.d ./Core/Src/main/fn_state.o ./Core/Src/main/fn_state.su ./Core/Src/main/main.cyclo ./Core/Src/main/main.d ./Core/Src/main/main.o ./Core/Src/main/main.su ./Core/Src/main/tim.cyclo ./Core/Src/main/tim.d ./Core/Src/main/tim.o ./Core/Src/main/tim.su ./Core/Src/main/variable_cal.cyclo ./Core/Src/main/variable_cal.d ./Core/Src/main/variable_cal.o ./Core/Src/main/variable_cal.su
 
 .PHONY: clean-Core-2f-Src-2f-main
 

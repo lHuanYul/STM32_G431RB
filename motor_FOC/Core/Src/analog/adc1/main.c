@@ -52,12 +52,10 @@ Result adc_renew(ADC_OWN *adc, float32_t *current)
     return RESULT_OK(NULL);
 }
 
-#define ADC_TO_VOL (3.3f/4095.0f)
-#define VOL_SEP (2.0f/3.0f)
-#define ADC_TRANS ADC_TO_VOL/VOL_SEP
+const float32_t adc_trans = ADC_TO_VOL/ADC_VOL_SEP;
 static void adc_init(ADC_OWN *adc)
 {
-    adc->current_trs = ADC_TRANS / adc->const_h.sensitive;
+    adc->current_trs = adc_trans / adc->const_h.sensitive;
     average(adc->const_h.id, &adc->value);
     adc->zero = adc->value;
 }

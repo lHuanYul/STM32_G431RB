@@ -19,8 +19,8 @@ void motor_hall_exti(MotorParameter *motor)
         uint8_t i;
         for (i = 0; i < 3; i++)
         {
-            HAL_TIM_PWM_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
-            HAL_TIMEx_PWMN_Stop(motor->const_h.htimx, motor->const_h.TIM_CHANNEL_x[i]);
+            HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+            HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
             HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
         }
         return;
@@ -30,6 +30,7 @@ void motor_hall_exti(MotorParameter *motor)
     {
         case MOTOR_CTRL_120:
         {
+            motor->pwm_duty_u = 1.0f;
             motor_120_hall_update(motor);
             break;
         }
@@ -57,13 +58,40 @@ void motor_pwm_pulse(MotorParameter *motor)
     }
 }
 
+static void motor_init(MotorParameter *motor)
+{
+    // ELE_tim_f：霍爾計時器的實際計數頻率 (Hz)
+    // = ELE_timer_clock / (PSC + 1)
+    const float32_t ELE_tim_f =
+        (float32_t)*motor->const_h.ELE_tim_clk /
+        (float32_t)(motor->const_h.ELE_htimx->Init.Prescaler + 1U);
+    // TIM_tim_t：PWM 控制定時器每個計數週期的時間 (秒/計數)
+    // = (PSC + 1) / TIM_timer_clock
+    const float32_t TIM_tim_t =
+        (float32_t)(motor->const_h.TIM_htimx->Init.Prescaler + 1U) /
+        (float32_t)*motor->const_h.TIM_tim_clk;
+    // ELE_tim_t：霍爾計時器每個計數週期的時間 (秒/計數)
+    // = (PSC + 1) / ELE_timer_clock
+    const float32_t ELE_tim_t =
+        (float32_t)(motor->const_h.ELE_htimx->Init.Prescaler + 1U) /
+        (float32_t)*motor->const_h.ELE_tim_clk;
+    // rpm_fbk_trans：霍爾間隔 → 輸出軸轉速(RPM) 轉換常數
+    // 公式：RPM = [ELE_tim_f * 60] / [6 × (POLE/2) × GEAR × htim_cnt]
+    motor->rpm_fbk_trans =
+        ELE_tim_f / (6.0f * (float32_t)MOTOR_42BLF01_POLE / 2.0f * MOTOR_42BLF01_GEAR) * 60.0f;
+    // pwm_per_it_angle_itpl_trans：PWM 週期 → 電角度內插轉換常數
+    // 公式：Δθ_elec(rad) = [ (TIM_tim_t * ARR) / ELE_tim_t ] × (π/3) / htim_cnt
+    motor->pwm_per_it_angle_itpl_trans =
+        TIM_tim_t / ELE_tim_t * (float32_t)(motor->const_h.TIM_htimx->Init.Period) * DIV_PI_3;
+}
+
 void StartMotorTask(void *argument)
 {
+    motor_init(&motor_h);
     motor_h.pi_speed.Ref = 80.0f;
-    motor_h.pwm_duty_u = 1.0f;
     // motor_h.reverse = true;
-    osDelay(3000);
-    // HAL_TIM_Base_Start_IT(motor_h.const_h.htimx);
+    while(HAL_GetTick() < 3000) osDelay(10);
+    // HAL_TIM_Base_Start_IT(motor_h.const_h.PWM_htimx);
     
     // motor_h.mode = MOTOR_CTRL_120;
     // motor_hall_exti(&motor_h);

@@ -1,5 +1,14 @@
 #include "main/main.h"
+#include "main/tim.h"
 #include "motor/main.h"
+
+void INIT_OWN(void)
+{
+    tim_clk_APB1 = HAL_RCC_GetPCLK1Freq();
+    tim_clk_APB2 = HAL_RCC_GetPCLK2Freq();
+    if ((RCC->CFGR & RCC_CFGR_PPRE1) != RCC_CFGR_PPRE1_DIV1) tim_clk_APB1 *= 2U;
+    if ((RCC->CFGR & RCC_CFGR_PPRE2) != RCC_CFGR_PPRE2_DIV1) tim_clk_APB2 *= 2U;
+}
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -14,7 +23,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 inline void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    if (htim == motor_h.const_h.htimx)
+    if (htim == motor_h.const_h.TIM_htimx)
     {
         motor_pwm_pulse(&motor_h);
     }

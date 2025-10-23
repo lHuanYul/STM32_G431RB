@@ -1,3 +1,4 @@
 ../Core/Src/motor/main.c:7:6:motor_hall_exti	10
-../Core/Src/motor/main.c:44:6:motor_pwm_pulse	3
-../Core/Src/motor/main.c:60:6:StartMotorTask	0
+../Core/Src/motor/main.c:45:6:motor_pwm_pulse	3
+../Core/Src/motor/main.c:61:13:motor_init	1
+../Core/Src/motor/main.c:88:6:StartMotorTask	1

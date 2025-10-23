@@ -1,19 +1,28 @@
 #include "motor/basic.h"
+#include "tim.h"
+#include "main/tim.h"
 
 const uint8_t hall_seq_clw[8] = {0, 5, 3, 1, 6, 4, 2, 0};
 const uint8_t hall_seq_ccw[8] = {0, 3, 6, 2, 5, 1, 4, 0};
 
 MotorParameter motor_h = {
     .const_h = {
+        // HALL PIN
         .Hall_GPIOx         = { GPIOC,       GPIOC,       GPIOC       },
         .Hall_GPIO_Pin_x    = { GPIO_PIN_12, GPIO_PIN_11, GPIO_PIN_10 },
+        // PWM TIM
         // H: PC0 PC1 PC2 // L: PB13 PB14 PB15
-        .htimx          = &htim1,
-        .TIM_CHANNEL_x  = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3 },
+        .PWM_htimx          = &htim1,
+        .PWM_TIM_CHANNEL_x  = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3 },
         // 120 deg control L
         .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
         .Coil_GPIO_Pin_x    = { GPIO_PIN_5,  GPIO_PIN_4,  GPIO_PIN_10 },
-        .ELE_htimx = &htim3,
+        // FOC TIM
+        .TIM_htimx          = &htim1,
+        .TIM_tim_clk        = &tim_clk_APB2,
+        // ELE
+        .ELE_htimx          = &htim3,
+        .ELE_tim_clk        = &tim_clk_APB1,
     },
     .adc_u = &adc_u,
     .adc_v = &adc_v,

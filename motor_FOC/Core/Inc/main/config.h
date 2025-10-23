@@ -10,6 +10,12 @@
 #include <stdlib.h>
 #include <float.h>
 #include <string.h>
+
+#define UNUSED_FNC          __attribute__((unused))
+#define ITS_CHECK(its, tag) (((its) & (tag)) != RESET)
+
+// ! SYSTEM config, Change CAREFULLY --------------------
+// ! Also CHECK ALL basic.c file
 #include "arm_math.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -17,29 +23,32 @@
 
 #include "stm32g431xx.h"
 #include "stm32g4xx_hal.h"
-#include "main.h"
-#include "tim.h"
 
-#define UNUSED_FNC          __attribute__((unused))
+#define STM32_DEVICE
+#define STM32_G431RB
+#define MCU_MOTOR_CTRL
+
 #define BOARD_LED_TOGGLE    HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 #define BOARD_LED_ON        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET)
 #define BOARD_LED_OFF       HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET)
-#define ITS_CHECK(its, tag) (((its) & (tag)) != RESET)
 
-// ! SYSTEM config, Change CAREFULLY --------------------
-#define STM32_DEVICE
-
-#define MOTOR_42BLF01_POLE  20
+#define MOTOR_42BLF01_POLE  4
 #define MOTOR_42BLF01_GEAR  4.4f
+#define MOTOR_STOP_TRI      50
 
 #define ADC_COUNT       4
 #define ADC_NEED_LEN    17 // 511
+#define ADC_TO_VOL      (3.3f/4095.0f)
+#define ADC_VOL_SEP     (2.0f/3.0f)
 
+// Motor Core
 // 20kHz 50us
 #define TIM1_PSC        16
-#define TIM1_ARR        250 // Max: 65535
+#define TIM1_ARR        500 // Max: 65535
+// Programe Time Calculate
 #define TIM2_PSC        0
 #define TIM2_ARR        4294967295 // Max: 4294967295
+// Motor Time Calculate
 #define TIM3_PSC        16
 #define TIM3_ARR        65535 // Max: 65535
 
@@ -66,4 +75,5 @@
 #define FDCAN_TRSM_BUF_CAP      10
 #define FDCAN_RECV_BUF_CAP      10
 
+// ! Also CHECK ALL basic.c file
 // ! SYSTEM config END ------------------------------
