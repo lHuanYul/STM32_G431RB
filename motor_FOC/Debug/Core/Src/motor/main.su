@@ -1,4 +1,4 @@
 ../Core/Src/motor/main.c:7:6:motor_hall_exti	40	static
 ../Core/Src/motor/main.c:45:6:motor_pwm_pulse	24	static
 ../Core/Src/motor/main.c:61:13:motor_init	32	static
-../Core/Src/motor/main.c:88:6:StartMotorTask	16	static
+../Core/Src/motor/main.c:92:6:StartMotorTask	16	static

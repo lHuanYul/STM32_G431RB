@@ -24,8 +24,8 @@ Result motor_foc_hall_update(MotorParameter *motor)
     float32_t htim_cnt = (float32_t)__HAL_TIM_GET_COUNTER(motor->const_h.ELE_htimx);
     __HAL_TIM_SET_COUNTER(motor->const_h.ELE_htimx, 0);
     if (htim_cnt == 0U) htim_cnt = 1U;
-    motor->rpm_fbk = motor->rpm_fbk_trans / htim_cnt;
-    motor->pwm_per_it_angle_itpl = motor->pwm_per_it_angle_itpl_trans / htim_cnt;
+    motor->rpm_fbk = motor->tfm_rpm_fbk / htim_cnt;
+    motor->foc_angle_itpl = motor->tfm_pwm_per_it_angle_itpl / htim_cnt;
 
     uint16_t expected = (!motor->reverse)
         ? hall_seq_clw[motor->exti_hall_last]
@@ -38,7 +38,7 @@ Result motor_foc_hall_update(MotorParameter *motor)
     {
         // rotated
         motor->hall_angle_acc = 0;
-        motor->pwm_it_angle_acc = 0;
+        motor->foc_angle_acc = 0;
     }
     
     return RESULT_OK(NULL);
@@ -49,8 +49,8 @@ static inline void stop_check(MotorParameter *motor)
     // 停轉判斷
     // 現在與上一個霍爾的總和與之前的總和相同，視為馬達靜止不動
     uint8_t hall_current = motor->exti_hall_curt;
-    uint16_t hall_total = motor->pwm_hall_last * 10 + hall_current;
-    if(hall_total == motor->pwm_hall_acc)
+    uint16_t hall_total = motor->foc_hall_last * 10 + hall_current;
+    if(hall_total == motor->foc_hall_acc)
     {
         motor->spin_stop_acc++;
         if (motor->spin_stop_acc >= MOTOR_STOP_TRI)
@@ -60,15 +60,15 @@ static inline void stop_check(MotorParameter *motor)
             motor->pi_speed.i1 = 0;                     // 重置i控制舊值
             motor->pi_speed.Fbk = 0;                    // 歸零速度實際值
             motor->pi_Iq.Out=0;
-            motor->pwm_it_angle_acc = 0.0f;
+            motor->foc_angle_acc = 0.0f;
         }
     }
     else
     {
         motor->spin_stop_acc = 0;
     }
-    motor->pwm_hall_acc = hall_total;
-    motor->pwm_hall_last = hall_current;
+    motor->foc_hall_acc = hall_total;
+    motor->foc_hall_last = hall_current;
 }
 
 static inline void pi_speed(MotorParameter *motor)
@@ -85,12 +85,12 @@ static inline void pi_speed(MotorParameter *motor)
 static inline void angal_cal(MotorParameter *motor)
 {
     // ?
-    if((motor->hall_angle_acc + motor->pwm_per_it_angle_itpl) < 60)
+    if((motor->hall_angle_acc + motor->foc_angle_itpl) < 60)
     {
-        motor->hall_angle_acc += motor->pwm_per_it_angle_itpl;
+        motor->hall_angle_acc += motor->foc_angle_itpl;
         motor->hall_angle_acc = clampf(motor->hall_angle_acc, 0.0f, 60.0f);
     }
-    motor->pwm_it_angle_acc += motor->pwm_per_it_angle_itpl;
+    motor->foc_angle_acc += motor->foc_angle_itpl;
 }
 
 // #define ADC_TO_CURRENT (3.3f / 4095.0f / 0.185f ) // ~ 0.004356 A/LSB
@@ -138,7 +138,7 @@ static inline Result vec_ctrl_park(MotorParameter *motor)
     motor->park.Alpha = motor->clarke.Alpha;
     motor->park.Beta = motor->clarke.Beta;
     RESULT_CHECK_RET_RES(trigo_sin_cosf(
-        motor->exti_hall_angal + motor->pwm_it_angle_acc + DIV_PI_2 * 3.0f,
+        motor->exti_hall_angal + motor->foc_angle_acc + DIV_PI_2 * 3.0f,
         &motor->park.Sine, &motor->park.Cosine
     ));
     PARK_run(&motor->park);
@@ -382,7 +382,7 @@ static inline Result vec_ctrl_svpwm(MotorParameter *motor)
 Result motor_foc_pwm_pulse(MotorParameter *motor)
 {
     __HAL_TIM_SET_COUNTER(&htim2, 0);
-    if (motor->pwm_count % 100 == 0)
+    if (motor->dbg_pwm_count % 100 == 0)
     {
         cycle[0] = __HAL_TIM_GET_COUNTER(&htim2);
         // Thread - pwmIt(100) - 1
@@ -392,8 +392,8 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
         pi_speed(motor); // !
         CYCLE_CNT(2);
     }
-    // motor->pwm_count % 2 == 0
-    if (motor->pwm_count % 2 == 0)
+    // motor->dbg_pwm_count % 2 == 0
+    if (motor->dbg_pwm_count % 2 == 0)
     {
         cycle[3] = __HAL_TIM_GET_COUNTER(&htim2);
         // Thread - pwmIt - 1
@@ -421,11 +421,11 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
         RESULT_CHECK_RET_RES(vec_ctrl_svpwm(motor));
         CYCLE_CNT(11);
     }
-    if (motor->pwm_count >= 1000)
+    if (motor->dbg_pwm_count >= 1000)
     {
-        motor->pwm_count = 0;
+        motor->dbg_pwm_count = 0;
         motor->exti_hall_cnt = 0;
     }
-    motor->pwm_count++;
+    motor->dbg_pwm_count++;
     return RESULT_OK(NULL);
 }

@@ -60,6 +60,9 @@ void motor_pwm_pulse(MotorParameter *motor)
 
 static void motor_init(MotorParameter *motor)
 {
+    const float32_t TIM_tim_f =
+        (float32_t)*motor->const_h.FOC_tim_clk /
+        (float32_t)(motor->const_h.FOC_htimx->Init.Prescaler + 1U);
     // ELE_tim_f：霍爾計時器的實際計數頻率 (Hz)
     // = ELE_timer_clock / (PSC + 1)
     const float32_t ELE_tim_f =
@@ -68,21 +71,18 @@ static void motor_init(MotorParameter *motor)
     // TIM_tim_t：PWM 控制定時器每個計數週期的時間 (秒/計數)
     // = (PSC + 1) / TIM_timer_clock
     const float32_t TIM_tim_t =
-        (float32_t)(motor->const_h.TIM_htimx->Init.Prescaler + 1U) /
-        (float32_t)*motor->const_h.TIM_tim_clk;
+        (float32_t)(motor->const_h.FOC_htimx->Init.Prescaler + 1U) /
+        (float32_t)*motor->const_h.FOC_tim_clk;
     // ELE_tim_t：霍爾計時器每個計數週期的時間 (秒/計數)
     // = (PSC + 1) / ELE_timer_clock
     const float32_t ELE_tim_t =
         (float32_t)(motor->const_h.ELE_htimx->Init.Prescaler + 1U) /
         (float32_t)*motor->const_h.ELE_tim_clk;
-    // rpm_fbk_trans：霍爾間隔 → 輸出軸轉速(RPM) 轉換常數
-    // 公式：RPM = [ELE_tim_f * 60] / [6 × (POLE/2) × GEAR × htim_cnt]
-    motor->rpm_fbk_trans =
+    motor->dbg_foc_it_freq = TIM_tim_f / motor->const_h.FOC_htimx->Init.Period;
+    motor->tfm_rpm_fbk =
         ELE_tim_f / (6.0f * (float32_t)MOTOR_42BLF01_POLE / 2.0f * MOTOR_42BLF01_GEAR) * 60.0f;
-    // pwm_per_it_angle_itpl_trans：PWM 週期 → 電角度內插轉換常數
-    // 公式：Δθ_elec(rad) = [ (TIM_tim_t * ARR) / ELE_tim_t ] × (π/3) / htim_cnt
-    motor->pwm_per_it_angle_itpl_trans =
-        TIM_tim_t / ELE_tim_t * (float32_t)(motor->const_h.TIM_htimx->Init.Period) * DIV_PI_3;
+    motor->tfm_pwm_per_it_angle_itpl =
+        TIM_tim_t / ELE_tim_t * (float32_t)(motor->const_h.FOC_htimx->Init.Period) * DIV_PI_3;
 }
 
 void StartMotorTask(void *argument)

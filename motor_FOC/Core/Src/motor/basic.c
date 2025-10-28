@@ -18,8 +18,8 @@ MotorParameter motor_h = {
         .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
         .Coil_GPIO_Pin_x    = { GPIO_PIN_5,  GPIO_PIN_4,  GPIO_PIN_10 },
         // FOC TIM
-        .TIM_htimx          = &htim1,
-        .TIM_tim_clk        = &tim_clk_APB2,
+        .FOC_htimx          = &htim1,
+        .FOC_tim_clk        = &tim_clk_APB2,
         // ELE
         .ELE_htimx          = &htim3,
         .ELE_tim_clk        = &tim_clk_APB1,
@@ -49,7 +49,7 @@ MotorParameter motor_h = {
         .Umin = -0.01f,
         .w1 = 1.0f,
     },
-    .pwm_it_angle_acc = 0.0f,
+    .foc_angle_acc = 0.0f,
 };
 
 inline Result motor_hall_to_angle(uint8_t hall, volatile float32_t *angle)
