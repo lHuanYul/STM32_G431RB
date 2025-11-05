@@ -43,7 +43,7 @@ typedef struct MotorParameter
     float32_t           tfm_rpm_fbk;
     // PWM 週期 → 電角度內插轉換常數
     // Δθ_elec(rad) = [ (TIM_tim_t * ARR) / ELE_tim_t ] × (π/3) / htim_cnt
-    float32_t           tfm_pwm_per_it_angle_itpl;
+    float32_t           tfm_foc_it_angle_itpl;
     // 馬達控制方式
     MotorCtrlMode       mode;
     // 目前 RPM
@@ -60,23 +60,23 @@ typedef struct MotorParameter
     // 每次霍爾相位切換時 馬達轉+60角度
     volatile float32_t  hall_angle_acc;
     // 上次 FOC 霍爾相位
-    uint8_t             foc_hall_last;
+    uint8_t             foc_phase_last;
     // FOC 霍爾相位和
-    // foc_hall_acc = foc_hall_last*10 + exti_hall_angal;
-    volatile uint16_t   foc_hall_acc;
+    // foc_phase_total = foc_phase_last*10 + exti_hall_angal;
+    volatile uint16_t   foc_phase_total;
     // FOC 中斷應補角度 (Angle Interpolation)
     volatile float32_t  foc_angle_itpl;
     // FOC 相位和
     // foc_angle_acc += foc_angle_itpl; 過一霍爾中斷後重置
     volatile float32_t  foc_angle_acc;
     // 停轉計數器
-    uint16_t            spin_stop_acc;
+    uint16_t            stop_spin_acc;
     // 電流 ADC
-    ADC_OWN             *adc_u;
+    CURRENT_ADC         adc_u;
     // 電流 ADC
-    ADC_OWN             *adc_v;
+    CURRENT_ADC         adc_v;
     // 電流 ADC
-    ADC_OWN             *adc_w;
+    CURRENT_ADC         adc_w;
 
     volatile PI_CTRL    pi_speed;
     float32_t           pi_speed_cmd;

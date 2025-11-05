@@ -24,9 +24,24 @@ MotorParameter motor_h = {
         .ELE_htimx          = &htim3,
         .ELE_tim_clk        = &tim_clk_APB1,
     },
-    .adc_u = &adc_u,
-    .adc_v = &adc_v,
-    .adc_w = &adc_w,
+    .adc_u = {
+        .const_h = {
+            .id = 0,
+            .sensitive = 0.097f,
+        },
+    },
+    .adc_v = {
+        .const_h = {
+            .id = 1,
+            .sensitive = 0.1f,
+        },
+    },
+    .adc_w = {
+        .const_h = {
+            .id = 2,
+            .sensitive = 0.1f,
+        },
+    },
     .pi_speed = {
         .Kp = 0.000025f,
         .Ki = 0.002f,
@@ -123,4 +138,14 @@ inline float32_t fast_fabsf(float32_t x)
     } v = { x };
     v.u &= 0x7FFFFFFF;  // 清除最高位 sign bit
     return v.f;
+}
+
+inline void motor_set_speed(MotorParameter *motor, float32_t speed)
+{
+    motor->pi_speed.Ref = speed;
+}
+
+inline void motor_set_direction(MotorParameter *motor, bool drct)
+{
+    motor->reverse = drct;
 }

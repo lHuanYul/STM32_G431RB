@@ -23,9 +23,9 @@ Result motor_foc_hall_update(MotorParameter *motor)
 {
     float32_t htim_cnt = (float32_t)__HAL_TIM_GET_COUNTER(motor->const_h.ELE_htimx);
     __HAL_TIM_SET_COUNTER(motor->const_h.ELE_htimx, 0);
-    if (htim_cnt == 0U) htim_cnt = 1U;
+    if (htim_cnt == 0.0f) htim_cnt = 1.0f;
     motor->rpm_fbk = motor->tfm_rpm_fbk / htim_cnt;
-    motor->foc_angle_itpl = motor->tfm_pwm_per_it_angle_itpl / htim_cnt;
+    motor->foc_angle_itpl = motor->tfm_foc_it_angle_itpl / htim_cnt;
 
     uint16_t expected = (!motor->reverse)
         ? hall_seq_clw[motor->exti_hall_last]
@@ -48,14 +48,14 @@ static inline void stop_check(MotorParameter *motor)
 {
     // 停轉判斷
     // 現在與上一個霍爾的總和與之前的總和相同，視為馬達靜止不動
-    uint8_t hall_current = motor->exti_hall_curt;
-    uint16_t hall_total = motor->foc_hall_last * 10 + hall_current;
-    if(hall_total == motor->foc_hall_acc)
+    uint8_t current = motor->exti_hall_curt;
+    uint16_t total = motor->foc_phase_last * 10 + current;
+    if(total == motor->foc_phase_total)
     {
-        motor->spin_stop_acc++;
-        if (motor->spin_stop_acc >= MOTOR_STOP_TRI)
+        motor->stop_spin_acc++;
+        if (motor->stop_spin_acc >= MOTOR_STOP_TRI)
         {
-            motor->spin_stop_acc = 0;
+            motor->stop_spin_acc = 0;
             // timerclockvalue_onecycle_electric = 0;   // 歸零一電氣週期之時間
             motor->pi_speed.i1 = 0;                     // 重置i控制舊值
             motor->pi_speed.Fbk = 0;                    // 歸零速度實際值
@@ -63,12 +63,9 @@ static inline void stop_check(MotorParameter *motor)
             motor->foc_angle_acc = 0.0f;
         }
     }
-    else
-    {
-        motor->spin_stop_acc = 0;
-    }
-    motor->foc_hall_acc = hall_total;
-    motor->foc_hall_last = hall_current;
+    else motor->stop_spin_acc = 0;
+    motor->foc_phase_total = total;
+    motor->foc_phase_last = current;
 }
 
 static inline void pi_speed(MotorParameter *motor)
@@ -85,15 +82,14 @@ static inline void pi_speed(MotorParameter *motor)
 static inline void angal_cal(MotorParameter *motor)
 {
     // ?
-    if((motor->hall_angle_acc + motor->foc_angle_itpl) < 60)
+    if((motor->hall_angle_acc + motor->foc_angle_itpl) < DIV_PI_3)
     {
         motor->hall_angle_acc += motor->foc_angle_itpl;
-        motor->hall_angle_acc = clampf(motor->hall_angle_acc, 0.0f, 60.0f);
+        motor->hall_angle_acc = clampf(motor->hall_angle_acc, 0.0f, DIV_PI_3);
     }
     motor->foc_angle_acc += motor->foc_angle_itpl;
 }
 
-// #define ADC_TO_CURRENT (3.3f / 4095.0f / 0.185f ) // ~ 0.004356 A/LSB
 static inline Result vec_ctrl_clarke(MotorParameter *motor)
 {
     // clarke ideal
@@ -104,30 +100,16 @@ static inline Result vec_ctrl_clarke(MotorParameter *motor)
     // I bata = (根號3/3)Ib - (根號3/3)Ic
     // (根號3/3) = 0.57735
 
-    // 三相電流向量
-    // RESULT_CHECK_RET_RES(adc_renew(&adc_test));
-    RESULT_CHECK_RET_RES(adc_renew(motor->adc_u, &motor->clarke.As));
-    RESULT_CHECK_RET_RES(adc_renew(motor->adc_v, &motor->clarke.Bs));
-    RESULT_CHECK_RET_RES(adc_renew(motor->adc_w, &motor->clarke.Cs));
-    // float32_t adc_zero = (motor->adc_u.value + motor->adc_v.value + motor->adc_w.value) / 3.0f;
-    // motor->clarke.As = (motor->adc_u.value - adc_zero) * ADC_TO_CURRENT;
-    // motor->clarke.Bs = (motor->adc_v.value - adc_zero) * ADC_TO_CURRENT;
-    // motor->clarke.Cs = (motor->adc_w.value - adc_zero) * ADC_TO_CURRENT;
+    // 電流進 motor 為 正
+    RESULT_CHECK_RET_RES(adc_renew(&motor->adc_u));
+    RESULT_CHECK_RET_RES(adc_renew(&motor->adc_v));
+    RESULT_CHECK_RET_RES(adc_renew(&motor->adc_w));
+    float32_t current_zero = (motor->adc_u.current + motor->adc_v.current + motor->adc_w.current) / 3.0f;
+    motor->clarke.As = (motor->adc_u.current - current_zero);
+    motor->clarke.Bs = (motor->adc_v.current - current_zero);
+    motor->clarke.Cs = (motor->adc_w.current - current_zero);
 
-    // 數位濾波
-    // PeriodStateVar_u += ( ( (float32_t)motor->clarke.As - (float32_t)PeriodFilter_u)*(float32_t)PeriodKFilter );
-    // PeriodFilter_u = (float32_t)PeriodStateVar_u;//0.9
-    // motor->clarke.As =PeriodFilter_u;
-    //		
-    // PeriodStateVar_v += ( ( (float32_t)motor->clarke.Bs - (float32_t)PeriodFilter_v)*(float32_t)PeriodKFilter );
-    // PeriodFilter_v = (float32_t)PeriodStateVar_v;//0.9
-    // motor->clarke.Bs =PeriodFilter_v;
-
-    // PeriodStateVar_w += ( ( (float32_t)motor->clarke.Cs - (float32_t)PeriodFilter_w)*(float32_t)PeriodKFilter );
-    // PeriodFilter_w = (float32_t)PeriodStateVar_w;//0.9
-    // motor->clarke.Cs =PeriodFilter_w;
-
-    CLARKE_run_ideal(&motor->clarke);//Id.Out=CLAMP((Id.Out + Id.delta), 0.1, 0)
+    CLARKE_run_ideal(&motor->clarke); //? Id.Out=CLAMP((Id.Out + Id.delta), 0.1, 0)
     return RESULT_OK(NULL);
 }
 
@@ -158,7 +140,6 @@ static inline Result vec_ctrl_park(MotorParameter *motor)
 #define IQ_REF_ADD 0.0f
 static inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
 {
-    // Id、Iq 之 PI 控制
     if(motor->pi_speed.Fbk > 0)
     {
         motor->pi_Id.Ref = 0;
@@ -333,49 +314,6 @@ static inline Result vec_ctrl_svpwm(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-/* static inline Result data_ret(MotorParameter *motor)
-{
-	//--------------------------------------------------------------------------
-	if(glo_SaveToArray_flag == 1)
-	{
-		if(SaveToArray_count < 600)
-		{
-            // SaveToArray_v0[SaveToArray_count] = motor->clarke.As;
-            // SaveToArray_v1[SaveToArray_count] = motor->clarke.Bs;
-            // SaveToArray_v2[SaveToArray_count] = motor->clarke.Cs;
-            // SaveToArray_v3[SaveToArray_count] = PeriodFilter_u;
-            // SaveToArray_v4[SaveToArray_count] = sg_deg;
-            SaveToArray_v3[SaveToArray_count] = test_deg;
-            SaveToArray_v4[SaveToArray_count] = my_hall_signal_in_decimal;
-			
-            // SaveToArray_v6[SaveToArray_count] = svpwm_interval;
-            // SaveToArray_v7[SaveToArray_count] = motor->svgendq.Sector;
-
-            // SaveToArray_v4[SaveToArray_count] = motor->park.Alpha;
-            // SaveToArray_v5[SaveToArray_count] = motor->park.Beta;
-
-            // SaveToArray_v6[SaveToArray_count] = Id.Fbk;
-            // SaveToArray_v7[SaveToArray_count] = Iq.Fbk;
-            // SaveToArray_v8[SaveToArray_count] = motor->park.Vdref;
-            // SaveToArray_v9[SaveToArray_count] = motor->park.Vqref;
-            //
-            // SaveToArray_v7[SaveToArray_count] = test_deg;
-
-            SaveToArray_v0[SaveToArray_count] = Ta;
-            SaveToArray_v1[SaveToArray_count] = Tb;
-            SaveToArray_v2[SaveToArray_count] = Tc;
-
-            SaveToArray_count++; 
-        }
-        else
-        {
-            SaveToArray_count=0;
-            glo_SaveToArray_flag = 2;
-        }
-    }
-    return RESULT_OK(NULL);
-}//FOC 計算 END */
-
 #define CYCLE_CNT(id) ({cycle[id] = __HAL_TIM_GET_COUNTER(&htim2) - cycle[id-1];})
 // FOC 20kHz
 // Thread - pwmIt - 0
@@ -392,8 +330,7 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
         pi_speed(motor); // !
         CYCLE_CNT(2);
     }
-    // motor->dbg_pwm_count % 2 == 0
-    if (motor->dbg_pwm_count % 2 == 0)
+    if (motor->dbg_pwm_count % 1 == 0)
     {
         cycle[3] = __HAL_TIM_GET_COUNTER(&htim2);
         // Thread - pwmIt - 1

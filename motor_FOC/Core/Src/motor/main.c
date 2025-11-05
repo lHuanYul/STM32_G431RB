@@ -81,7 +81,7 @@ static void motor_init(MotorParameter *motor)
     motor->dbg_foc_it_freq = TIM_tim_f / motor->const_h.FOC_htimx->Init.Period;
     motor->tfm_rpm_fbk =
         ELE_tim_f / (6.0f * (float32_t)MOTOR_42BLF01_POLE / 2.0f * MOTOR_42BLF01_GEAR) * 60.0f;
-    motor->tfm_pwm_per_it_angle_itpl =
+    motor->tfm_foc_it_angle_itpl =
         TIM_tim_t / ELE_tim_t * (float32_t)(motor->const_h.FOC_htimx->Init.Period) * DIV_PI_3;
 }
 
@@ -101,6 +101,17 @@ void StartMotorTask(void *argument)
     // motor_h.mode = MOTOR_CTRL_FOC;
     // motor_foc_tim_setup(&motor_h);
     // motor_hall_exti(&motor_h);
+
+    adc_init(&motor_h.adc_u);
+    adc_init(&motor_h.adc_v);
+    adc_init(&motor_h.adc_w);
+    for(;;)
+    {
+        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_u));
+        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_v));
+        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_w));
+        osDelay(10);
+    }
 
     StopTask();
 }

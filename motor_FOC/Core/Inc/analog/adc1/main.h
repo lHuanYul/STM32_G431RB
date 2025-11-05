@@ -6,4 +6,5 @@
 
 extern ADC_HandleTypeDef hadc1;
 
-Result adc_renew(ADC_OWN *adc, float32_t *current);
+void adc_init(CURRENT_ADC *adc);
+Result adc_renew(CURRENT_ADC *adc);
