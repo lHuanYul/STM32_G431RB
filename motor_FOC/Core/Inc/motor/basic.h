@@ -20,8 +20,10 @@ typedef struct MotorConst
     uint32_t            PWM_TIM_CHANNEL_x[3];
     GPIO_TypeDef        *Coil_GPIOx[3];
     uint16_t            Coil_GPIO_Pin_x[3];
-    TIM_HandleTypeDef   *ELE_htimx;
-    uint32_t            *ELE_tim_clk;
+    // 轉速計時器
+    TIM_HandleTypeDef   *SPD_htimx;
+    uint32_t            *SPD_tim_clk;
+    // FOC 20kHz timer
     TIM_HandleTypeDef   *FOC_htimx;
     uint32_t            *FOC_tim_clk;
 } MotorConst;
@@ -58,7 +60,7 @@ typedef struct MotorParameter
     volatile uint16_t   exti_hall_cnt;
     // 霍爾累積角度基準
     // 每次霍爾相位切換時 馬達轉+60角度
-    volatile float32_t  hall_angle_acc;
+    // volatile float32_t  hall_angle_acc;
     // 上次 FOC 霍爾相位
     uint8_t             foc_phase_last;
     // FOC 霍爾相位和
@@ -66,7 +68,7 @@ typedef struct MotorParameter
     volatile uint16_t   foc_phase_total;
     // FOC 中斷應補角度 (Angle Interpolation)
     volatile float32_t  foc_angle_itpl;
-    // FOC 相位和
+    // FOC 中斷補角和
     // foc_angle_acc += foc_angle_itpl; 過一霍爾中斷後重置
     volatile float32_t  foc_angle_acc;
     // 停轉計數器
@@ -89,6 +91,7 @@ typedef struct MotorParameter
     float32_t           elec_theta_rad;
     float32_t           elec_theta_deg;
     float32_t           svpwm_Vref;
+    float32_t           pwm_duty_120;
     float32_t           pwm_duty_u;
     float32_t           pwm_duty_v;
     float32_t           pwm_duty_w;
@@ -96,7 +99,6 @@ typedef struct MotorParameter
 } MotorParameter;
 extern MotorParameter motor_h;
 
-Result motor_hall_to_angle(uint8_t hall, volatile float32_t *angle);
 float32_t clampf(float32_t val, float32_t min, float32_t max);
 float32_t wrap_0_2pi(float32_t x);
 float32_t wrap_m1_1pi(float32_t x);

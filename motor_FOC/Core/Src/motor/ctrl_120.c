@@ -21,7 +21,7 @@ void motor_120_hall_update(const MotorParameter *motor)
     if (motor->reverse) idx = (idx + 3) % 6; // CCW
     // idx = 5;
     uint8_t i;
-    uint32_t compare = (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u);
+    uint32_t compare = (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_120);
     for (i = 0; i < 3; i++)
     {
         switch (motor_seq_map[idx][i])
@@ -50,16 +50,5 @@ void motor_120_hall_update(const MotorParameter *motor)
                 break;
             }
         }
-    }
-}
-
-void motor_120_ctrl_stop(const MotorParameter *motor)
-{
-    uint8_t i;
-    for (i = 0; i < 3; i++)
-    {
-        HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-        HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-        // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
     }
 }

@@ -47,7 +47,7 @@ static inline void iir(uint8_t adc_id, float32_t *adc_store)
 
 Result adc_renew(CURRENT_ADC *adc)
 {
-    average(adc->const_h.id, &adc->adc_value);
+    iir(adc->const_h.id, &adc->adc_value);
     adc->current = (adc->adc_value - adc->zero) * adc->current_trs;
     return RESULT_OK(NULL);
 }
@@ -55,7 +55,7 @@ Result adc_renew(CURRENT_ADC *adc)
 void adc_init(CURRENT_ADC *adc)
 {
     adc->current_trs = ADC_TO_VOL / ADC_VOL_SEP / adc->const_h.sensitive;
-    average(adc->const_h.id, &adc->adc_value);
+    // average(adc->const_h.id, &adc->adc_value);
     adc->zero = adc->adc_value;
 }
 
@@ -63,5 +63,6 @@ bool adc_ready = 0;
 void StartAdcTask(void *argument)
 {
     ERROR_CHECK_HAL_HANDLE(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Values, ADC_COUNT * ADC_NEED_LEN));
+    
     StopTask();
 }

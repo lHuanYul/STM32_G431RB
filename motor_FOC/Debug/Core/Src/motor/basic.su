@@ -1,5 +1,4 @@
-../Core/Src/motor/basic.c:55:15:motor_hall_to_angle	40	static
-../Core/Src/motor/basic.c:94:18:clampf	24	static
-../Core/Src/motor/basic.c:101:18:wrap_0_2pi	24	static
-../Core/Src/motor/basic.c:109:18:wrap_m1_1pi	24	static
-../Core/Src/motor/basic.c:118:18:fast_fabsf	24	static
+../Core/Src/motor/basic.c:73:18:clampf	24	static
+../Core/Src/motor/basic.c:80:18:wrap_0_2pi	24	static
+../Core/Src/motor/basic.c:88:18:wrap_m1_1pi	24	static
+../Core/Src/motor/basic.c:97:18:fast_fabsf	24	static

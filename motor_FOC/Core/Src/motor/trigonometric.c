@@ -1850,8 +1850,8 @@ static inline float32_t TableSearch_atan(float32_t theta)
 static inline float32_t TableSearch_atan2(float32_t y, float32_t x)
 {
     if (x == 0.0f) {
-        if      (y > 0.0f) return  DIV_PI_2;
-        else if (y < 0.0f) return -DIV_PI_2;
+        if      (y > 0.0f) return  PI_DIV_2;
+        else if (y < 0.0f) return -PI_DIV_2;
         else               return 0.0f; // (0,0) → 定義為 0
     }
 
@@ -1921,7 +1921,7 @@ Result trigo_atan(float32_t x, float32_t y, float32_t *theta)
     in[1] = (int32_t)(y * 2147483648.0f);
     ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Calculate(&hcordic, in, &out, 1, HAL_MAX_DELAY));
     float32_t angle = (float32_t)out / 2147483648.0f; // [-π, π)
-    if (angle < 0) angle += MUL_2_PI;
+    if (angle < 0) angle += PI_MUL_2;
     *theta = angle;
     return RESULT_OK(NULL);
 }

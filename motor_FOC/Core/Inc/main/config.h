@@ -37,7 +37,7 @@
 #define MOTOR_STOP_TRI      50
 
 #define ADC_COUNT       4
-#define ADC_NEED_LEN    17 // 511
+#define ADC_NEED_LEN    1 // 511
 #define ADC_TO_VOL      (3.3f/4095.0f)
 #define ADC_VOL_SEP     (2.0f/3.0f)
 

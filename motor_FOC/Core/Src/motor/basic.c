@@ -21,26 +21,29 @@ MotorParameter motor_h = {
         .FOC_htimx          = &htim1,
         .FOC_tim_clk        = &tim_clk_APB2,
         // ELE
-        .ELE_htimx          = &htim3,
-        .ELE_tim_clk        = &tim_clk_APB1,
+        .SPD_htimx          = &htim3,
+        .SPD_tim_clk        = &tim_clk_APB1,
     },
     .adc_u = {
         .const_h = {
             .id = 0,
             .sensitive = 0.097f,
         },
+        .current_trs = 1.0f,
     },
     .adc_v = {
         .const_h = {
             .id = 1,
             .sensitive = 0.1f,
         },
+        .current_trs = 1.0f,
     },
     .adc_w = {
         .const_h = {
             .id = 2,
             .sensitive = 0.1f,
         },
+        .current_trs = 1.0f,
     },
     .pi_speed = {
         .Kp = 0.000025f,
@@ -67,45 +70,6 @@ MotorParameter motor_h = {
     .foc_angle_acc = 0.0f,
 };
 
-inline Result motor_hall_to_angle(uint8_t hall, volatile float32_t *angle)
-{
-    switch(hall)
-    {
-        case 6:
-        {
-            *angle = 0.0f * DEG_TO_RAD;
-            break;
-        }
-        case 2:
-        {
-            *angle = 60.0f * DEG_TO_RAD;
-            break;
-        }
-        case 3:
-        {
-            *angle = 120.0f * DEG_TO_RAD;
-            break;
-        }
-        case 1:
-        {
-            *angle = 180.0f * DEG_TO_RAD;
-            break;
-        }
-        case 5:
-        {
-            *angle = 240.0f * DEG_TO_RAD;
-            break;
-        }
-        case 4:
-        {
-            *angle = 300.0f * DEG_TO_RAD;
-            break;
-        }
-        default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
-    }
-    return RESULT_OK(NULL);
-}
-
 inline float32_t clampf(float32_t val, float32_t min, float32_t max)
 {
     if (val > max) return max;
@@ -115,18 +79,18 @@ inline float32_t clampf(float32_t val, float32_t min, float32_t max)
 
 inline float32_t wrap_0_2pi(float32_t x)
 {
-    int32_t n = (int32_t)(x / MUL_2_PI);
-    x -= (float32_t)n * MUL_2_PI;
-    if (x < 0) x += MUL_2_PI;
+    int32_t n = (int32_t)(x / PI_MUL_2);
+    x -= (float32_t)n * PI_MUL_2;
+    if (x < 0) x += PI_MUL_2;
     return x;
 }
 
 inline float32_t wrap_m1_1pi(float32_t x)
 {
-    int32_t n = (int32_t)(x / MUL_2_PI);
-    x -= (float32_t)n * MUL_2_PI;
-    if      (x < -PI) x += MUL_2_PI;
-    else if (x >= PI) x -= MUL_2_PI;
+    int32_t n = (int32_t)(x / PI_MUL_2);
+    x -= (float32_t)n * PI_MUL_2;
+    if      (x < -PI) x += PI_MUL_2;
+    else if (x >= PI) x -= PI_MUL_2;
     return x;
 }
 
