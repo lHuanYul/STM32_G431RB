@@ -18,8 +18,16 @@ static const uint8_t motor_seq_index[] = {0xFF, 5, 3, 4, 1, 0, 2, 0xFF};
 void motor_120_hall_update(const MotorParameter *motor)
 {
     uint8_t idx = motor_seq_index[motor->exti_hall_curt];
-    if (motor->reverse) idx = (idx + 3) % 6; // CCW
-    // idx = 5;
+    switch (motor->rot_drct)
+    {
+        case MOTOR_ROT_CLW: break;
+        case MOTOR_ROT_CCW:
+        {
+            idx = (idx + 3) % 6;
+            break;
+        }
+        default: return;
+    }
     uint8_t i;
     uint32_t compare = (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_120);
     for (i = 0; i < 3; i++)
@@ -37,7 +45,7 @@ void motor_120_hall_update(const MotorParameter *motor)
             case LOW_PASS:
             {
                 HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-                __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i], TIM1_ARR);
+                __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i], motor->const_h.PWM_htimx->Init.Period);
                 HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
                 break;

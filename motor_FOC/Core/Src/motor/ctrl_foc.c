@@ -16,16 +16,49 @@ Result motor_foc_tim_setup(const MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
+static inline Result motor_hall_to_angle(uint8_t hall, volatile float32_t *angle)
+{
+    switch(hall)
+    {
+        case 5:
+        {
+            *angle = 0.0f;
+            break;
+        }
+        case 4:
+        {
+            *angle = 1.0f * PI_DIV_3;
+            break;
+        }
+        case 6:
+        {
+            *angle = 2.0f * PI_DIV_3;
+            break;
+        }
+        case 2:
+        {
+            *angle = 3.0f * PI_DIV_3;
+            break;
+        }
+        case 3:
+        {
+            *angle = 4.0f * PI_DIV_3;
+            break;
+        }
+        case 1:
+        {
+            *angle = 5.0f * PI_DIV_3;
+            break;
+        }
+        default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
+    }
+    return RESULT_OK(NULL);
+}
+
 inline Result motor_foc_hall_update(MotorParameter *motor)
 {
-    uint16_t expected = (!motor->reverse)
-        ? hall_seq_clw[motor->exti_hall_last]
-        : hall_seq_ccw[motor->exti_hall_last];
-    // if (hall_last == 0) // ? CHECK
-    // {
-    //     hall_last = expected;
-    // }
-    if (motor->exti_hall_curt == expected)
+    RESULT_CHECK_RET_RES(motor_hall_to_angle(motor->exti_hall_curt, &motor->exti_hall_angal));
+    if (motor->rot_drct_fbk == motor->rot_drct)
     {
         // rotated
         motor->foc_angle_acc = 0.0f;
@@ -34,35 +67,10 @@ inline Result motor_foc_hall_update(MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-void stop_check(MotorParameter *motor)
+inline void motor_foc_rot_stop(MotorParameter *motor)
 {
-    // 停轉判斷
-    // 現在與上一個霍爾的總和與之前的總和相同，視為馬達靜止不動
-    uint8_t current = motor->exti_hall_curt;
-    uint16_t total = motor->foc_phase_last * 10 + current;
-    if(total == motor->foc_phase_total)
-    {
-        motor->stop_spin_acc++;
-        if (motor->stop_spin_acc >= MOTOR_STOP_TRI)
-        {
-            motor->stop_spin_acc = 0;
-            motor->pi_speed.i1 = 0;     // 重置i控制舊值
-            motor->pi_speed.Fbk = 0;    // 歸零速度實際值
-            motor->pi_Iq.Out=0;
-            motor->foc_angle_acc = 0.0f;
-        }
-    }
-    else motor->stop_spin_acc = 0;
-    motor->foc_phase_total = total;
-    motor->foc_phase_last = current;
-}
-
-void pi_speed(MotorParameter *motor)
-{
-    // 計算 速度PI (每100個PWM中斷)
-    motor->pi_speed.Fbk = motor->rpm_fbk;
-    PI_run(&motor->pi_speed);
-    motor->pi_speed_cmd = clampf((motor->pi_speed_cmd + motor->pi_speed.Out), 0.15f, 0.2f);
+    motor->pi_Iq.Out=0;
+    motor->foc_angle_acc = 0.0f;
 }
 
 float32_t current_zero;
@@ -77,9 +85,6 @@ Result vec_ctrl_clarke(MotorParameter *motor)
     // (根號3/3) = 0.57735
 
     // 電流進 motor 為 正
-    RESULT_CHECK_RET_RES(adc_renew(&motor->adc_u));
-    RESULT_CHECK_RET_RES(adc_renew(&motor->adc_v));
-    RESULT_CHECK_RET_RES(adc_renew(&motor->adc_w));
     current_zero = (motor->adc_u.current + motor->adc_v.current + motor->adc_w.current) / 3.0f;
     motor->clarke.As = (motor->adc_u.current - current_zero);
     motor->clarke.Bs = (motor->adc_v.current - current_zero);
@@ -204,15 +209,24 @@ Result vec_ctrl_svpwm(MotorParameter *motor)
     float32_t theta = wrap_pi_pos(motor->elec_theta_rad, PI_DIV_3);
     // ? CHECK
     float32_t T1, T2;
-    if(!motor->reverse)
+    switch (motor->rot_drct)
     {
-        RESULT_CHECK_RET_RES(trigo_sin_cosf(PI_DIV_3 - theta, &T1, NULL));
-        RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T2, NULL));
-    }
-    else
-    {
-        RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T1, NULL));
-        RESULT_CHECK_RET_RES(trigo_sin_cosf(PI_DIV_3 - theta, &T2, NULL));
+        case MOTOR_ROT_CLW:
+        {
+            RESULT_CHECK_RET_RES(trigo_sin_cosf(PI_DIV_3 - theta, &T1, NULL));
+            RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T2, NULL));
+            break;
+        }
+        case MOTOR_ROT_CCW:
+        {
+            RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T1, NULL));
+            RESULT_CHECK_RET_RES(trigo_sin_cosf(PI_DIV_3 - theta, &T2, NULL));
+            break;
+        }
+        default:
+        {
+            break;
+        }
     }
     float32_t T0div2 = (1 - (T1 + T2)) / 2;
     switch(motor->svgendq.Sector)
@@ -272,16 +286,6 @@ uint32_t cycle[16] = {0};
 Result motor_foc_pwm_pulse(MotorParameter *motor)
 {
     __HAL_TIM_SET_COUNTER(&htim2, 0);
-    if (motor->dbg_pwm_count % 100 == 0)
-    {
-        cycle[0] = __HAL_TIM_GET_COUNTER(&htim2);
-        // Thread - pwmIt(100) - 1
-        stop_check(motor);
-        CYCLE_CNT(1);
-        // Thread - pwmIt(100) - 2
-        pi_speed(motor); // !
-        CYCLE_CNT(2);
-    }
     if (motor->dbg_pwm_count % 1 == 0)
     {
         CYCLE_CNT(4);
@@ -307,10 +311,5 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
         RESULT_CHECK_RET_RES(vec_ctrl_svpwm(motor));
         CYCLE_CNT(11);
     }
-    if (motor->dbg_pwm_count >= 1000)
-    {
-        motor->dbg_pwm_count = 0;
-        motor->exti_hall_cnt = 0;
-    }
-    motor->dbg_pwm_count++;
+    return RESULT_OK(NULL);
 }

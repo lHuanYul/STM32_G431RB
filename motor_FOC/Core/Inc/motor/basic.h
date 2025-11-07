@@ -24,8 +24,8 @@ typedef struct MotorConst
     TIM_HandleTypeDef   *SPD_htimx;
     uint32_t            *SPD_tim_clk;
     // FOC 20kHz timer
-    TIM_HandleTypeDef   *FOC_htimx;
-    uint32_t            *FOC_tim_clk;
+    TIM_HandleTypeDef   *IT20k_htimx;
+    uint32_t            *IT20k_tim_clk;
 } MotorConst;
 
 typedef enum MotorCtrlMode
@@ -33,6 +33,13 @@ typedef enum MotorCtrlMode
     MOTOR_CTRL_120,
     MOTOR_CTRL_FOC,
 } MotorCtrlMode;
+
+typedef enum MotorRotDirection
+{
+    MOTOR_ROT_ERR,
+    MOTOR_ROT_CLW,
+    MOTOR_ROT_CCW,
+} MotorRotDirection;
 
 typedef struct MotorParameter
 {
@@ -50,6 +57,8 @@ typedef struct MotorParameter
     MotorCtrlMode       mode;
     // 目前 RPM
     float32_t           rpm_fbk;
+    // 目前旋轉方向
+    MotorRotDirection   rot_drct_fbk;
     // 上次霍爾相位
     uint8_t             exti_hall_last;
     // 目前霍爾相位(546231)
@@ -62,10 +71,10 @@ typedef struct MotorParameter
     // 每次霍爾相位切換時 馬達轉+60角度
     // volatile float32_t  hall_angle_acc;
     // 上次 FOC 霍爾相位
-    uint8_t             foc_phase_last;
+    uint8_t             chk_hall_last;
     // FOC 霍爾相位和
-    // foc_phase_total = foc_phase_last*10 + exti_hall_angal;
-    volatile uint16_t   foc_phase_total;
+    // chk_hall_total = chk_hall_last*10 + exti_hall_angal;
+    volatile uint16_t   chk_hall_total;
     // FOC 中斷應補角度 (Angle Interpolation)
     volatile float32_t  foc_angle_itpl;
     // FOC 中斷補角和
@@ -95,7 +104,7 @@ typedef struct MotorParameter
     float32_t           pwm_duty_u;
     float32_t           pwm_duty_v;
     float32_t           pwm_duty_w;
-    bool                reverse;
+    MotorRotDirection   rot_drct;
 } MotorParameter;
 extern MotorParameter motor_h;
 
@@ -103,3 +112,4 @@ float32_t clampf(float32_t val, float32_t min, float32_t max);
 float32_t wrap_pi_pos(float32_t x, float32_t value);
 float32_t wrap_pi_p_n(float32_t x, float32_t value);
 float32_t fast_fabsf(float32_t x);
+

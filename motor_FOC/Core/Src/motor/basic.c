@@ -17,9 +17,9 @@ MotorParameter motor_h = {
         // 120 deg control L
         .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
         .Coil_GPIO_Pin_x    = { GPIO_PIN_5,  GPIO_PIN_4,  GPIO_PIN_10 },
-        // FOC TIM
-        .FOC_htimx          = &htim1,
-        .FOC_tim_clk        = &tim_clk_APB2,
+        // 20kHz IT TIM
+        .IT20k_htimx        = &htim1,
+        .IT20k_tim_clk      = &tim_clk_APB2,
         // ELE
         .SPD_htimx          = &htim3,
         .SPD_tim_clk        = &tim_clk_APB1,
@@ -102,14 +102,4 @@ inline float32_t fast_fabsf(float32_t x)
     } v = { x };
     v.u &= 0x7FFFFFFF;  // 清除最高位 sign bit
     return v.f;
-}
-
-inline void motor_set_speed(MotorParameter *motor, float32_t speed)
-{
-    motor->pi_speed.Ref = speed;
-}
-
-inline void motor_set_direction(MotorParameter *motor, bool drct)
-{
-    motor->reverse = drct;
 }
