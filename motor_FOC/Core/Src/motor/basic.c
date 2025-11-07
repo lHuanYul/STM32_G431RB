@@ -77,20 +77,20 @@ inline float32_t clampf(float32_t val, float32_t min, float32_t max)
     return val;
 }
 
-inline float32_t wrap_0_2pi(float32_t x)
+inline float32_t wrap_pi_pos(float32_t x, float32_t value)
 {
-    int32_t n = (int32_t)(x / PI_MUL_2);
-    x -= (float32_t)n * PI_MUL_2;
-    if (x < 0) x += PI_MUL_2;
+    int32_t n = (int32_t)(x / value);
+    x -= (float32_t)n * value;
+    if (x < 0) x += value;
     return x;
 }
 
-inline float32_t wrap_m1_1pi(float32_t x)
+inline float32_t wrap_pi_p_n(float32_t x, float32_t value)
 {
-    int32_t n = (int32_t)(x / PI_MUL_2);
-    x -= (float32_t)n * PI_MUL_2;
-    if      (x < -PI) x += PI_MUL_2;
-    else if (x >= PI) x -= PI_MUL_2;
+    int32_t n = (int32_t)(x / value);
+    x -= (float32_t)n * value;
+    if      (x < -PI) x += value;
+    else if (x >= PI) x -= value;
     return x;
 }
 

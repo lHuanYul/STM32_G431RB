@@ -16,7 +16,6 @@ Result motor_foc_tim_setup(const MotorParameter *motor)
     return RESULT_OK(NULL);
 }
 
-// Thread - hallExti - 0
 inline Result motor_foc_hall_update(MotorParameter *motor)
 {
     uint16_t expected = (!motor->reverse)
@@ -29,7 +28,7 @@ inline Result motor_foc_hall_update(MotorParameter *motor)
     if (motor->exti_hall_curt == expected)
     {
         // rotated
-        motor->foc_angle_acc = 0;
+        motor->foc_angle_acc = 0.0f;
     }
     sector_t[motor->exti_hall_curt-1] = motor->svgendq.Sector;
     return RESULT_OK(NULL);
@@ -47,8 +46,8 @@ void stop_check(MotorParameter *motor)
         if (motor->stop_spin_acc >= MOTOR_STOP_TRI)
         {
             motor->stop_spin_acc = 0;
-            motor->pi_speed.i1 = 0;                     // 重置i控制舊值
-            motor->pi_speed.Fbk = 0;                    // 歸零速度實際值
+            motor->pi_speed.i1 = 0;     // 重置i控制舊值
+            motor->pi_speed.Fbk = 0;    // 歸零速度實際值
             motor->pi_Iq.Out=0;
             motor->foc_angle_acc = 0.0f;
         }
@@ -64,12 +63,6 @@ void pi_speed(MotorParameter *motor)
     motor->pi_speed.Fbk = motor->rpm_fbk;
     PI_run(&motor->pi_speed);
     motor->pi_speed_cmd = clampf((motor->pi_speed_cmd + motor->pi_speed.Out), 0.15f, 0.2f);
-}
-
-void angal_cal(MotorParameter *motor)
-{
-    motor->foc_angle_acc += motor->foc_angle_itpl;
-    // clampf(motor->foc_angle_acc + motor->foc_angle_itpl, -PI_DIV_3, PI_DIV_3);
 }
 
 float32_t current_zero;
@@ -92,7 +85,7 @@ Result vec_ctrl_clarke(MotorParameter *motor)
     motor->clarke.Bs = (motor->adc_v.current - current_zero);
     motor->clarke.Cs = (motor->adc_w.current - current_zero);
 
-    CLARKE_run_ideal(&motor->clarke); //? Id.Out=CLAMP((Id.Out + Id.delta), 0.1, 0)
+    CLARKE_run_ideal(&motor->clarke);
     return RESULT_OK(NULL);
 }
 
@@ -100,46 +93,28 @@ Result vec_ctrl_park(MotorParameter *motor)
 {
     // park
     // Id = I alpha cos(theta) + I bata sin(theta)
+    motor->foc_angle_acc += motor->foc_angle_itpl;
     motor->park.Alpha = motor->clarke.Alpha;
     motor->park.Beta = motor->clarke.Beta;
     RESULT_CHECK_RET_RES(trigo_sin_cosf(
-        motor->exti_hall_angal + motor->foc_angle_acc + PI_DIV_2 * 3.0f,
+        motor->exti_hall_angal + motor->foc_angle_acc + PI_DIV_2, // Here
         &motor->park.Sine, &motor->park.Cosine
     ));
     PARK_run(&motor->park);
-    
-    // PARK_MACRO_Swap(motor->park);
-    
-    // PeriodStateVar_id += ( ( (float32_t)motor->park.Ds - (float32_t)PeriodFilter_id)*(float32_t)PeriodKFilter );
-    // PeriodFilter_id = (float32_t)PeriodStateVar_id;
-    // motor->park.Ds = PeriodFilter_id;
-        
-    // PeriodStateVar_iq += ( ( (float32_t)motor->park.Qs - (float32_t)PeriodFilter_iq)*(float32_t)PeriodKFilter );
-    // PeriodFilter_iq = (float32_t)PeriodStateVar_iq;
-    // motor->park.Qs = PeriodFilter_iq;
     return RESULT_OK(NULL);
 }
 
 #define IQ_REF_ADD 0.0f
 void vec_ctrl_pi_id_iq(MotorParameter *motor)
 {
-    if(motor->pi_speed.Fbk > 0)
+    if(motor->rpm_fbk > 0)
     {
         motor->pi_Id.Ref = 0;
+        motor->pi_Iq.Ref = 0.1f;
+
         motor->pi_Id.Fbk = motor->park.Ds;
-        
-        // Id.Fbk=CLAMP(( motor->park.Ds), 0.1, -0.1);
-        
         PI_run(&motor->pi_Id); 
-        
-        // if(Id.Ref > Id.Fbk)
-        //     Id.delta = 0.002;
-        // else
-        //     Id.delta = -0.002;
-        
-        motor->pi_Id.Out = clampf(motor->pi_Id.Out, -0.01f, 0.01f);//限制最大與最小參數
-        
-        // Id.Out=CLAMP((Id.Out + Id.delta), 0.08, -0.08);//限制最大與最小參數
+        motor->pi_Id.Out = clampf(motor->pi_Id.Out, -0.01f, 0.01f);
         
         // Speed.delta = Speed.Ref - Speed.Fbk;
         // Iq.Ref = 0.6 + (Speed.delta * Speed.Kp);//motor->pi_speed_cmd * Current_base
@@ -147,20 +122,18 @@ void vec_ctrl_pi_id_iq(MotorParameter *motor)
         // motor->pi_Iq.Ref = motor->pi_speed_cmd + IQ_REF_ADD;
         // motor->pi_Iq.Fbk = motor->park.Qs;
         // motor->pi_Iq.delta = (motor->pi_Iq.Ref - motor->pi_Iq.Fbk) * (motor->pi_Iq.Kp);
-        // motor->pi_Iq.delta = CLAMP((motor->pi_Iq.delta), 0.1, -0.1);//限制最大與最小參數
-        // motor->pi_Iq.Out = CLAMP((motor->pi_Iq.Ref + motor->pi_Iq.delta), 0.75, 0);//限制最大與最小參數
-
+        // motor->pi_Iq.delta = CLAMP((motor->pi_Iq.delta), 0.1, -0.1);
+        // motor->pi_Iq.Out = CLAMP((motor->pi_Iq.Ref + motor->pi_Iq.delta), 0.75, 0);
         // motor->pi_Iq.Ref = motor->pi_speed_cmd + IQ_REF_ADD;  // 外環給轉矩命令
-        motor->pi_Iq.Ref = 0.3f;
+
         motor->pi_Iq.Fbk = motor->park.Qs;                    // q 軸量測
         PI_run(&motor->pi_Iq);                                // 統一用 PI_run + anti-windup
-        // 視匯流排/過調制上限，做一次幅值限幅（可留在這或放到 Vqref 指派前）
         motor->pi_Iq.Out = clampf(motor->pi_Iq.Out, 0.0f, 0.75f);
-
     }
     else
     {
-        motor->pi_Iq.Out = 0.18;
+        motor->pi_Id.Out = 0.0;
+        motor->pi_Iq.Out = 0.2;
     }
 }
 
@@ -176,8 +149,8 @@ Result vec_ctrl_ipark(MotorParameter *motor)
     motor->ipark.Cosine = motor->park.Cosine;
     IPARK_run(&motor->ipark);
     RESULT_CHECK_RET_RES(trigo_atan(motor->ipark.Alpha, motor->ipark.Beta, &motor->elec_theta_rad));
-    motor->elec_theta_rad = wrap_0_2pi(motor->elec_theta_rad);
-    motor->elec_theta_deg = motor->elec_theta_rad * RAD_TO_DEG;
+    motor->elec_theta_rad = wrap_pi_pos(motor->elec_theta_rad, PI_MUL_2);
+    // motor->elec_theta_deg = motor->elec_theta_rad * RAD_TO_DEG;
     return RESULT_OK(NULL);
 }
 
@@ -212,27 +185,23 @@ Result vec_ctrl_vref(MotorParameter *motor)
     if (status != ARM_MATH_SUCCESS) return RESULT_ERROR(RES_ERR_FAIL);
 
     // motor->svpwm_Vref = Iq.Out;
-    
     //		motor_angle = motor_angle + deg_add;	
     //		if(motor_angle < 0)
     //			motor_angle = motor_angle + 360;
     //		
     //		svpwm_interval = ((int)motor_angle / 60) % 6;
     //		motor->elec_theta_deg      =  (int)motor_angle % 60;
-    
     /*
         svpwm_interval = ((int)cmd_deg / 60) % 6;
         motor->elec_theta_deg      =  (int)cmd_deg % 60;*/
+    
     return RESULT_OK(NULL);
 }
 
 float32_t thete_t[6];
 Result vec_ctrl_svpwm(MotorParameter *motor)
 {
-    float32_t theta = motor->elec_theta_rad;
-    int32_t n = (int32_t)(theta / PI_DIV_3);
-    theta -= (float32_t)n * PI_DIV_3;
-    if (theta < 0) theta += PI_DIV_3;
+    float32_t theta = wrap_pi_pos(motor->elec_theta_rad, PI_DIV_3);
     // ? CHECK
     float32_t T1, T2;
     if(!motor->reverse)
@@ -315,9 +284,6 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
     }
     if (motor->dbg_pwm_count % 1 == 0)
     {
-        cycle[3] = __HAL_TIM_GET_COUNTER(&htim2);
-        // Thread - pwmIt - 1
-        angal_cal(motor);
         CYCLE_CNT(4);
         // Thread - pwmIt - 2
         RESULT_CHECK_RET_RES(vec_ctrl_clarke(motor));

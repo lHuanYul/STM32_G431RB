@@ -89,7 +89,7 @@ typedef struct MotorParameter
     IPARK               ipark;
     SVGENDQ             svgendq;
     float32_t           elec_theta_rad;
-    float32_t           elec_theta_deg;
+    // float32_t           elec_theta_deg;
     float32_t           svpwm_Vref;
     float32_t           pwm_duty_120;
     float32_t           pwm_duty_u;
@@ -100,6 +100,6 @@ typedef struct MotorParameter
 extern MotorParameter motor_h;
 
 float32_t clampf(float32_t val, float32_t min, float32_t max);
-float32_t wrap_0_2pi(float32_t x);
-float32_t wrap_m1_1pi(float32_t x);
+float32_t wrap_pi_pos(float32_t x, float32_t value);
+float32_t wrap_pi_p_n(float32_t x, float32_t value);
 float32_t fast_fabsf(float32_t x);

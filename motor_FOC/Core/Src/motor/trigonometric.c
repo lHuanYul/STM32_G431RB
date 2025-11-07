@@ -1826,7 +1826,7 @@ static const int16_t Table_atan[1501]={
 
 static inline float32_t TableSearch_sin(float32_t theta)
 {
-    theta = wrap_0_2pi(theta);
+    theta = wrap_pi_pos(theta, PI_MUL_2);
     bool minus_flag = false;
     if (theta > PI) {
         minus_flag = true;
@@ -1894,7 +1894,7 @@ Result trigo_sin_cosf(float32_t theta, float32_t *sin, float32_t *cos)
         ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Configure(&hcordic, cordic_currunt));
     }
     int32_t in[2];
-    in[0] = (int32_t)((wrap_m1_1pi(theta) / PI) * 2147483648.0f);
+    in[0] = (int32_t)((wrap_pi_p_n(theta, PI_MUL_2) / PI) * 2147483648.0f);
     in[1] = 0x7FFFFFFF;
     int32_t out[2];
     ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Calculate(&hcordic, in, out, 1, HAL_MAX_DELAY));
