@@ -10,8 +10,7 @@ MotorParameter motor_h = {
         // HALL PIN
         .Hall_GPIOx         = { GPIOC,       GPIOC,       GPIOC       },
         .Hall_GPIO_Pin_x    = { GPIO_PIN_12, GPIO_PIN_11, GPIO_PIN_10 },
-        // PWM TIM
-        // H: PC0 PC1 PC2 // L: PB13 PB14 PB15
+        // PWM TIM / H: PC0 PC1 PC2 / L: PB13 PB14 PB15
         .PWM_htimx          = &htim1,
         .PWM_TIM_CHANNEL_x  = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3 },
         // 120 deg control L
@@ -21,7 +20,7 @@ MotorParameter motor_h = {
         .IT20k_htimx        = &htim1,
         .IT20k_tim_clk      = &tim_clk_APB2,
         // ELE
-        .SPD_htimx          = &htim3,
+        .SPD_htimx          = &htim2,
         .SPD_tim_clk        = &tim_clk_APB1,
     },
     .adc_u = {

@@ -163,7 +163,8 @@ static void motor_init(MotorParameter *motor)
 
     HAL_TIM_Base_Start_IT(motor->const_h.PWM_htimx);
     HAL_TIM_Base_Start(motor->const_h.SPD_htimx);
-    HAL_TIM_Base_Start(&htim2);
+    
+    HAL_TIM_Base_Start(&htim3);
 }
 
 inline void motor_set_speed(MotorParameter *motor, float32_t speed)
@@ -173,6 +174,13 @@ inline void motor_set_speed(MotorParameter *motor, float32_t speed)
 
 inline void motor_set_direction(MotorParameter *motor, MotorRotDirection drct)
 {
+    switch (drct)
+    {
+        case MOTOR_ROT_CCW:
+        case MOTOR_ROT_CLW:
+            break;
+        default: return;
+    }
     motor->rot_drct = drct;
 }
 
@@ -217,7 +225,7 @@ void StartMotorTask(void *argument)
     adc_init(&motor_h.adc_w);
     motor_init(&motor_h);
     motor_h.pi_speed.Ref = 100.0f;
-    motor_set_direction(&motor_h, MOTOR_ROT_CLW);
+    motor_set_direction(&motor_h, MOTOR_ROT_CCW);
 
     motor_switch_ctrl(&motor_h, MOTOR_CTRL_120);
     motor_hall_exti(&motor_h);

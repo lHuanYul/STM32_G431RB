@@ -75,9 +75,9 @@ typedef struct MotorParameter
     // FOC 霍爾相位和
     // chk_hall_total = chk_hall_last*10 + exti_hall_angal;
     volatile uint16_t   chk_hall_total;
-    // FOC 中斷應補角度 (Angle Interpolation)
+    // FOC 應補角度 (Angle Interpolation)
     volatile float32_t  foc_angle_itpl;
-    // FOC 中斷補角和
+    // FOC 角度累積插值
     // foc_angle_acc += foc_angle_itpl; 過一霍爾中斷後重置
     volatile float32_t  foc_angle_acc;
     // 停轉計數器
@@ -98,7 +98,6 @@ typedef struct MotorParameter
     IPARK               ipark;
     SVGENDQ             svgendq;
     float32_t           elec_theta_rad;
-    // float32_t           elec_theta_deg;
     float32_t           svpwm_Vref;
     float32_t           pwm_duty_120;
     float32_t           pwm_duty_u;
