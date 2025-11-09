@@ -2,8 +2,8 @@
 #include "tim.h"
 #include "main/tim.h"
 
-const uint8_t hall_seq_clw[8] = {0, 5, 3, 1, 6, 4, 2, 0};
-const uint8_t hall_seq_ccw[8] = {0, 3, 6, 2, 5, 1, 4, 0};
+const uint8_t hall_seq_ccw[8] = {0, 5, 3, 1, 6, 4, 2, 0};
+const uint8_t hall_seq_clw[8] = {0, 3, 6, 2, 5, 1, 4, 0};
 
 MotorParameter motor_h = {
     .const_h = {
@@ -66,7 +66,7 @@ MotorParameter motor_h = {
         .Umin = -0.01f,
         .w1 = 1.0f,
     },
-    .foc_angle_acc = 0.0f,
+    .pwm_duty_120 = 0.5f,
 };
 
 inline float32_t clampf(float32_t val, float32_t min, float32_t max)
@@ -76,7 +76,7 @@ inline float32_t clampf(float32_t val, float32_t min, float32_t max)
     return val;
 }
 
-inline float32_t wrap_pi_pos(float32_t x, float32_t value)
+inline float32_t wrap_positive(float32_t x, float32_t value)
 {
     int32_t n = (int32_t)(x / value);
     x -= (float32_t)n * value;

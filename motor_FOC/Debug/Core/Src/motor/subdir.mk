@@ -7,7 +7,7 @@
 C_SRCS += \
 ../Core/Src/motor/basic.c \
 ../Core/Src/motor/clarke.c \
-../Core/Src/motor/ctrl_120.c \
+../Core/Src/motor/ctrl_deg.c \
 ../Core/Src/motor/ctrl_foc.c \
 ../Core/Src/motor/main.c \
 ../Core/Src/motor/park.c \
@@ -18,7 +18,7 @@ C_SRCS += \
 OBJS += \
 ./Core/Src/motor/basic.o \
 ./Core/Src/motor/clarke.o \
-./Core/Src/motor/ctrl_120.o \
+./Core/Src/motor/ctrl_deg.o \
 ./Core/Src/motor/ctrl_foc.o \
 ./Core/Src/motor/main.o \
 ./Core/Src/motor/park.o \
@@ -29,7 +29,7 @@ OBJS += \
 C_DEPS += \
 ./Core/Src/motor/basic.d \
 ./Core/Src/motor/clarke.d \
-./Core/Src/motor/ctrl_120.d \
+./Core/Src/motor/ctrl_deg.d \
 ./Core/Src/motor/ctrl_foc.d \
 ./Core/Src/motor/main.d \
 ./Core/Src/motor/park.d \
@@ -45,7 +45,7 @@ Core/Src/motor/%.o Core/Src/motor/%.su Core/Src/motor/%.cyclo: ../Core/Src/motor
 clean: clean-Core-2f-Src-2f-motor
 
 clean-Core-2f-Src-2f-motor:
-	-$(RM) ./Core/Src/motor/basic.cyclo ./Core/Src/motor/basic.d ./Core/Src/motor/basic.o ./Core/Src/motor/basic.su ./Core/Src/motor/clarke.cyclo ./Core/Src/motor/clarke.d ./Core/Src/motor/clarke.o ./Core/Src/motor/clarke.su ./Core/Src/motor/ctrl_120.cyclo ./Core/Src/motor/ctrl_120.d ./Core/Src/motor/ctrl_120.o ./Core/Src/motor/ctrl_120.su ./Core/Src/motor/ctrl_foc.cyclo ./Core/Src/motor/ctrl_foc.d ./Core/Src/motor/ctrl_foc.o ./Core/Src/motor/ctrl_foc.su ./Core/Src/motor/main.cyclo ./Core/Src/motor/main.d ./Core/Src/motor/main.o ./Core/Src/motor/main.su ./Core/Src/motor/park.cyclo ./Core/Src/motor/park.d ./Core/Src/motor/park.o ./Core/Src/motor/park.su ./Core/Src/motor/pi.cyclo ./Core/Src/motor/pi.d ./Core/Src/motor/pi.o ./Core/Src/motor/pi.su ./Core/Src/motor/svgendq.cyclo ./Core/Src/motor/svgendq.d ./Core/Src/motor/svgendq.o ./Core/Src/motor/svgendq.su ./Core/Src/motor/trigonometric.cyclo ./Core/Src/motor/trigonometric.d ./Core/Src/motor/trigonometric.o ./Core/Src/motor/trigonometric.su
+	-$(RM) ./Core/Src/motor/basic.cyclo ./Core/Src/motor/basic.d ./Core/Src/motor/basic.o ./Core/Src/motor/basic.su ./Core/Src/motor/clarke.cyclo ./Core/Src/motor/clarke.d ./Core/Src/motor/clarke.o ./Core/Src/motor/clarke.su ./Core/Src/motor/ctrl_deg.cyclo ./Core/Src/motor/ctrl_deg.d ./Core/Src/motor/ctrl_deg.o ./Core/Src/motor/ctrl_deg.su ./Core/Src/motor/ctrl_foc.cyclo ./Core/Src/motor/ctrl_foc.d ./Core/Src/motor/ctrl_foc.o ./Core/Src/motor/ctrl_foc.su ./Core/Src/motor/main.cyclo ./Core/Src/motor/main.d ./Core/Src/motor/main.o ./Core/Src/motor/main.su ./Core/Src/motor/park.cyclo ./Core/Src/motor/park.d ./Core/Src/motor/park.o ./Core/Src/motor/park.su ./Core/Src/motor/pi.cyclo ./Core/Src/motor/pi.d ./Core/Src/motor/pi.o ./Core/Src/motor/pi.su ./Core/Src/motor/svgendq.cyclo ./Core/Src/motor/svgendq.d ./Core/Src/motor/svgendq.o ./Core/Src/motor/svgendq.su ./Core/Src/motor/trigonometric.cyclo ./Core/Src/motor/trigonometric.d ./Core/Src/motor/trigonometric.o ./Core/Src/motor/trigonometric.su
 
 .PHONY: clean-Core-2f-Src-2f-motor
 

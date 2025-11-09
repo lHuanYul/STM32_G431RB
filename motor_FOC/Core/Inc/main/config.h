@@ -26,6 +26,7 @@
 #define STM32_DEVICE
 #define STM32_G431RB
 #define MCU_MOTOR_CTRL
+// #define MOTOR_FOC_SPIN_DEBUG
 
 #define ITS_CHECK(its, tag) (((its) & (tag)) != RESET)
 #ifndef PI // 180 deg
@@ -49,8 +50,9 @@
 
 #define MOTOR_42BLF01_POLE      4
 #define MOTOR_42BLF01_GEAR      4.4f
-// 霍爾訊號超前實際電角 -PI_DIV_6
-#define MOTOR_42BLF01_ANGLE     -PI_DIV_6
+// 霍爾訊號與實際電角校正
+// ? 霍爾超前實際為負
+#define MOTOR_42BLF01_ANGLE     (PI_DIV_6*-1.0f)
 #define MOTOR_STOP_TRI          50
 
 #define ADC_COUNT       4

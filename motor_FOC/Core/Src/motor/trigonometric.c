@@ -1826,7 +1826,7 @@ static const int16_t Table_atan[1501]={
 
 static inline float32_t TableSearch_sin(float32_t theta)
 {
-    theta = wrap_pi_pos(theta, PI_MUL_2);
+    theta = wrap_positive(theta, PI_MUL_2);
     bool minus_flag = false;
     if (theta > PI) {
         minus_flag = true;

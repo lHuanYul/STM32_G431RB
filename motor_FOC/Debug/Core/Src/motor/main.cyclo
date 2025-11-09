@@ -1,9 +1,9 @@
 ../Core/Src/motor/main.c:8:13:hall_update	7
-../Core/Src/motor/main.c:31:6:motor_hall_exti	7
-../Core/Src/motor/main.c:73:20:stop_check	3
-../Core/Src/motor/main.c:95:20:pi_speed	1
-../Core/Src/motor/main.c:103:6:motor_pwm_pulse	8
-../Core/Src/motor/main.c:133:13:motor_init	1
-../Core/Src/motor/main.c:170:13:motor_set_direction	1
-../Core/Src/motor/main.c:175:6:motor_switch_ctrl	3
-../Core/Src/motor/main.c:202:6:StartMotorTask	4
+../Core/Src/motor/main.c:31:6:motor_hall_exti	10
+../Core/Src/motor/main.c:98:20:stop_check	3
+../Core/Src/motor/main.c:121:20:pi_speed	1
+../Core/Src/motor/main.c:129:6:motor_pwm_pulse	7
+../Core/Src/motor/main.c:159:13:motor_init	1
+../Core/Src/motor/main.c:197:13:motor_set_direction	1
+../Core/Src/motor/main.c:202:6:motor_switch_ctrl	3
+../Core/Src/motor/main.c:234:6:StartMotorTask	4

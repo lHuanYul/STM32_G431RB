@@ -56,7 +56,7 @@ Core/Src/motor/main.o: ../Core/Src/motor/main.c ../Core/Inc/motor/main.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.h \
  ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h \
  ../Core/Inc/stm32g4xx_nucleo_conf.h ../Core/Inc/tim.h \
- ../Core/Inc/motor/ctrl_120.h ../Core/Inc/motor/ctrl_foc.h \
+ ../Core/Inc/motor/ctrl_deg.h ../Core/Inc/motor/ctrl_foc.h \
  ../Core/Inc/analog/adc1/main.h ../Core/Inc/motor/trigonometric.h
 ../Core/Inc/motor/main.h:
 ../Core/Inc/motor/basic.h:
@@ -123,7 +123,7 @@ Core/Src/motor/main.o: ../Core/Src/motor/main.c ../Core/Inc/motor/main.h \
 ../Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo_errno.h:
 ../Core/Inc/stm32g4xx_nucleo_conf.h:
 ../Core/Inc/tim.h:
-../Core/Inc/motor/ctrl_120.h:
+../Core/Inc/motor/ctrl_deg.h:
 ../Core/Inc/motor/ctrl_foc.h:
 ../Core/Inc/analog/adc1/main.h:
 ../Core/Inc/motor/trigonometric.h:

@@ -1,1 +1,1 @@
-../Core/Src/motor/ctrl_120.c:18:6:motor_120_hall_update	24	static
+../Core/Src/motor/ctrl_120.c:26:6:motor_120_rotate	24	static

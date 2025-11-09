@@ -1,4 +1,4 @@
-Core/Src/motor/ctrl_120.o: ../Core/Src/motor/ctrl_120.c \
+Core/Src/motor/ctrl_deg.o: ../Core/Src/motor/ctrl_deg.c \
  ../Core/Inc/motor/ctrl_deg.h ../Core/Inc/motor/basic.h \
  ../Core/Inc/main/config.h ../Middlewares/ST/ARM/DSP/Inc/arm_math.h \
  ../Drivers/CMSIS/Include/cmsis_compiler.h \

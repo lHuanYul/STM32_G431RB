@@ -6,5 +6,5 @@
 void motor_hall_exti(MotorParameter *motor);
 void motor_pwm_pulse(MotorParameter *motor);
 
-void motor_set_direction(MotorParameter *motor, MotorRotDirection drct);
+void motor_set_direction(MotorParameter *motor, bool reverse);
 void motor_switch_ctrl(MotorParameter *motor, MotorCtrlMode ctrl);

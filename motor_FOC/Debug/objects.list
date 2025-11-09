@@ -24,7 +24,7 @@
 "./Core/Src/main/variable_cal.o"
 "./Core/Src/motor/basic.o"
 "./Core/Src/motor/clarke.o"
-"./Core/Src/motor/ctrl_120.o"
+"./Core/Src/motor/ctrl_deg.o"
 "./Core/Src/motor/ctrl_foc.o"
 "./Core/Src/motor/main.o"
 "./Core/Src/motor/park.o"

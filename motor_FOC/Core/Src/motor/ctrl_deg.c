@@ -1,18 +1,10 @@
-#include "motor/ctrl_120.h"
+#include "motor/ctrl_deg.h"
 
-// Commutation right_SEQUENCE for 120 degree control
+// Commutation right_SEQUENCE for degree control
 #define HIGH_PASS   1
 #define NONE_PASS   0
 #define LOW_PASS   -1
-// static const int8_t motor_seq_map[6][3] = {
-//     { HIGH_PASS, LOW_PASS,  NONE_PASS },
-//     { HIGH_PASS, NONE_PASS, LOW_PASS  },
-//     { NONE_PASS, HIGH_PASS, LOW_PASS  },
-//     { LOW_PASS,  HIGH_PASS, NONE_PASS },
-//     { LOW_PASS,  NONE_PASS, HIGH_PASS },
-//     { NONE_PASS, LOW_PASS,  HIGH_PASS }
-// };
-static const int8_t motor_seq_map[6][3] = {
+static const int8_t seq_map[6][3] = {
     { HIGH_PASS, LOW_PASS,  LOW_PASS  },
     { HIGH_PASS, HIGH_PASS, LOW_PASS  },
     { LOW_PASS,  HIGH_PASS, LOW_PASS  },
@@ -20,28 +12,17 @@ static const int8_t motor_seq_map[6][3] = {
     { LOW_PASS,  LOW_PASS,  HIGH_PASS },
     { HIGH_PASS, LOW_PASS,  HIGH_PASS }
 };
-static const uint8_t motor_seq_index[] = {0xFF, 5, 3, 4, 1, 0, 2, 0xFF};
+static const uint8_t seq_index_ccw[] = {0xFF, 5, 3, 4, 1, 0, 2, 0xFF};
 
-// 120 deg cntrol
-void motor_120_hall_update(const MotorParameter *motor)
+void motor_deg_rotate(const MotorParameter *motor)
 {
-    uint8_t idx = motor_seq_index[motor->exti_hall_curt];
-    if (motor->rot_drct == MOTOR_ROT_CLW)
-    switch (motor->rot_drct)
-    {
-        case MOTOR_ROT_CLW:
-        {
-            idx = (idx + 3) % 6;
-            break;
-        }
-        case MOTOR_ROT_CCW: break;
-        default: return;
-    }
+    uint8_t idx = seq_index_ccw[motor->exti_hall_curt];
+    if (motor->reverse) idx = (idx + 2) % 6;
     uint8_t i;
     uint32_t compare = (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_120);
     for (i = 0; i < 3; i++)
     {
-        switch (motor_seq_map[idx][i])
+        switch (seq_map[idx][i])
         {
             case HIGH_PASS:
             {
