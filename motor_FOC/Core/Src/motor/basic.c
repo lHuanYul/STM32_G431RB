@@ -7,43 +7,21 @@ const uint8_t hall_seq_clw[8] = {0, 3, 6, 2, 5, 1, 4, 0};
 
 MotorParameter motor_h = {
     .const_h = {
-        // HALL PIN
         .Hall_GPIOx         = { GPIOC,       GPIOC,       GPIOC       },
         .Hall_GPIO_Pin_x    = { GPIO_PIN_12, GPIO_PIN_11, GPIO_PIN_10 },
-        // PWM TIM / H: PC0 PC1 PC2 / L: PB13 PB14 PB15
+        // H: PC0 PC1 PC2 / L: PB13 PB14 PB15
         .PWM_htimx          = &htim1,
         .PWM_TIM_CHANNEL_x  = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3 },
-        // 120 deg control L
-        .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
-        .Coil_GPIO_Pin_x    = { GPIO_PIN_5,  GPIO_PIN_4,  GPIO_PIN_10 },
-        // 20kHz IT TIM
+        // .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
+        // .Coil_GPIO_Pin_x    = { GPIO_PIN_5,  GPIO_PIN_4,  GPIO_PIN_10 },
         .IT20k_htimx        = &htim1,
         .IT20k_tim_clk      = &tim_clk_APB2,
-        // ELE
         .SPD_htimx          = &htim2,
         .SPD_tim_clk        = &tim_clk_APB1,
     },
-    .adc_u = {
-        .const_h = {
-            .id = 0,
-            .sensitive = 0.097f,
-        },
-        .current_trs = 1.0f,
-    },
-    .adc_v = {
-        .const_h = {
-            .id = 1,
-            .sensitive = 0.1f,
-        },
-        .current_trs = 1.0f,
-    },
-    .adc_w = {
-        .const_h = {
-            .id = 2,
-            .sensitive = 0.1f,
-        },
-        .current_trs = 1.0f,
-    },
+    .adc_a = &adc_2,
+    .adc_b = &adc_1,
+    .adc_c = &adc_0,
     .pi_speed = {
         .Kp = 0.000025f,
         .Ki = 0.002f,

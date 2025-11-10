@@ -14,10 +14,13 @@ extern const uint8_t hall_seq_ccw[8];
 
 typedef struct MotorConst
 {
+    // HALL PIN
     GPIO_TypeDef        *Hall_GPIOx[3];
     uint16_t            Hall_GPIO_Pin_x[3];
+    // PWM timer
     TIM_HandleTypeDef   *PWM_htimx;
     uint32_t            PWM_TIM_CHANNEL_x[3];
+    // deg control L
     GPIO_TypeDef        *Coil_GPIOx[3];
     uint16_t            Coil_GPIO_Pin_x[3];
     // 轉速計時器
@@ -74,11 +77,11 @@ typedef struct MotorParameter
     // 停轉計數器
     uint16_t            stop_spin_acc;
     // 電流 ADC
-    CURRENT_ADC         adc_u;
+    CURRENT_ADC         *adc_a;
     // 電流 ADC
-    CURRENT_ADC         adc_v;
+    CURRENT_ADC         *adc_b;
     // 電流 ADC
-    CURRENT_ADC         adc_w;
+    CURRENT_ADC         *adc_c;
     // 0: ccw / 1: clw
     bool                reverse;
 
@@ -91,7 +94,6 @@ typedef struct MotorParameter
     IPARK               ipark;
     SVGENDQ             svgendq;
     float32_t           elec_theta_rad;
-    float32_t           svpwm_Vref;
     float32_t           pwm_duty_120;
     float32_t           pwm_duty_u;
     float32_t           pwm_duty_v;

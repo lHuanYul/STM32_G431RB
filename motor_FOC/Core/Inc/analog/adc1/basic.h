@@ -22,3 +22,6 @@ typedef struct CURRENT_ADC
 } CURRENT_ADC;
 
 extern CURRENT_ADC adc_test;
+extern CURRENT_ADC adc_0;
+extern CURRENT_ADC adc_1;
+extern CURRENT_ADC adc_2;

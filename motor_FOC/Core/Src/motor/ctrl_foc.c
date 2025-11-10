@@ -44,19 +44,18 @@ inline Result motor_angle_trsf(MotorParameter *motor)
 
 inline void motor_foc_rot_stop(MotorParameter *motor)
 {
-    motor->pi_Iq.Out=0;
+    motor->pi_Iq.Out = 0;
     motor->tim_angle_acc = 0.0f;
 }
 
 float32_t current_zero;
 void vec_ctrl_clarke(MotorParameter *motor)
 {
-
-    // 電流進 motor 為 正
-    current_zero = (motor->adc_u.current + motor->adc_v.current + motor->adc_w.current) / 3.0f;
-    motor->clarke.As = (motor->adc_u.current - current_zero);
-    motor->clarke.Bs = (motor->adc_v.current - current_zero);
-    motor->clarke.Cs = (motor->adc_w.current - current_zero);
+    // 電流進motor為 正
+    current_zero = (motor->adc_a->current + motor->adc_b->current + motor->adc_c->current) / 3.0f;
+    motor->clarke.As = (motor->adc_a->current - current_zero);
+    motor->clarke.Bs = (motor->adc_b->current - current_zero);
+    motor->clarke.Cs = (motor->adc_c->current - current_zero);
 
     CLARKE_run_ideal(&motor->clarke);
     return;
@@ -66,8 +65,7 @@ Result vec_ctrl_park(MotorParameter *motor)
 {
     motor->park.Alpha = motor->clarke.Alpha;
     motor->park.Beta = motor->clarke.Beta;
-    motor->tim_angle_acc += motor->tim_angle_itpl;
-    if (motor->tim_angle_acc > PI_DIV_3) motor->tim_angle_acc = PI_DIV_3;
+    motor->tim_angle_acc = clampf(motor->tim_angle_acc + motor->tim_angle_itpl, -PI_DIV_3, PI_DIV_3);
     // 電壓向量應提前90度 -PI_DIV_2
     RESULT_CHECK_HANDLE(trigo_sin_cosf(
         motor->exti_hall_angal + motor->tim_angle_acc + MOTOR_42BLF01_ANGLE - PI_DIV_2,
@@ -128,49 +126,20 @@ Result vec_ctrl_ipark(MotorParameter *motor)
 void vec_ctrl_svgen(MotorParameter *motor)
 {
     motor->svgendq.Ualpha = motor->ipark.Alpha;
-    // 如果sector算出來是旋轉相反方向便取負
-    motor->svgendq.Ubeta = -motor->ipark.Beta;
+    // temp 如果sector算出來是旋轉相反方向便取負
+    motor->svgendq.Ubeta = motor->ipark.Beta;
     SVGEN_run(&motor->svgendq);
-}
-
-Result vec_ctrl_vref(MotorParameter *motor)
-{
-    // 6us
-    // motor->svpwm_Vref = sqrt(motor->svgendq.Ualpha*motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta);
-    
-    // if(stop_flag==1)
-    //     {
-    //     if(motor->svpwm_Vref>0.0001)
-    //     {
-    //         motor->svpwm_Vref-=0.0001;
-    //         Iq.Out=0.18 ;
-    //     }
-    //     else
-    //         motor->svpwm_Vref=0;
-    //     }
-    // else
-    arm_status status = arm_sqrt_f32(
-        motor->svgendq.Ualpha * motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta,
-        &motor->svpwm_Vref
-    );
-    if (status != ARM_MATH_SUCCESS) return RESULT_ERROR(RES_ERR_FAIL);
-
-    // motor->svpwm_Vref = Iq.Out;
-    //		motor_angle = motor_angle + deg_add;	
-    //		if(motor_angle < 0)
-    //			motor_angle = motor_angle + 360;
-    //		
-    //		svpwm_interval = ((int)motor_angle / 60) % 6;
-    //		motor->elec_theta_deg      =  (int)motor_angle % 60;
-    /*
-        svpwm_interval = ((int)cmd_deg / 60) % 6;
-        motor->elec_theta_deg      =  (int)cmd_deg % 60;*/
-    
-    return RESULT_OK(NULL);
 }
 
 Result vec_ctrl_svpwm(MotorParameter *motor)
 {
+    float32_t vref;
+    if (
+        arm_sqrt_f32(
+            motor->svgendq.Ualpha * motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta,
+            &vref
+        ) != ARM_MATH_SUCCESS
+    ) return RESULT_ERROR(RES_ERR_FAIL);
     float32_t theta = wrap_positive(motor->elec_theta_rad, PI_DIV_3);
     // T1: 第一個有源向量導通時間 在該sector內靠近前一個主向量的時間比例(由sin(π/3−θ)決定)
     // T2: 第二個有源向量導通時間 在該sector內靠近下一個主向量的時間比例(由sin(θ)決定)
@@ -185,6 +154,8 @@ Result vec_ctrl_svpwm(MotorParameter *motor)
         RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T1, NULL));
         RESULT_CHECK_RET_RES(trigo_sin_cosf(PI_DIV_3 - theta, &T2, NULL));
     }
+    T1 *= vref;
+    T2 *= vref;
     // T0div2: 零向量時間的一半 將整個零向量時間平均分配到PWM週期的前後兩端 讓波形中心對稱
     float32_t T0div2 = (1.0f - (T1 + T2)) * 0.5f;
     switch (motor->svgendq.Sector)
@@ -232,6 +203,9 @@ Result vec_ctrl_svpwm(MotorParameter *motor)
             break;
         }
     }
+    motor->pwm_duty_u = clampf(motor->pwm_duty_u, 0.0f, 0.98f);
+    motor->pwm_duty_v = clampf(motor->pwm_duty_v, 0.0f, 0.98f);
+    motor->pwm_duty_w = clampf(motor->pwm_duty_w, 0.0f, 0.98f);
     #ifndef MOTOR_FOC_SPIN_DEBUG
     __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u));
     __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_v));
@@ -260,9 +234,6 @@ Result motor_foc_pwm_pulse(MotorParameter *motor)
     CYCLE_CNT(8);
     // Thread - pwmIt - 6
     vec_ctrl_svgen(motor);
-    CYCLE_CNT(9);
-    // Thread - pwmIt - 7
-    RESULT_CHECK_RET_RES(vec_ctrl_vref(motor));  // !
     CYCLE_CNT(10);
     // Thread - pwmIt - 8
     RESULT_CHECK_RET_RES(vec_ctrl_svpwm(motor));

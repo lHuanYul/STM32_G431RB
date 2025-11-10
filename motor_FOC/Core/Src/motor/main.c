@@ -135,9 +135,9 @@ void motor_pwm_pulse(MotorParameter *motor)
         stop_check(motor);
         pi_speed(motor);
     }
-    RESULT_CHECK_RET_VOID(adc_renew(&motor->adc_u));
-    RESULT_CHECK_RET_VOID(adc_renew(&motor->adc_v));
-    RESULT_CHECK_RET_VOID(adc_renew(&motor->adc_w));
+    RESULT_CHECK_RET_VOID(adc_renew(&motor->adc_a));
+    RESULT_CHECK_RET_VOID(adc_renew(&motor->adc_b));
+    RESULT_CHECK_RET_VOID(adc_renew(&motor->adc_c));
     #ifndef MOTOR_FOC_SPIN_DEBUG
     switch (motor->mode)
     {
@@ -235,14 +235,14 @@ void StartMotorTask(void *argument)
 {
     while(HAL_GetTick() < 1000)
     {
-        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_u));
-        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_v));
-        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_w));
+        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_a));
+        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_b));
+        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_c));
         osDelay(1);
     }
-    adc_init(&motor_h.adc_u);
-    adc_init(&motor_h.adc_v);
-    adc_init(&motor_h.adc_w);
+    adc_init(&motor_h.adc_a);
+    adc_init(&motor_h.adc_b);
+    adc_init(&motor_h.adc_c);
     motor_init(&motor_h);
     motor_h.pi_speed.Ref = 100.0f;
     motor_set_direction(&motor_h, 1);
