@@ -27,7 +27,6 @@ static void hall_update(MotorParameter *motor)
     }
 }
 
-uint32_t htim_cnt;
 void motor_hall_exti(MotorParameter *motor)
 {
     hall_update(motor);
@@ -51,7 +50,7 @@ void motor_hall_exti(MotorParameter *motor)
     if (motor->exti_hall_cnt >= 6)
     {
         motor->exti_hall_cnt = 0;
-        htim_cnt = __HAL_TIM_GET_COUNTER(motor->const_h.SPD_htimx);
+        uint32_t htim_cnt = __HAL_TIM_GET_COUNTER(motor->const_h.SPD_htimx);
         __HAL_TIM_SET_COUNTER(motor->const_h.SPD_htimx, 0);
         if (htim_cnt == 0)
         {
@@ -67,6 +66,7 @@ void motor_hall_exti(MotorParameter *motor)
                 motor->tim_angle_itpl *= -1;
             }
         }
+        motor->tim_angle_itpl = motor->tfm_tim_it_angle_itpl / htim_cnt;
     }
     
     #ifndef MOTOR_FOC_SPIN_DEBUG
@@ -89,7 +89,10 @@ void motor_hall_exti(MotorParameter *motor)
         }
     }
     #else
-    motor->tim_angle_itpl = motor->tfm_tim_it_angle_itpl / htim_cnt;
+    if (expected && (motor->reverse == reverse))
+    {
+        motor->tim_angle_acc = 0.0f;
+    }
     motor_angle_trsf(motor);
     motor_deg_rotate(motor);
     #endif
@@ -135,9 +138,9 @@ void motor_pwm_pulse(MotorParameter *motor)
         stop_check(motor);
         pi_speed(motor);
     }
-    RESULT_CHECK_RET_VOID(adc_renew(&motor->adc_a));
-    RESULT_CHECK_RET_VOID(adc_renew(&motor->adc_b));
-    RESULT_CHECK_RET_VOID(adc_renew(&motor->adc_c));
+    RESULT_CHECK_RET_VOID(adc_renew(motor->adc_a));
+    RESULT_CHECK_RET_VOID(adc_renew(motor->adc_b));
+    RESULT_CHECK_RET_VOID(adc_renew(motor->adc_c));
     #ifndef MOTOR_FOC_SPIN_DEBUG
     switch (motor->mode)
     {
@@ -235,21 +238,21 @@ void StartMotorTask(void *argument)
 {
     while(HAL_GetTick() < 1000)
     {
-        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_a));
-        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_b));
-        RESULT_CHECK_HANDLE(adc_renew(&motor_h.adc_c));
+        RESULT_CHECK_HANDLE(adc_renew(motor_h.adc_a));
+        RESULT_CHECK_HANDLE(adc_renew(motor_h.adc_b));
+        RESULT_CHECK_HANDLE(adc_renew(motor_h.adc_c));
         osDelay(1);
     }
-    adc_init(&motor_h.adc_a);
-    adc_init(&motor_h.adc_b);
-    adc_init(&motor_h.adc_c);
+    adc_init(motor_h.adc_a);
+    adc_init(motor_h.adc_b);
+    adc_init(motor_h.adc_c);
     motor_init(&motor_h);
     motor_h.pi_speed.Ref = 100.0f;
-    motor_set_direction(&motor_h, 1);
+    motor_set_direction(&motor_h, 0);
 
     motor_switch_ctrl(&motor_h, MOTOR_CTRL_120);
     motor_hall_exti(&motor_h);
-    osDelay(3000);
+    osDelay(2000);
 
     motor_switch_ctrl(&motor_h, MOTOR_CTRL_FOC);
     motor_hall_exti(&motor_h);

@@ -1,10 +1,9 @@
 ../Core/Src/motor/ctrl_foc.c:6:15:motor_angle_trsf	7
 ../Core/Src/motor/ctrl_foc.c:45:13:motor_foc_rot_stop	1
 ../Core/Src/motor/ctrl_foc.c:52:6:vec_ctrl_clarke	1
-../Core/Src/motor/ctrl_foc.c:65:8:vec_ctrl_park	3
-../Core/Src/motor/ctrl_foc.c:81:6:vec_ctrl_pi_id_iq	2
-../Core/Src/motor/ctrl_foc.c:113:8:vec_ctrl_ipark	3
-../Core/Src/motor/ctrl_foc.c:128:6:vec_ctrl_svgen	1
-../Core/Src/motor/ctrl_foc.c:136:8:vec_ctrl_vref	3
-../Core/Src/motor/ctrl_foc.c:172:8:vec_ctrl_svpwm	27
-../Core/Src/motor/ctrl_foc.c:245:8:motor_foc_pwm_pulse	5
+../Core/Src/motor/ctrl_foc.c:64:8:vec_ctrl_park	2
+../Core/Src/motor/ctrl_foc.c:79:6:vec_ctrl_pi_id_iq	2
+../Core/Src/motor/ctrl_foc.c:111:8:vec_ctrl_ipark	3
+../Core/Src/motor/ctrl_foc.c:130:6:vec_ctrl_svgen	3
+../Core/Src/motor/ctrl_foc.c:146:8:vec_ctrl_svpwm	29
+../Core/Src/motor/ctrl_foc.c:232:8:motor_foc_pwm_pulse	4

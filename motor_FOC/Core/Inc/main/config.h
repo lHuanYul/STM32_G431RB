@@ -52,7 +52,7 @@
 #define MOTOR_42BLF01_GEAR      4.4f
 // 霍爾訊號與實際電角校正
 // ? 霍爾超前實際為負
-#define MOTOR_42BLF01_ANGLE     (PI_DIV_6*-1.0f)
+#define MOTOR_42BLF01_ANGLE     (PI_DIV_6*-5.0f) // 6 // -3/3 -4/2 -5/2 -6/6
 #define MOTOR_STOP_TRI          50
 
 #define ADC_COUNT       4

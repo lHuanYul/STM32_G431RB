@@ -15,5 +15,5 @@ inline void CLARKE_run_ideal(volatile CLARKE *clarke)
 inline void CLARKE_run_nideal(volatile CLARKE *clarke)
 {
     clarke->Alpha = DIV_2_3 * clarke->As - DIV_1_3 * clarke->Bs - DIV_1_3 * clarke->Cs;
-    clarke->Beta  = ONE_DIV_SQRT3 * (clarke->Bs - clarke->Cs);
+    clarke->Beta  = (clarke->Bs - clarke->Cs) * ONE_DIV_SQRT3;
 }

@@ -66,10 +66,10 @@ Result vec_ctrl_park(MotorParameter *motor)
     motor->park.Alpha = motor->clarke.Alpha;
     motor->park.Beta = motor->clarke.Beta;
     motor->tim_angle_acc = clampf(motor->tim_angle_acc + motor->tim_angle_itpl, -PI_DIV_3, PI_DIV_3);
-    // 電壓向量應提前90度 -PI_DIV_2
+    // 電壓向量應提前90度 +PI_DIV_2
     RESULT_CHECK_HANDLE(trigo_sin_cosf(
-        motor->exti_hall_angal + motor->tim_angle_acc + MOTOR_42BLF01_ANGLE - PI_DIV_2,
-        &motor->park.Sine, &motor->park.Cosine
+        motor->exti_hall_angal + motor->tim_angle_acc + MOTOR_42BLF01_ANGLE + PI_DIV_2,
+        &motor->park.Sin, &motor->park.Cos
     ));
     PARK_run(&motor->park);
     return RESULT_OK(NULL);
@@ -115,20 +115,32 @@ Result vec_ctrl_ipark(MotorParameter *motor)
     if (motor->reverse) motor->ipark.Vqref *= -1;
     // motor->ipark.Vdref = clampf(motor->ipark.Vdref + motor->pi_Id.Out, -0.06f, 0.06f);
     // motor->ipark.Vqref = motor->pi_Iq.Out;
-    motor->ipark.Sine = motor->park.Sine;
-    motor->ipark.Cosine = motor->park.Cosine;
+    motor->ipark.Sin = motor->park.Sin;
+    motor->ipark.Cos = motor->park.Cos;
     IPARK_run(&motor->ipark);
+    // motor->ipark.Beta *= -1;
     RESULT_CHECK_RET_RES(trigo_atan(motor->ipark.Alpha, motor->ipark.Beta, &motor->elec_theta_rad));
     motor->elec_theta_rad = wrap_positive(motor->elec_theta_rad, PI_MUL_2);
     return RESULT_OK(NULL);
 }
 
+float32_t sec_chk[30] = {0};
+uint8_t chk_cnt = 0;
+uint8_t sec_mem = 0;
 void vec_ctrl_svgen(MotorParameter *motor)
 {
     motor->svgendq.Ualpha = motor->ipark.Alpha;
-    // temp 如果sector算出來是旋轉相反方向便取負
-    motor->svgendq.Ubeta = motor->ipark.Beta;
+    motor->svgendq.Ubeta  = motor->ipark.Beta ;
     SVGEN_run(&motor->svgendq);
+
+    if (motor->svgendq.Sector != sec_mem)
+    {
+        sec_chk[chk_cnt++] = motor->exti_hall_curt;
+        // sec_chk[chk_cnt++] = motor->elec_theta_rad;
+        sec_chk[chk_cnt++] = motor->svgendq.Sector;
+        if (chk_cnt >= 30) chk_cnt = 0;
+    }
+    sec_mem = motor->svgendq.Sector;
 }
 
 Result vec_ctrl_svpwm(MotorParameter *motor)
@@ -154,6 +166,7 @@ Result vec_ctrl_svpwm(MotorParameter *motor)
         RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T1, NULL));
         RESULT_CHECK_RET_RES(trigo_sin_cosf(PI_DIV_3 - theta, &T2, NULL));
     }
+    vref = 1.0f;
     T1 *= vref;
     T2 *= vref;
     // T0div2: 零向量時間的一半 將整個零向量時間平均分配到PWM週期的前後兩端 讓波形中心對稱

@@ -5,12 +5,12 @@
 #define NONE_PASS   0
 #define LOW_PASS   -1
 static const int8_t seq_map[6][3] = {
-    { HIGH_PASS, LOW_PASS,  LOW_PASS  },
-    { HIGH_PASS, HIGH_PASS, LOW_PASS  },
-    { LOW_PASS,  HIGH_PASS, LOW_PASS  },
-    { LOW_PASS,  HIGH_PASS, HIGH_PASS },
-    { LOW_PASS,  LOW_PASS,  HIGH_PASS },
-    { HIGH_PASS, LOW_PASS,  HIGH_PASS }
+    { HIGH_PASS, LOW_PASS,  LOW_PASS  }, // 6
+    { HIGH_PASS, HIGH_PASS, LOW_PASS  }, // 2
+    { LOW_PASS,  HIGH_PASS, LOW_PASS  }, // 3
+    { LOW_PASS,  HIGH_PASS, HIGH_PASS }, // 1
+    { LOW_PASS,  LOW_PASS,  HIGH_PASS }, // 5
+    { HIGH_PASS, LOW_PASS,  HIGH_PASS }  // 4
 };
 static const uint8_t seq_index_ccw[] = {0xFF, 5, 3, 4, 1, 0, 2, 0xFF};
 

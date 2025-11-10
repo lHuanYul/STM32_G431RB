@@ -19,9 +19,9 @@ MotorParameter motor_h = {
         .SPD_htimx          = &htim2,
         .SPD_tim_clk        = &tim_clk_APB1,
     },
-    .adc_a = &adc_2,
+    .adc_a = &adc_0,
     .adc_b = &adc_1,
-    .adc_c = &adc_0,
+    .adc_c = &adc_2,
     .pi_speed = {
         .Kp = 0.000025f,
         .Ki = 0.002f,

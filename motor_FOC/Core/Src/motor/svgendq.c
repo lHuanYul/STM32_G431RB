@@ -1,11 +1,12 @@
 #include "motor/svgendq.h"
 
+// Sector 0: this is special case for (Ualpha,Ubeta) = (0,0)
 inline void SVGEN_run(volatile SVGENDQ *svgq)
 {
-    float32_t t1 = svgq->Ubeta * 0.5f;
-    float32_t t2 = SQRT3_DIV_2 * svgq->Ualpha;   // sqrt(3)/2
+    float32_t t1 = svgq->Ualpha * 0.5f;
+    float32_t t2 = svgq->Ubeta * SQRT3_DIV_2;
     // Inverse clarke transformation
-    svgq->Va = svgq->Ubeta;
+    svgq->Va = svgq->Ualpha;
     svgq->Vb = -t1 + t2;
     svgq->Vc = -t1 - t2;
     // 60 degree Sector determination
@@ -13,5 +14,4 @@ inline void SVGEN_run(volatile SVGENDQ *svgq)
     if (svgq->Va > 0.0f) svgq->Sector += 4;
     if (svgq->Vb > 0.0f) svgq->Sector += 2;
     if (svgq->Vc > 0.0f) svgq->Sector += 1;
-    // Sector 0: this is special case for (Ualpha,Ubeta) = (0,0)
 }
