@@ -39,8 +39,6 @@ typedef enum MotorCtrlMode
 
 typedef struct MotorParameter
 {
-    float32_t           dbg_tim_it_freq;
-    uint16_t            dbg_tim_it_cnt;
     // 常數
     const MotorConst    const_h;
     // 霍爾間隔 → 輸出軸轉速(RPM) 轉換常數
@@ -49,54 +47,65 @@ typedef struct MotorParameter
     // PWM 週期 → 電角度內插轉換常數
     // Δθ_elec(rad) = [ (TIM_tim_t * ARR) / ELE_tim_t ] × (π/3) / htim_cnt
     float32_t           tfm_tim_it_angle_itpl;
+    // 計時器頻率
+    float32_t           dbg_tim_it_freq;
     // 馬達控制方式
     MotorCtrlMode       mode;
-    // 目前 RPM
-    float32_t           rpm_fbk;
-    // 上次霍爾相位
-    uint8_t             exti_hall_last;
-    // 目前霍爾相位(546231)
-    volatile uint8_t    exti_hall_curt;
-    // 目前霍爾相位(rad)
-    volatile float32_t  exti_hall_angal;
-    //
-    volatile uint8_t    exti_hall_cnt;
-    // 霍爾累積角度基準
-    // 每次霍爾相位切換時 馬達轉+60角度
-    // volatile float32_t  hall_angle_acc;
-    // 上次 FOC 霍爾相位
-    uint8_t             chk_hall_last;
-    // FOC 霍爾相位和
-    // chk_hall_total = chk_hall_last*10 + exti_hall_angal;
-    volatile uint16_t   chk_hall_total;
+    // 0: ccw / 1: clw
+    bool                reverse;
+
+    volatile PI_CTRL    pi_speed;
+    
+    float32_t           pi_speed_cmd;
+    // 目前霍爾相位
+    volatile float32_t  exti_hall_rad;
+    // 電角度
+    float32_t           elec_theta_rad;
     // FOC 應補角度 (Angle Interpolation)
     volatile float32_t  tim_angle_itpl;
     // FOC 角度累積插值
     // tim_angle_acc += tim_angle_itpl; 過一霍爾中斷後重置
-    volatile float32_t  tim_angle_acc;
+    float32_t           tim_angle_acc;
+    // 霍爾計數
+    volatile uint8_t    exti_hall_acc;
+    // 計時中斷計數
+    uint16_t            tim_it_acc;
     // 停轉計數器
     uint16_t            stop_spin_acc;
+    // 上次霍爾相位
+    uint8_t             exti_hall_last;
+    // 目前霍爾相位
+    volatile uint8_t    exti_hall_curt;
+    // 上次 FOC 霍爾相位
+    uint8_t             tim_hall_last;
+    // FOC 霍爾相位和
+    // tim_hall_total = tim_hall_last*10 + exti_hall_curt;
+    uint16_t            tim_hall_total;
     // 電流 ADC
     CURRENT_ADC         *adc_a;
     // 電流 ADC
     CURRENT_ADC         *adc_b;
     // 電流 ADC
     CURRENT_ADC         *adc_c;
-    // 0: ccw / 1: clw
-    bool                reverse;
-
-    volatile PI_CTRL    pi_speed;
-    float32_t           pi_speed_cmd;
-    PI_CTRL             pi_Iq;
-    PI_CTRL             pi_Id;
+    // clarke
     CLARKE              clarke;
+    // park
     PARK                park;
+
+    PI_CTRL             pi_Iq;
+
+    PI_CTRL             pi_Id;
+    // ipark
     IPARK               ipark;
+    // svgendq
     SVGENDQ             svgendq;
-    float32_t           elec_theta_rad;
+    // PWM duty
     float32_t           pwm_duty_120;
+    // PWM duty
     float32_t           pwm_duty_u;
+    // PWM duty
     float32_t           pwm_duty_v;
+    // PWM duty
     float32_t           pwm_duty_w;
 } MotorParameter;
 extern MotorParameter motor_h;

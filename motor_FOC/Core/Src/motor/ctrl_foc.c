@@ -9,32 +9,32 @@ inline Result motor_angle_trsf(MotorParameter *motor)
     {
         case 4:
         {
-            motor->exti_hall_angal = 0.0f;
+            motor->exti_hall_rad = 0.0f;
             break;
         }
         case 6:
         {
-            motor->exti_hall_angal = 1.0f * PI_DIV_3;
+            motor->exti_hall_rad = 1.0f * PI_DIV_3;
             break;
         }
         case 2:
         {
-            motor->exti_hall_angal = 2.0f * PI_DIV_3;
+            motor->exti_hall_rad = 2.0f * PI_DIV_3;
             break;
         }
         case 3:
         {
-            motor->exti_hall_angal = 3.0f * PI_DIV_3;
+            motor->exti_hall_rad = 3.0f * PI_DIV_3;
             break;
         }
         case 1:
         {
-            motor->exti_hall_angal = 4.0f * PI_DIV_3;
+            motor->exti_hall_rad = 4.0f * PI_DIV_3;
             break;
         }
         case 5:
         {
-            motor->exti_hall_angal = 5.0f * PI_DIV_3;
+            motor->exti_hall_rad = 5.0f * PI_DIV_3;
             break;
         }
         default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
@@ -68,7 +68,7 @@ Result vec_ctrl_park(MotorParameter *motor)
     motor->tim_angle_acc = clampf(motor->tim_angle_acc + motor->tim_angle_itpl, -PI_DIV_3, PI_DIV_3);
     // 電壓向量應提前90度 +PI_DIV_2
     RESULT_CHECK_HANDLE(trigo_sin_cosf(
-        motor->exti_hall_angal + motor->tim_angle_acc + MOTOR_42BLF01_ANGLE + PI_DIV_2,
+        motor->exti_hall_rad + motor->tim_angle_acc + MOTOR_42BLF01_ANGLE + PI_DIV_2,
         &motor->park.Sin, &motor->park.Cos
     ));
     PARK_run(&motor->park);
@@ -78,9 +78,9 @@ Result vec_ctrl_park(MotorParameter *motor)
 #define IQ_REF_ADD 0.0f
 void vec_ctrl_pi_id_iq(MotorParameter *motor)
 {
-    if(motor->rpm_fbk > 0)
+    if(motor->pi_speed.Fbk != 0.0f)
     {
-        motor->pi_Id.Ref = 0;
+        motor->pi_Id.Ref = 0.0f;
         motor->pi_Iq.Ref = 0.2f;
 
         motor->pi_Id.Fbk = motor->park.Ds;
@@ -104,21 +104,19 @@ void vec_ctrl_pi_id_iq(MotorParameter *motor)
     else
     {
         motor->pi_Id.Out = 0.0f;
-        motor->pi_Iq.Out = 0.2f;
+        motor->pi_Iq.Out = motor->reverse ? -0.2f : +0.2f;
     }
 }
 
 Result vec_ctrl_ipark(MotorParameter *motor)
 {
     motor->ipark.Vdref = 0.0;
-    motor->ipark.Vqref = 0.2;
-    if (motor->reverse) motor->ipark.Vqref *= -1;
+    motor->ipark.Vqref = motor->reverse ? -0.2f : +0.2f;
     // motor->ipark.Vdref = clampf(motor->ipark.Vdref + motor->pi_Id.Out, -0.06f, 0.06f);
     // motor->ipark.Vqref = motor->pi_Iq.Out;
     motor->ipark.Sin = motor->park.Sin;
     motor->ipark.Cos = motor->park.Cos;
     IPARK_run(&motor->ipark);
-    // motor->ipark.Beta *= -1;
     RESULT_CHECK_RET_RES(trigo_atan(motor->ipark.Alpha, motor->ipark.Beta, &motor->elec_theta_rad));
     motor->elec_theta_rad = wrap_positive(motor->elec_theta_rad, PI_MUL_2);
     return RESULT_OK(NULL);
@@ -156,16 +154,16 @@ Result vec_ctrl_svpwm(MotorParameter *motor)
     // T1: 第一個有源向量導通時間 在該sector內靠近前一個主向量的時間比例(由sin(π/3−θ)決定)
     // T2: 第二個有源向量導通時間 在該sector內靠近下一個主向量的時間比例(由sin(θ)決定)
     float32_t T1, T2;
-    if (!motor->reverse)
-    {
+    // if (!motor->reverse)
+    // {
         RESULT_CHECK_RET_RES(trigo_sin_cosf(PI_DIV_3 - theta, &T1, NULL));
         RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T2, NULL));
-    }
-    else
-    {
-        RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T1, NULL));
-        RESULT_CHECK_RET_RES(trigo_sin_cosf(PI_DIV_3 - theta, &T2, NULL));
-    }
+    // }
+    // else
+    // {
+    //     RESULT_CHECK_RET_RES(trigo_sin_cosf(theta, &T1, NULL));
+    //     RESULT_CHECK_RET_RES(trigo_sin_cosf(PI_DIV_3 - theta, &T2, NULL));
+    // }
     vref = 1.0f;
     T1 *= vref;
     T2 *= vref;

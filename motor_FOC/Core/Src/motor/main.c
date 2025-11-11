@@ -46,27 +46,27 @@ void motor_hall_exti(MotorParameter *motor)
         reverse = 1;
     }
     // rpm
-    motor->exti_hall_cnt++;
-    if (motor->exti_hall_cnt >= 6)
+    motor->exti_hall_acc++;
+    if (motor->exti_hall_acc >= 6)
     {
-        motor->exti_hall_cnt = 0;
+        motor->exti_hall_acc = 0;
         uint32_t htim_cnt = __HAL_TIM_GET_COUNTER(motor->const_h.SPD_htimx);
         __HAL_TIM_SET_COUNTER(motor->const_h.SPD_htimx, 0);
         if (htim_cnt == 0)
         {
-            motor->rpm_fbk = 0.0f;
+            motor->pi_speed.Fbk = 0.0f;
         }
         else
         {
-            motor->rpm_fbk = motor->tfm_rpm_fbk / (float32_t)htim_cnt;
+            motor->pi_speed.Fbk = motor->tfm_rpm_fbk / (float32_t)htim_cnt;
             motor->tim_angle_itpl = motor->tfm_tim_it_angle_itpl / (float32_t)htim_cnt;
             if (reverse)
             {
-                motor->rpm_fbk *= -1;
+                motor->pi_speed.Fbk *= -1;
                 motor->tim_angle_itpl *= -1;
             }
         }
-        motor->tim_angle_itpl = motor->tfm_tim_it_angle_itpl / htim_cnt;
+        // motor->tim_angle_itpl = motor->tfm_tim_it_angle_itpl / htim_cnt;
     }
     
     #ifndef MOTOR_FOC_SPIN_DEBUG
@@ -103,38 +103,37 @@ static inline void stop_check(MotorParameter *motor)
     // 停轉判斷
     // 現在與上一個霍爾的總和與之前的總和相同，視為馬達靜止不動
     uint8_t current = motor->exti_hall_curt;
-    uint16_t total = motor->chk_hall_last * 10 + current;
-    if(total == motor->chk_hall_total)
+    uint16_t total = motor->tim_hall_last * 10 + current;
+    if(total == motor->tim_hall_total)
     {
         motor->stop_spin_acc++;
         if (motor->stop_spin_acc >= MOTOR_STOP_TRI)
         {
             motor->stop_spin_acc = 0;
-            motor->rpm_fbk = 0;         // 歸零速度實際值
+            motor->pi_speed.Fbk = 0;         // 歸零速度實際值
             __HAL_TIM_SET_COUNTER(motor->const_h.SPD_htimx, 0);
             motor->pi_speed.i1 = 0;     // 重置i控制舊值
             motor_foc_rot_stop(motor);
         }
     }
     else motor->stop_spin_acc = 0;
-    motor->chk_hall_last = current;
-    motor->chk_hall_total = total;
+    motor->tim_hall_last = current;
+    motor->tim_hall_total = total;
 }
 
 static inline void pi_speed(MotorParameter *motor)
 {
     // 計算 速度PI (每100個PWM中斷)
-    motor->pi_speed.Fbk = motor->rpm_fbk;
     PI_run(&motor->pi_speed);
     motor->pi_speed_cmd = clampf((motor->pi_speed_cmd + motor->pi_speed.Out), 0.15f, 0.2f);
 }
 
 void motor_pwm_pulse(MotorParameter *motor)
 {
-    motor->dbg_tim_it_cnt++;
-    if (motor->dbg_tim_it_cnt >= 100)
+    motor->tim_it_acc++;
+    if (motor->tim_it_acc >= 100)
     {
-        motor->dbg_tim_it_cnt = 0;
+        motor->tim_it_acc = 0;
         stop_check(motor);
         pi_speed(motor);
     }
