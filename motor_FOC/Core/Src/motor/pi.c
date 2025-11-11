@@ -3,8 +3,8 @@
 
 void PI_run(volatile PI_CTRL *pi)
 {
-    pi->up = pi->Kp * (pi->Ref - pi->Fbk);
-
+    pi->delta = pi->Ref - pi->Fbk;
+    pi->up = pi->Kp * pi->delta;
     if (pi->Out == pi->v1)
     {
         pi->ui = pi->Ki * pi->up + pi->i1;

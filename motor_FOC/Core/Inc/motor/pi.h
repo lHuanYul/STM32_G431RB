@@ -11,12 +11,12 @@ typedef struct PI_CTRL {
     float32_t Ki;   // Parameter: integral gain
     float32_t Umax; // Parameter: upper saturation limit
     float32_t Umin; // Parameter: lower saturation limit
+    float32_t delta;
     float32_t up;   // Data: proportional term
     float32_t ui;   // Data: integral term
     float32_t v1;   // Data: pre-saturated controller output
     float32_t i1;   // Data: integrator storage: ui(k-1)
     float32_t w1;   // Data: saturation record: [u(k-1) - v(k-1)]
-    float32_t delta;
 } PI_CTRL;
 
 #define PI_CONTROLLER_DEFAULTS { \

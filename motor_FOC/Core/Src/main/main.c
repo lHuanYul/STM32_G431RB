@@ -24,6 +24,10 @@ inline void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
     {
         motor_pwm_pulse(&motor_h);
     }
+    if (htim == motor_h.const_h.SPD_htimx)
+    {
+        motor_stop_trigger(&motor_h);
+    }
 }
 
 #define DEFALT_TASK_DELAY_MS 50

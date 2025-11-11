@@ -42,7 +42,9 @@ static void average(uint8_t adc_id, float32_t *adc_store)
 #define ALPHA 0.1f
 static inline void iir(uint8_t adc_id, float32_t *adc_store)
 {
-    *adc_store += ALPHA * ((float32_t)ADC_Values[adc_id] - *adc_store);
+    float32_t avg;
+    average(adc_id, &avg);
+    *adc_store += ALPHA * (avg - *adc_store);
 }
 
 Result adc_renew(CURRENT_ADC *adc)

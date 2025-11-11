@@ -56,7 +56,7 @@
 #define MOTOR_STOP_TRI          50
 
 #define ADC_COUNT       4
-#define ADC_NEED_LEN    1 // 511
+#define ADC_NEED_LEN    5 // 511
 #define ADC_TO_VOL      (3.3f/4095.0f)
 #define ADC_VOL_SEP     (2.0f/3.0f)
 
@@ -66,7 +66,7 @@
 #define TIM1_ARR        500 // Max: 65535
 // Motor Time Calculate
 #define TIM2_PSC        0
-#define TIM2_ARR        4294967295 // Max: 4294967295
+#define TIM2_ARR        170000000 // Max: 4294967295
 // Programe Time Calculate
 #define TIM3_PSC        16
 #define TIM3_ARR        65535 // Max: 65535

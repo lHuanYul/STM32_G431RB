@@ -46,7 +46,7 @@ typedef struct MotorParameter
     float32_t           tfm_rpm_fbk;
     // PWM 週期 → 電角度內插轉換常數
     // Δθ_elec(rad) = [ (TIM_tim_t * ARR) / ELE_tim_t ] × (π/3) / htim_cnt
-    float32_t           tfm_tim_it_angle_itpl;
+    float32_t           tfm_foc_it_angle_itpl;
     // 計時器頻率
     float32_t           dbg_tim_it_freq;
     // 馬達控制方式
@@ -56,16 +56,16 @@ typedef struct MotorParameter
 
     volatile PI_CTRL    pi_speed;
     
-    float32_t           pi_speed_cmd;
+    float32_t           speed_Iq_cmd;
     // 目前霍爾相位
     volatile float32_t  exti_hall_rad;
     // 電角度
     float32_t           elec_theta_rad;
     // FOC 應補角度 (Angle Interpolation)
-    volatile float32_t  tim_angle_itpl;
+    volatile float32_t  foc_angle_itpl;
     // FOC 角度累積插值
-    // tim_angle_acc += tim_angle_itpl; 過一霍爾中斷後重置
-    float32_t           tim_angle_acc;
+    // foc_angle_acc += foc_angle_itpl; 過一霍爾中斷後重置
+    float32_t           foc_angle_acc;
     // 霍爾計數
     volatile uint8_t    exti_hall_acc;
     // 計時中斷計數

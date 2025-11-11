@@ -1,9 +1,9 @@
 ../Core/Src/motor/main.c:8:13:hall_update	24	static
 ../Core/Src/motor/main.c:30:6:motor_hall_exti	32	static
-../Core/Src/motor/main.c:101:20:stop_check	24	static
-../Core/Src/motor/main.c:124:20:pi_speed	16	static
-../Core/Src/motor/main.c:132:6:motor_pwm_pulse	48	static
-../Core/Src/motor/main.c:162:13:motor_init	32	static
-../Core/Src/motor/main.c:200:13:motor_set_direction	16	static
-../Core/Src/motor/main.c:205:6:motor_switch_ctrl	16	static
-../Core/Src/motor/main.c:237:6:StartMotorTask	40	static
+../Core/Src/motor/main.c:123:20:pi_speed	16	static
+../Core/Src/motor/main.c:133:6:motor_pwm_pulse	64	static
+../Core/Src/motor/main.c:162:6:motor_stop_trigger	16	static
+../Core/Src/motor/main.c:172:13:motor_init	32	static
+../Core/Src/motor/main.c:210:13:motor_set_direction	16	static
+../Core/Src/motor/main.c:215:6:motor_switch_ctrl	16	static
+../Core/Src/motor/main.c:247:6:StartMotorTask	40	static
