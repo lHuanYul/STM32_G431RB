@@ -1,5 +1,6 @@
-../Core/Src/motor/main.c:8:6:motor_hall_exti	16
-../Core/Src/motor/main.c:116:6:motor_pwm_pulse	8
-../Core/Src/motor/main.c:143:6:motor_stop_trigger	1
-../Core/Src/motor/main.c:153:13:motor_setup	1
-../Core/Src/motor/main.c:187:6:StartMotorTask	4
+../Core/Src/motor/main.c:8:6:motor_hall_exti	18
+../Core/Src/motor/main.c:109:6:motor_adc_renew	4
+../Core/Src/motor/main.c:116:6:motor_pwm_pulse	6
+../Core/Src/motor/main.c:142:6:motor_stop_trigger	1
+../Core/Src/motor/main.c:152:13:motor_setup	14
+../Core/Src/motor/main.c:203:6:StartMotorTask	0

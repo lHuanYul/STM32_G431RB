@@ -63,15 +63,15 @@
 #define ADC_VOL_SEP     (2.0f/3.0f)
 
 // Motor Core
-// 20kHz 50us
-#define TIM1_PSC        16
-#define TIM1_ARR        500 // Max: 65535
+// 20kHz 50us pwm
+#define TIM1_PSC        0
+#define TIM1_ARR        4250 // Max: 65535
 // Motor Time Calculate
 #define TIM2_PSC        0
 #define TIM2_ARR        170000000 // Max: 4294967295
-// Programe Time Calculate
-#define TIM3_PSC        16
-#define TIM3_ARR        65535 // Max: 65535
+// 20kHz 50us 20kHzIT
+#define TIM3_PSC        0
+#define TIM3_ARR        8500 // Max: 65535
 
 #define TIM_DTG_200ns   0x22
 #define TIM_DTG_300ns   0x33

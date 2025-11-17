@@ -20,6 +20,8 @@ typedef struct MotorConst
     // PWM timer
     TIM_HandleTypeDef   *PWM_htimx;
     uint32_t            PWM_TIM_CHANNEL_x[3];
+    uint32_t            *PWM_tim_clk;
+    uint32_t            PWM_MID_TIM_CH_x;
     // deg control L
     GPIO_TypeDef        *Coil_GPIOx[3];
     uint16_t            Coil_GPIO_Pin_x[3];
@@ -38,6 +40,7 @@ typedef struct MotorConst
 
 typedef enum MotorCtrlMode
 {
+    MOTOR_CTRL_INIT,
     MOTOR_CTRL_120,
     MOTOR_CTRL_180,
     MOTOR_CTRL_FOC,
@@ -53,6 +56,7 @@ typedef struct MotorParameter
     // PWM 週期 → 電角度內插轉換常數
     // Δθ_elec(rad) = [ (TIM_tim_t * ARR) / ELE_tim_t ] × (π/3) / htim_cnt
     float32_t           tfm_foc_it_angle_itpl;
+    float32_t           dbg_pwm_freq;
     // 計時器頻率
     float32_t           dbg_tim_it_freq;
     // 馬達控制方式
@@ -103,6 +107,8 @@ typedef struct MotorParameter
     IPARK               ipark;
     // svgendq
     SVGENDQ             svgendq;
+    
+    float32_t           v_ref;
     // PWM duty
     float32_t           pwm_duty_deg;
     // PWM duty

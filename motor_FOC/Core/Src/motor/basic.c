@@ -12,10 +12,12 @@ MotorParameter motor_h = {
         // Yellow Green Blue
         .PWM_htimx          = &htim1,
         .PWM_TIM_CHANNEL_x  = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3 },
+        .PWM_tim_clk        = &tim_clk_APB2,
+        .PWM_MID_TIM_CH_x   = TIM_CHANNEL_4,
         // .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
         // .Coil_GPIO_Pin_x    = { GPIO_PIN_5,  GPIO_PIN_4,  GPIO_PIN_10 },
-        .IT20k_htimx        = &htim1,
-        .IT20k_tim_clk      = &tim_clk_APB2,
+        .IT20k_htimx        = &htim3,
+        .IT20k_tim_clk      = &tim_clk_APB1,
         .SPD_htimx          = &htim2,
         .SPD_tim_clk        = &tim_clk_APB1,
         // 42BLF01
@@ -51,7 +53,7 @@ MotorParameter motor_h = {
         // .Umin = -0.75f, In motor_init
         .w1 = 1.0f,
     },
-    .pwm_duty_deg = 0.5f,
+    .pwm_duty_deg = 1.0f,
 };
 
 inline void motor_init(MotorParameter *motor)
@@ -62,7 +64,7 @@ inline void motor_init(MotorParameter *motor)
 
 void motor_set_speed(MotorParameter *motor, float32_t speed)
 {
-    speed = var_clampf(speed, -100.0f, 100.0f);
+    // speed = var_clampf(speed, -100.0f, 100.0f);
     motor->pi_spd.Ref = speed;
 }
 
@@ -85,6 +87,7 @@ void motor_switch_ctrl(MotorParameter *motor, MotorCtrlMode ctrl)
             HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2]);
             break;
         }
+        default: return;
     }
     motor->mode = ctrl;
 }

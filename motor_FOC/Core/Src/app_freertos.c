@@ -61,13 +61,6 @@ const osThreadAttr_t motorTask_attributes = {
   .priority = (osPriority_t) osPriorityAboveNormal,
   .stack_size = 128 * 4
 };
-/* Definitions for adcTask */
-osThreadId_t adcTaskHandle;
-const osThreadAttr_t adcTask_attributes = {
-  .name = "adcTask",
-  .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 128 * 4
-};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -76,7 +69,6 @@ const osThreadAttr_t adcTask_attributes = {
 
 void StartDefaultTask(void *argument);
 void StartMotorTask(void *argument);
-void StartAdcTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -112,9 +104,6 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of motorTask */
   motorTaskHandle = osThreadNew(StartMotorTask, NULL, &motorTask_attributes);
-
-  /* creation of adcTask */
-  adcTaskHandle = osThreadNew(StartAdcTask, NULL, &adcTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -160,24 +149,6 @@ __weak void StartMotorTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartMotorTask */
-}
-
-/* USER CODE BEGIN Header_StartAdcTask */
-/**
-* @brief Function implementing the adcTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartAdcTask */
-__weak void StartAdcTask(void *argument)
-{
-  /* USER CODE BEGIN StartAdcTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END StartAdcTask */
 }
 
 /* Private application code --------------------------------------------------*/

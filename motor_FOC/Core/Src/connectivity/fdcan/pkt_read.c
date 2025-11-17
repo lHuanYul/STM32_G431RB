@@ -525,7 +525,7 @@ Result fdcan_pkt_ist_read(FdcanPkt* pkt)
             #define SPD_START_BYTE 4
             RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, SPD_START_BYTE + 3, NULL));
             uint8_t spd_u8[4];
-            memcpy(&spd_u8, pkt->data + SPD_START_BYTE, 4);
+            memcpy(spd_u8, pkt->data + SPD_START_BYTE, 4);
             float32_t spd_f32 = var_u8_to_f32_be(spd_u8);
             motor_set_speed(&motor_h, spd_f32);
             return RESULT_OK(NULL);

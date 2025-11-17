@@ -1,4 +1,5 @@
 ../Core/Src/main/main.c:5:13:INIT_OWN	1
-../Core/Src/main/main.c:10:13:HAL_GPIO_EXTI_Callback	4
-../Core/Src/main/main.c:21:13:HAL_TIM_PeriodElapsedCallback_OWN	3
-../Core/Src/main/main.c:35:6:StartDefaultTask	1
+../Core/Src/main/main.c:10:6:HAL_GPIO_EXTI_Callback	4
+../Core/Src/main/main.c:21:6:HAL_TIM_PeriodElapsedCallback_OWN	2
+../Core/Src/main/main.c:32:6:HAL_ADCEx_InjectedConvCpltCallback	2
+../Core/Src/main/main.c:43:6:StartDefaultTask	1

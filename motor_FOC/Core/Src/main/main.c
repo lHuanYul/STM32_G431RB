@@ -7,7 +7,7 @@ inline void INIT_OWN(void)
     INIT_OWN_TIM();
 }
 
-inline void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (
            (GPIO_Pin == motor_h.const_h.Hall_GPIO_Pin_x[0])
@@ -18,15 +18,23 @@ inline void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 }
 
-inline void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
     if (htim == motor_h.const_h.IT20k_htimx)
     {
-        motor_pwm_pulse(&motor_h);
     }
     if (htim == motor_h.const_h.SPD_htimx)
     {
         motor_stop_trigger(&motor_h);
+    }
+}
+
+void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc == motor_h.adc_a->const_h.hadcx)
+    {
+        motor_adc_renew(&motor_h);
+        motor_pwm_pulse(&motor_h);
     }
 }
 

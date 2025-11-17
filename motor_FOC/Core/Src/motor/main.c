@@ -7,6 +7,7 @@
 
 void motor_hall_exti(MotorParameter *motor)
 {
+    if (motor->mode == MOTOR_CTRL_INIT) return;
     // hall update
     uint8_t hall_last = motor->exti_hall_curt;
     uint8_t hall_current =
@@ -68,16 +69,10 @@ void motor_hall_exti(MotorParameter *motor)
     }
     // 
     #ifndef MOTOR_FOC_SPIN_DEBUG
-    switch (motor->mode)
-    {
-        case MOTOR_CTRL_120:
-        case MOTOR_CTRL_180:
-        {
-            deg_ctrl_load(motor);
-            break;
-        }
-        default: break;
-    }
+    if (
+           (motor->mode == MOTOR_CTRL_120)
+        || (motor->mode == MOTOR_CTRL_180)
+    ) deg_ctrl_load(motor);
     #else
     if (expected && (motor->reverse == reverse))
     {
@@ -111,13 +106,17 @@ void motor_hall_exti(MotorParameter *motor)
 //     motor->tim_hall_total = total;
 // }
 
-uint32_t cycle[16] = {0};
-#define CYCLE_CNT(id) ({cycle[id] = __HAL_TIM_GET_COUNTER(&htim3) - cycle[id-1];})
-void motor_pwm_pulse(MotorParameter *motor)
+void motor_adc_renew(MotorParameter *motor)
 {
     RESULT_CHECK_RET_VOID(adc_renew(motor->adc_a));
     RESULT_CHECK_RET_VOID(adc_renew(motor->adc_b));
     RESULT_CHECK_RET_VOID(adc_renew(motor->adc_c));
+}
+
+void motor_pwm_pulse(MotorParameter *motor)
+{
+    if (motor->mode == MOTOR_CTRL_INIT) return;
+    // motor_adc_renew(motor);
     RESULT_CHECK_RET_VOID(vec_ctrl_hall_angle_chk(motor));
     motor->tim_it_acc++;
     if (motor->tim_it_acc >= 100)
@@ -153,6 +152,10 @@ void motor_stop_trigger(MotorParameter *motor)
 static void motor_setup(MotorParameter *motor)
 {
     motor_init(motor);
+    const float32_t PWM_tim_f =
+        (float32_t)*motor->const_h.PWM_tim_clk /
+        (float32_t)(motor->const_h.PWM_htimx->Init.Prescaler + 1U);
+
     const float32_t FOC_tim_f =
         (float32_t)*motor->const_h.IT20k_tim_clk /
         (float32_t)(motor->const_h.IT20k_htimx->Init.Prescaler + 1U);
@@ -171,6 +174,7 @@ static void motor_setup(MotorParameter *motor)
     const float32_t ELE_tim_t =
         (float32_t)(motor->const_h.SPD_htimx->Init.Prescaler + 1U) /
         (float32_t)*motor->const_h.SPD_tim_clk;
+    motor->dbg_pwm_freq = PWM_tim_f / (motor->const_h.PWM_htimx->Init.Period * 2);
     motor->dbg_tim_it_freq = FOC_tim_f / motor->const_h.IT20k_htimx->Init.Period;
     // ELE_tim_f / (6.0f * (float32_t)MOTOR_42BLF01_POLE / 2.0f * MOTOR_42BLF01_GEAR) * 60.0f;
     motor->tfm_rpm_fbk =
@@ -178,28 +182,30 @@ static void motor_setup(MotorParameter *motor)
     motor->tfm_foc_it_angle_itpl =
         FOC_tim_t / ELE_tim_t * (float32_t)(motor->const_h.IT20k_htimx->Init.Period) * PI_DIV_3;
 
-    HAL_TIM_Base_Start_IT(motor->const_h.PWM_htimx);
-    HAL_TIM_Base_Start(motor->const_h.SPD_htimx);
-    
-    HAL_TIM_Base_Start(&htim3);
+    ERROR_CHECK_HAL_HANDLE(HAL_ADCEx_Calibration_Start(motor->adc_a->const_h.hadcx, ADC_SINGLE_ENDED));
+    ERROR_CHECK_HAL_HANDLE(HAL_ADCEx_Calibration_Start(motor->adc_b->const_h.hadcx, ADC_SINGLE_ENDED));
+    ERROR_CHECK_HAL_HANDLE(HAL_ADCEx_Calibration_Start(motor->adc_c->const_h.hadcx, ADC_SINGLE_ENDED));
+    ERROR_CHECK_HAL_HANDLE(HAL_ADCEx_InjectedStart_IT(motor->adc_a->const_h.hadcx));
+
+    ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start_IT(motor->const_h.IT20k_htimx));
+    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_MID_TIM_CH_x,
+        motor->const_h.PWM_htimx->Init.Period - 1);
+    ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start(motor->const_h.PWM_htimx));
+    ERROR_CHECK_HAL_HANDLE(HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_MID_TIM_CH_x));
+    ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start(motor->const_h.SPD_htimx));
+
+    osDelay(1000);
+    adc_set_zero_point(motor_h.adc_a);
+    adc_set_zero_point(motor_h.adc_b);
+    adc_set_zero_point(motor_h.adc_c);
 }
 
 void StartMotorTask(void *argument)
 {
-    while(HAL_GetTick() < 1000)
-    {
-        RESULT_CHECK_HANDLE(adc_renew(motor_h.adc_a));
-        RESULT_CHECK_HANDLE(adc_renew(motor_h.adc_b));
-        RESULT_CHECK_HANDLE(adc_renew(motor_h.adc_c));
-        osDelay(1);
-    }
-    adc_init(motor_h.adc_a);
-    adc_init(motor_h.adc_b);
-    adc_init(motor_h.adc_c);
     motor_setup(&motor_h);
-    motor_set_speed(&motor_h, 100);
+    motor_set_speed(&motor_h, 250);
 
-    motor_switch_ctrl(&motor_h, MOTOR_CTRL_120);
+    motor_switch_ctrl(&motor_h, MOTOR_CTRL_180);
     motor_hall_exti(&motor_h);
     osDelay(2000);
 

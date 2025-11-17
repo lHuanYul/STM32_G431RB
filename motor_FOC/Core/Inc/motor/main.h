@@ -4,5 +4,6 @@
 #include "main/fn_state.h"
 
 void motor_hall_exti(MotorParameter *motor);
+void motor_adc_renew(MotorParameter *motor);
 void motor_pwm_pulse(MotorParameter *motor);
 void motor_stop_trigger(MotorParameter *motor);

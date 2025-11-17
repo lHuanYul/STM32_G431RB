@@ -134,11 +134,10 @@ inline void vec_ctrl_svgen(MotorParameter *motor)
 
 inline void vec_ctrl_svpwm(MotorParameter *motor)
 {
-    float32_t vref;
     if (
         arm_sqrt_f32(
             motor->svgendq.Ualpha * motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta,
-            &vref
+            &motor->v_ref
         ) != ARM_MATH_SUCCESS
     ) while (1) {};
     float32_t theta = var_wrap_pos(motor->elec_theta_rad, PI_DIV_3);
@@ -147,8 +146,8 @@ inline void vec_ctrl_svpwm(MotorParameter *motor)
     float32_t T1, T2;
     RESULT_CHECK_HANDLE(trigo_sin_cosf(PI_DIV_3 - theta, &T1, NULL));
     RESULT_CHECK_HANDLE(trigo_sin_cosf(theta, &T2, NULL));
-    T1 *= vref;
-    T2 *= vref;
+    T1 *= motor->v_ref;
+    T2 *= motor->v_ref;
     // T0div2: 零向量時間的一半 將整個零向量時間平均分配到PWM週期的前後兩端 讓波形中心對稱
     float32_t T0div2 = (1.0f - (T1 + T2)) * 0.5f;
     switch (motor->svgendq.Sector)
@@ -200,9 +199,9 @@ inline void vec_ctrl_svpwm(MotorParameter *motor)
 
 inline void vec_ctrl_load(MotorParameter *motor)
 {
-    // motor->pwm_duty_u = var_clampf(motor->pwm_duty_u, 0.0f, 0.98f);
-    // motor->pwm_duty_v = var_clampf(motor->pwm_duty_v, 0.0f, 0.98f);
-    // motor->pwm_duty_w = var_clampf(motor->pwm_duty_w, 0.0f, 0.98f);
+    motor->pwm_duty_u = var_clampf(motor->pwm_duty_u, 0.0f, 1.0f);
+    motor->pwm_duty_v = var_clampf(motor->pwm_duty_v, 0.0f, 1.0f);
+    motor->pwm_duty_w = var_clampf(motor->pwm_duty_w, 0.0f, 1.0f);
     __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u));
     __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_v));
     __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_w));
