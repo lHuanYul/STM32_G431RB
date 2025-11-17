@@ -1,33 +1,21 @@
 #include "connectivity/fdcan/pkt_write.h"
-#include "connectivity/cmds.h"
+#include "connectivity/fdcan/pkt_read.h"
 #include "main/variable_cal.h"
 
-static void write_u32(uint32_t value, uint8_t* container)
-{
-    value = var_swap_u32(value);
-    uint8_t *u8 = (uint8_t*)&value;
-    container[0] = u8[0];
-    container[1] = u8[1];
-    container[2] = u8[2];
-    container[3] = u8[3];
-}
-
-static void write_f32(float value, uint8_t* container)
-{
-    uint32_t u32;
-    memcpy(&u32, &value, sizeof(u32));
-    write_u32(u32, container);
-}
-
-__weak Result fdcan_data_pkt_write_inner(FdcanPkt* pkt, DataType type)
+__weak Result fdcan_pkt_write_inner(FdcanPkt* pkt, DataType type)
 {
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
+
+__weak Result trsm_pkt_proc_inner(void)
+{
+    return RESULT_OK(NULL);
 }
 
 #ifdef PRINCIPAL_PROGRAM
 #include "motor/main.h"
 
-static inline Result fdcan_data_pkt_write_inner(FdcanPkt* pkt, DataType type)
+static inline Result fdcan_pkt_write_inner(FdcanPkt* pkt, DataType type)
 {
     switch (type)
     {
@@ -36,7 +24,7 @@ static inline Result fdcan_data_pkt_write_inner(FdcanPkt* pkt, DataType type)
             pkt->id = FDCAN_DATA_ID;
             pkt->data[0] = CMD_DATA_B0_CONTROL;
             pkt->data[1] = CMD_DATA_B1_LEFT_SPEED;
-            write_f32(motor_left.rps_present, pkt->data + 2);
+            var_f32_to_u8_be(motor_left.rps_present, pkt->data + 2);
             pkt->len = 6;
             return RESULT_OK(pkt);
         }
@@ -54,7 +42,7 @@ static inline Result fdcan_data_pkt_write_inner(FdcanPkt* pkt, DataType type)
             pkt->id = FDCAN_DATA_ID;
             pkt->data[0] = CMD_DATA_B0_CONTROL;
             pkt->data[1] = CMD_DATA_B1_RIGHT_SPEED;
-            write_f32(motor_left.rps_present, pkt->data + 2);
+            var_f32_to_u8_be(motor_left.rps_present, pkt->data + 2);
             pkt->len = 6;
             return RESULT_OK(pkt);
         }
@@ -75,7 +63,7 @@ static inline Result fdcan_data_pkt_write_inner(FdcanPkt* pkt, DataType type)
 #ifdef ANCILLARY_PROGRAM
 #include "robotic_arm/main.h"
 
-static inline Result fdcan_data_pkt_write_inner(FdcanPkt* pkt, DataType type)
+static inline Result fdcan_pkt_write_inner(FdcanPkt* pkt, DataType type)
 {
     switch (type)
     {
@@ -143,7 +131,7 @@ Result fdcan_rfid_pkt_write(FdcanPkt* pkt, uint32_t uid, uint8_t n_exist)
     pkt->id = FDCAN_ARM_DATA_ID;
     pkt->data[0] = CMD_MAP_B0_CONTROL;
     pkt->data[1] = CMD_MAP_B1_INFO;
-    write_u32(uid, pkt->data + 2);
+    var_u32_to_u8_be(uid, pkt->data + 2);
     pkt->data[6] = n_exist;
     pkt->len = 7;
     return RESULT_OK(pkt);
@@ -250,8 +238,10 @@ Result pkt_vehi_set_speed(FdcanPkt* pkt, Percentage value)
 }
 #endif
 
+#include "motor/basic.h"
+
 static float ftest = 0.0;
-Result fdcan_data_pkt_write(FdcanPkt* pkt, DataType type)
+Result fdcan_pkt_write(FdcanPkt* pkt, DataType type)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
     switch (type)
@@ -261,11 +251,36 @@ Result fdcan_data_pkt_write(FdcanPkt* pkt, DataType type)
             pkt->id = FDCAN_TEST_ID;
             pkt->data[0] = CMD_DATA_B0_CONTROL;
             pkt->data[1] = 0xFF;
-            write_f32(ftest++, pkt->data + 2);
+            var_f32_to_u8_be(ftest++, pkt->data + 2);
             pkt->len = 6;
             return RESULT_OK(pkt);
         }
-        default: return fdcan_data_pkt_write_inner(pkt, type);
+        case DATA_TYPE_SPD:
+        {
+            #define SPD_START_BYTE 4
+            pkt->id = FDCAN_DATA_ID;
+            RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 8));
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            RESULT_CHECK_HANDLE(pkt_data_write_f32(pkt, SPD_START_BYTE, motor_h.pi_spd.Fbk));
+            return RESULT_OK(pkt);
+        }
+        default: return fdcan_pkt_write_inner(pkt, type);
     }
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
+
+Result trsm_pkt_proc(void)
+{
+    Result result = RESULT_OK(NULL);
+    if (fdacn_data_store == FNC_ENABLE)
+    {
+        #ifdef ENABLE_CON_PKT_TEST
+        FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_pkt_write(pkt, DATA_TYPE_TEST);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        #else
+        return trsm_pkt_proc_inner();
+        #endif
+    }
+    return result;
 }

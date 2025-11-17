@@ -1,6 +1,7 @@
 #include "connectivity/fdcan/callback.h"
 #include "fdcan.h"
-#include "connectivity/fdcan/main.h"
+#include "connectivity/fdcan/pkt_read.h"
+#include "connectivity/fdcan/pkt_write.h"
 
 void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
 {
@@ -46,7 +47,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         pkt->len = RxHeader0.DataLength;
         if (pkt->id >= FDCAN_FILTER0_ID_MIN && pkt->id <= FDCAN_FILTER0_ID_MAX)
         {
-            instant_recv_proc(pkt);
+            fdcan_pkt_ist_read(pkt);
             fdcan_pkt_pool_free(pkt);
         }
         else if (pkt->id >= FDCAN_FILTER1_ID_MIN && pkt->id <= FDCAN_FILTER1_ID_MAX)

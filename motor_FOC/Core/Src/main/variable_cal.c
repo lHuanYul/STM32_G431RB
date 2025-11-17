@@ -44,6 +44,71 @@ float32_t var_swap_f32(float32_t value)
     return value;
 }
 
+void var_u32_to_u8_be(uint32_t value, uint8_t *u8)
+{
+    u8[0] = (uint8_t)(value >> 24);
+    u8[1] = (uint8_t)(value >> 16);
+    u8[2] = (uint8_t)(value >> 8);
+    u8[3] = (uint8_t)(value);
+}
+
+uint32_t var_u8_to_u32_be(const uint8_t *u8)
+{
+    return ((uint32_t)u8[0] << 24) |
+           ((uint32_t)u8[1] << 16) |
+           ((uint32_t)u8[2] << 8)  |
+           ((uint32_t)u8[3]);
+}
+
+void var_f32_to_u8_be(float32_t value, uint8_t* u8)
+{
+    uint32_t u32;
+    memcpy(&u32, &value, sizeof(u32));
+    var_u32_to_u8_be(u32, u8);
+}
+
+float32_t var_u8_to_f32_be(const uint8_t *u8)
+{
+    uint32_t u32 = var_u8_to_u32_be(u8);
+    float32_t f32;
+    memcpy(&f32, &u32, sizeof(f32));
+    return f32;
+}
+
+float32_t var_clampf(float32_t val, float32_t min, float32_t max)
+{
+    if (val > max) return max;
+    if (val < min) return min;
+    return val;
+}
+
+float32_t var_wrap_pos(float32_t x, float32_t value)
+{
+    int32_t n = (int32_t)(x / value);
+    x -= (float32_t)n * value;
+    if (x < 0) x += value;
+    return x;
+}
+
+float32_t var_wrap_pi(float32_t x, float32_t value)
+{
+    int32_t n = (int32_t)(x / value);
+    x -= (float32_t)n * value;
+    if      (x < -PI) x += value;
+    else if (x >= PI) x -= value;
+    return x;
+}
+
+float32_t var_fabsf(float32_t x)
+{
+    union {
+        float32_t f;
+        uint32_t u;
+    } v = { x };
+    v.u &= 0x7FFFFFFF;  // 清除最高位 sign bit
+    return v.f;
+}
+
 // 16 bit --------------------------------------------------------------------------------
 
 uint16_t var_comb_u16(const void* src)
@@ -65,6 +130,3 @@ uint16_t var_swap_u16(uint16_t value)
     return    ((value & 0x00FFU) << 8)
             | ((value & 0xFF00U) >> 8);
 }
-
-
-

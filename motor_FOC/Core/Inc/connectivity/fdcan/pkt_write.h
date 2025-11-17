@@ -27,9 +27,11 @@ typedef enum DataType
     DATA_TYPE_ARM_FINGER,
     DATA_TYPE_MAP_INFO,
     #endif
+    DATA_TYPE_SPD,
 } DataType;
 
-Result fdcan_data_pkt_write(FdcanPkt* pkt, DataType type);
+Result fdcan_pkt_write(FdcanPkt* pkt, DataType type);
+Result trsm_pkt_proc(void);
 
 #ifdef ANCILLARY_PROGRAM
 Result fdcan_rfid_pkt_write(FdcanPkt* pkt, uint32_t uid, uint8_t n_exist);

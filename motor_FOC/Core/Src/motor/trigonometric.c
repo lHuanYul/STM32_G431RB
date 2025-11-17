@@ -320,7 +320,7 @@ static const float32_t Table_sin[316] = {
     -0.008407	 //	3.15
 };//Table_sin END
 
-static const int16_t Table_atan[1501]={
+static const int16_t Table_atan[1501] = {
     0,    //0.00
     100,    //0.01
     200,    //0.02
@@ -1826,7 +1826,7 @@ static const int16_t Table_atan[1501]={
 
 static inline float32_t TableSearch_sin(float32_t theta)
 {
-    theta = wrap_positive(theta, PI_MUL_2);
+    theta = var_wrap_pos(theta, PI_MUL_2);
     bool minus_flag = false;
     if (theta > PI) {
         minus_flag = true;
@@ -1841,7 +1841,7 @@ static inline float32_t TableSearch_sin(float32_t theta)
 
 static inline float32_t TableSearch_atan(float32_t theta)
 {
-    uint16_t idx = (uint16_t)fabsf(theta * 100.0f);
+    uint16_t idx = (uint16_t)var_fabsf(theta * 100.0f);
     if (idx > 1500) idx = 1500;
     float32_t output_abs = (float32_t)Table_atan[idx] / 10000.0f;
     return (theta >= 0.0f) ? output_abs : -output_abs;
@@ -1894,7 +1894,7 @@ Result trigo_sin_cosf(float32_t theta, float32_t *sin, float32_t *cos)
         ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Configure(&hcordic, cordic_currunt));
     }
     int32_t in[2];
-    in[0] = (int32_t)((wrap_pi_p_n(theta, PI_MUL_2) / PI) * 2147483648.0f);
+    in[0] = (int32_t)((var_wrap_pi(theta, PI_MUL_2) / PI) * 2147483648.0f);
     in[1] = 0x7FFFFFFF;
     int32_t out[2];
     ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Calculate(&hcordic, in, out, 1, HAL_MAX_DELAY));
@@ -1910,8 +1910,8 @@ Result trigo_atan(float32_t x, float32_t y, float32_t *theta)
         cordic_currunt = &cordic_cfg_atan;
         ERROR_CHECK_HAL_RET_RES(HAL_CORDIC_Configure(&hcordic, cordic_currunt));
     }
-    float32_t ax = fast_fabsf(x);
-    float32_t ay = fast_fabsf(y);
+    float32_t ax = var_fabsf(x);
+    float32_t ay = var_fabsf(y);
     float32_t norm = (ax > ay) ? ax : ay;
     if (norm == 0.0f) return RESULT_ERROR(RES_ERR_DIV_0);
     x /= norm;

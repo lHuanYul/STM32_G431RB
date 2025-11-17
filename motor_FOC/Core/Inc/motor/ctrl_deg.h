@@ -2,4 +2,4 @@
 
 #include "motor/basic.h"
 
-void motor_deg_rotate(const MotorParameter *motor);
+void deg_ctrl_load(const MotorParameter *motor);

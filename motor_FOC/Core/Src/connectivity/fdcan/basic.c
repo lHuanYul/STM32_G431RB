@@ -1,4 +1,5 @@
 #include "connectivity/fdcan/basic.h"
+#include "main/variable_cal.h"
 
 FdcanPktPool fdcan_pkt_pool;
 
@@ -11,6 +12,20 @@ Result fdcan_pkt_get_byte(FdcanPkt* pkt, uint8_t id, uint8_t* container)
     if (pkt->len <= id) return RESULT_ERROR(RES_ERR_NOT_FOUND);
     *container = pkt->data[id];
     return RESULT_OK(container);
+}
+
+Result fdcan_pkt_set_len(FdcanPkt* pkt, uint8_t len)
+{
+    if (len > FDCAN_PKT_LEN) return RESULT_ERROR(RES_ERR_FULL);
+    pkt->len = len;
+    return RESULT_OK(pkt);
+}
+
+Result pkt_data_write_f32(FdcanPkt* pkt, uint8_t start_id, float32_t value)
+{
+    if (pkt->len < start_id + 4) return RESULT_ERROR(RES_ERR_FULL);
+    var_f32_to_u8_be(value, pkt->data + start_id);
+    return RESULT_OK(NULL);
 }
 
 void fdcan_pkt_pool_init(void)

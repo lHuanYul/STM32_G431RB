@@ -63,7 +63,7 @@ typedef struct Result
         if (RESULT_CHECK_RAW(res))          \
         {                                   \
             last_error = res.result.error;  \
-            Error_Handler();                \
+            while (1) {}                    \
         }                                   \
     } while (0)
 
@@ -73,7 +73,7 @@ typedef struct Result
         if (RESULT_CHECK_RAW(res))          \
         {                                   \
             last_error = res.result.error;  \
-            Error_Handler();                \
+            while (1) {}                    \
         }                                   \
         (res).result.success.obj;           \
     })
@@ -145,7 +145,7 @@ typedef struct Result
         if (_err != HAL_OK)                 \
         {                                   \
             last_error = _err;              \
-            Error_Handler();                \
+            while (1) {}                    \
         }                                   \
     } while (0)
 #endif

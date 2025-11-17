@@ -1,4 +1,4 @@
-../Core/Src/connectivity/fdcan/pkt_write.c:5:13:write_u32	24	static
-../Core/Src/connectivity/fdcan/pkt_write.c:15:13:write_f32	24	static
-../Core/Src/connectivity/fdcan/pkt_write.c:22:15:fdcan_data_pkt_write_inner	32	static
-../Core/Src/connectivity/fdcan/pkt_write.c:254:8:fdcan_data_pkt_write	48	static
+../Core/Src/connectivity/fdcan/pkt_write.c:5:15:fdcan_pkt_write_inner	32	static
+../Core/Src/connectivity/fdcan/pkt_write.c:10:15:trsm_pkt_proc_inner	24	static
+../Core/Src/connectivity/fdcan/pkt_write.c:244:8:fdcan_pkt_write	72	static
+../Core/Src/connectivity/fdcan/pkt_write.c:272:8:trsm_pkt_proc	32	static

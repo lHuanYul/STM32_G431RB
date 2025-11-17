@@ -17,6 +17,7 @@
 "./Core/Src/connectivity/fdcan/basic.o"
 "./Core/Src/connectivity/fdcan/callback.o"
 "./Core/Src/connectivity/fdcan/main.o"
+"./Core/Src/connectivity/fdcan/pkt_read.o"
 "./Core/Src/connectivity/fdcan/pkt_write.o"
 "./Core/Src/main/fn_state.o"
 "./Core/Src/main/main.o"

@@ -13,7 +13,7 @@ typedef struct PARK {
     float32_t Cos;
 } PARK;
 
-void PARK_run(volatile PARK *park);
+void PARK_run(PARK *park);
 
 typedef struct IPARK {
     float32_t Alpha;    // Output: stationary d-axis stator variable
@@ -25,4 +25,4 @@ typedef struct IPARK {
     float32_t Cos;   // Input: Cosine term
 } IPARK;
 
-void IPARK_run(volatile IPARK *ipark);
+void IPARK_run(IPARK *ipark);

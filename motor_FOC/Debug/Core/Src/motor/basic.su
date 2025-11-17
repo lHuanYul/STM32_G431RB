@@ -1,4 +1,3 @@
-../Core/Src/motor/basic.c:50:18:clampf	24	static
-../Core/Src/motor/basic.c:57:18:wrap_positive	24	static
-../Core/Src/motor/basic.c:65:18:wrap_pi_p_n	24	static
-../Core/Src/motor/basic.c:74:18:fast_fabsf	24	static
+../Core/Src/motor/basic.c:54:13:motor_init	16	static
+../Core/Src/motor/basic.c:60:6:motor_set_speed	16	static
+../Core/Src/motor/basic.c:66:6:motor_switch_ctrl	16	static

@@ -3,17 +3,16 @@
 
 // Ialpha = Ia
 // Ibata = (Ia+2Ib)/(根號3)
-inline void CLARKE_run_ideal(volatile CLARKE *clarke)
+inline void CLARKE_run_ideal(CLARKE *clarke)
 {
     clarke->Alpha = clarke->As;
-    clarke->Beta = (clarke->As + clarke->Bs * 2.0f) * ONE_DIV_SQRT3;
+    clarke->Beta = ONE_DIV_SQRT3 * (clarke->As + clarke->Bs * 2.0f);
 }
 
 // Ialpha = 2/3Ia - 1/3Ib - 1/3Ic
-// Ibata = (根號3/3)Ib - (根號3/3)Ic
-// (根號3/3) = 0.57735
-inline void CLARKE_run_nideal(volatile CLARKE *clarke)
+// Ibata = (Ib-Ic)/(根號3)
+inline void CLARKE_run_nideal(CLARKE *clarke)
 {
-    clarke->Alpha = DIV_2_3 * clarke->As - DIV_1_3 * clarke->Bs - DIV_1_3 * clarke->Cs;
-    clarke->Beta  = (clarke->Bs - clarke->Cs) * ONE_DIV_SQRT3;
+    clarke->Alpha = DIV_1_3 * (2.0f * clarke->As - clarke->Bs - clarke->Cs);
+    clarke->Beta  = ONE_DIV_SQRT3 * (clarke->Bs - clarke->Cs);
 }

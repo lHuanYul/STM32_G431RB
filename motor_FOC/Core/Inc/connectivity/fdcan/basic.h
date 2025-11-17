@@ -3,6 +3,7 @@
 #include "main/config.h"
 #include "main/fn_state.h"
 #include "main/typedef.h"
+#include "connectivity/cmds.h"
 
 typedef struct FdcanPkt
 {
@@ -12,6 +13,8 @@ typedef struct FdcanPkt
     struct FdcanPkt *next;
 } FdcanPkt;
 Result fdcan_pkt_get_byte(FdcanPkt* pkt, uint8_t id, uint8_t* container);
+Result fdcan_pkt_set_len(FdcanPkt* pkt, uint8_t len);
+Result pkt_data_write_f32(FdcanPkt* pkt, uint8_t start_id, float32_t value);
 
 typedef struct FdcanPktPool
 {

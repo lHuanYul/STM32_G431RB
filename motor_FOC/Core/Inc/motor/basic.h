@@ -29,11 +29,17 @@ typedef struct MotorConst
     // FOC 20kHz timer
     TIM_HandleTypeDef   *IT20k_htimx;
     uint32_t            *IT20k_tim_clk;
+    // 馬達data sheet
+    float32_t           rated_trorque;
+    float32_t           rated_current;
+    float32_t           peak_trorque;
+    float32_t           peak_current;
 } MotorConst;
 
 typedef enum MotorCtrlMode
 {
     MOTOR_CTRL_120,
+    MOTOR_CTRL_180,
     MOTOR_CTRL_FOC,
 } MotorCtrlMode;
 
@@ -51,12 +57,10 @@ typedef struct MotorParameter
     float32_t           dbg_tim_it_freq;
     // 馬達控制方式
     MotorCtrlMode       mode;
-    // 0: ccw / 1: clw
-    bool                reverse;
-
-    volatile PI_CTRL    pi_speed;
+    // 從尾往轉子 順時針為負
+    PI_CTRL             pi_spd;
     
-    float32_t           speed_Iq_cmd;
+    float32_t           spd_Iq_add;
     // 目前霍爾相位
     volatile float32_t  exti_hall_rad;
     // 電角度
@@ -100,7 +104,7 @@ typedef struct MotorParameter
     // svgendq
     SVGENDQ             svgendq;
     // PWM duty
-    float32_t           pwm_duty_120;
+    float32_t           pwm_duty_deg;
     // PWM duty
     float32_t           pwm_duty_u;
     // PWM duty
@@ -109,9 +113,8 @@ typedef struct MotorParameter
     float32_t           pwm_duty_w;
 } MotorParameter;
 extern MotorParameter motor_h;
+void motor_init(MotorParameter *motor);
 
-float32_t clampf(float32_t val, float32_t min, float32_t max);
-float32_t wrap_positive(float32_t x, float32_t value);
-float32_t wrap_pi_p_n(float32_t x, float32_t value);
-float32_t fast_fabsf(float32_t x);
-
+// 從尾往轉子 順時針為負
+void motor_set_speed(MotorParameter *motor, float32_t speed);
+void motor_switch_ctrl(MotorParameter *motor, MotorCtrlMode ctrl);

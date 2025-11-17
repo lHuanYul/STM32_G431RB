@@ -12,4 +12,4 @@ typedef struct SVGENDQ	{
     uint16_t    Sector; // Sector is treated as Q0 - independently with global Q
 } SVGENDQ;
 
-void SVGEN_run(volatile SVGENDQ *svgq);
+void SVGEN_run(SVGENDQ *svgq);

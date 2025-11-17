@@ -1,7 +1,7 @@
 #include "motor/svgendq.h"
 
 // Sector 0: this is special case for (Ualpha,Ubeta) = (0,0)
-inline void SVGEN_run(volatile SVGENDQ *svgq)
+inline void SVGEN_run(SVGENDQ *svgq)
 {
     float32_t t1 = svgq->Ualpha * 0.5f;
     float32_t t2 = svgq->Ubeta * SQRT3_DIV_2;

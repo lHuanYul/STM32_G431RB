@@ -1,0 +1,9 @@
+../Core/Src/connectivity/fdcan/main copy.c:6:15:fdcan_pkt_ist_read_inner	1
+../Core/Src/connectivity/fdcan/main copy.c:11:15:fdcan_pkt_rcv_read_inner	1
+../Core/Src/connectivity/fdcan/main copy.c:16:15:trsm_pkt_proc_inner	1
+../Core/Src/connectivity/fdcan/main copy.c:510:8:fdcan_pkt_ist_read	4
+../Core/Src/connectivity/fdcan/main copy.c:535:24:pkt_transmit	3
+../Core/Src/connectivity/fdcan/main copy.c:547:26:trsm_pkt_proc	2
+../Core/Src/connectivity/fdcan/main copy.c:563:15:fdcan_pkt_rcv_read	2
+../Core/Src/connectivity/fdcan/main copy.c:573:26:recv_pkts_proc	3
+../Core/Src/connectivity/fdcan/main copy.c:585:6:StartFdCanTask	11

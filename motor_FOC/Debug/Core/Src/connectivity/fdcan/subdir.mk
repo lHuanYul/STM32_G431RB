@@ -8,18 +8,21 @@ C_SRCS += \
 ../Core/Src/connectivity/fdcan/basic.c \
 ../Core/Src/connectivity/fdcan/callback.c \
 ../Core/Src/connectivity/fdcan/main.c \
+../Core/Src/connectivity/fdcan/pkt_read.c \
 ../Core/Src/connectivity/fdcan/pkt_write.c 
 
 OBJS += \
 ./Core/Src/connectivity/fdcan/basic.o \
 ./Core/Src/connectivity/fdcan/callback.o \
 ./Core/Src/connectivity/fdcan/main.o \
+./Core/Src/connectivity/fdcan/pkt_read.o \
 ./Core/Src/connectivity/fdcan/pkt_write.o 
 
 C_DEPS += \
 ./Core/Src/connectivity/fdcan/basic.d \
 ./Core/Src/connectivity/fdcan/callback.d \
 ./Core/Src/connectivity/fdcan/main.d \
+./Core/Src/connectivity/fdcan/pkt_read.d \
 ./Core/Src/connectivity/fdcan/pkt_write.d 
 
 
@@ -30,7 +33,7 @@ Core/Src/connectivity/fdcan/%.o Core/Src/connectivity/fdcan/%.su Core/Src/connec
 clean: clean-Core-2f-Src-2f-connectivity-2f-fdcan
 
 clean-Core-2f-Src-2f-connectivity-2f-fdcan:
-	-$(RM) ./Core/Src/connectivity/fdcan/basic.cyclo ./Core/Src/connectivity/fdcan/basic.d ./Core/Src/connectivity/fdcan/basic.o ./Core/Src/connectivity/fdcan/basic.su ./Core/Src/connectivity/fdcan/callback.cyclo ./Core/Src/connectivity/fdcan/callback.d ./Core/Src/connectivity/fdcan/callback.o ./Core/Src/connectivity/fdcan/callback.su ./Core/Src/connectivity/fdcan/main.cyclo ./Core/Src/connectivity/fdcan/main.d ./Core/Src/connectivity/fdcan/main.o ./Core/Src/connectivity/fdcan/main.su ./Core/Src/connectivity/fdcan/pkt_write.cyclo ./Core/Src/connectivity/fdcan/pkt_write.d ./Core/Src/connectivity/fdcan/pkt_write.o ./Core/Src/connectivity/fdcan/pkt_write.su
+	-$(RM) ./Core/Src/connectivity/fdcan/basic.cyclo ./Core/Src/connectivity/fdcan/basic.d ./Core/Src/connectivity/fdcan/basic.o ./Core/Src/connectivity/fdcan/basic.su ./Core/Src/connectivity/fdcan/callback.cyclo ./Core/Src/connectivity/fdcan/callback.d ./Core/Src/connectivity/fdcan/callback.o ./Core/Src/connectivity/fdcan/callback.su ./Core/Src/connectivity/fdcan/main.cyclo ./Core/Src/connectivity/fdcan/main.d ./Core/Src/connectivity/fdcan/main.o ./Core/Src/connectivity/fdcan/main.su ./Core/Src/connectivity/fdcan/pkt_read.cyclo ./Core/Src/connectivity/fdcan/pkt_read.d ./Core/Src/connectivity/fdcan/pkt_read.o ./Core/Src/connectivity/fdcan/pkt_read.su ./Core/Src/connectivity/fdcan/pkt_write.cyclo ./Core/Src/connectivity/fdcan/pkt_write.d ./Core/Src/connectivity/fdcan/pkt_write.o ./Core/Src/connectivity/fdcan/pkt_write.su
 
 .PHONY: clean-Core-2f-Src-2f-connectivity-2f-fdcan
 

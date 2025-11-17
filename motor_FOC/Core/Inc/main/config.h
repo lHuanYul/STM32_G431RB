@@ -39,19 +39,21 @@
 #define PI_DIV_2        (PI / 2.0f)     // 90 deg
 #define DEG_TO_RAD      (PI / 180.0f)
 #define RAD_TO_DEG      (180.0f / PI)
-#define DIV_1_3         (1.0f / 3.0f)
-#define DIV_2_3         (2.0f / 3.0f)
-#define ONE_DIV_SQRT3   0.577350269189626f
-#define SQRT3_DIV_2     0.866025403784439f
+#define DIV_1_3         (1.0f / 3.0f)   // 1/3
+#define DIV_2_3         (2.0f / 3.0f)   // 2/3
+#define ONE_DIV_SQRT3   0.577350269189626f  // 1/(根號3)
+#define SQRT3_DIV_2     0.866025403784439f  // (根號3)/2
 
 #define BOARD_LED_TOGGLE    HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 #define BOARD_LED_ON        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET)
 #define BOARD_LED_OFF       HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET)
 
-#define MOTOR_42BLF01_POLE      4
-#define MOTOR_42BLF01_GEAR      4.4f
+#define MOTOR_42BLF01_POLE          8
+#define MOTOR_42BLF01_GEAR          3.0f
+#define MOTOR_42BLF01_RATED_CURRENT 1.9f
+#define MOTOR_42BLF01_PEAK_CURRENT  5.7f
 // 霍爾訊號與實際電角校正
-// ? 霍爾超前實際為負
+// 霍爾超前實際為負
 #define MOTOR_42BLF01_ANGLE     (PI_DIV_6*-5.0f) // 6 // -3/3 -4/2 -5/2 -6/6
 #define MOTOR_STOP_TRI          50
 
