@@ -91,7 +91,7 @@ inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
         motor->pi_Id.Fbk = motor->park.Ds;
         PI_run(&motor->pi_Id);
 
-        // motor->pi_Iq.Ref += motor->spd_Iq_add;
+        motor->pi_Iq.Ref = motor->spd_Iq_set;
         motor->pi_Iq.Fbk = motor->park.Qs;
         PI_run(&motor->pi_Iq);
     }
@@ -104,7 +104,8 @@ inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
 
 inline void vec_ctrl_ipark(MotorParameter *motor)
 {
-    motor->ipark.Vdref = var_clampf(motor->ipark.Vdref + motor->pi_Id.Out, -0.06f, 0.06f);
+    // motor->ipark.Vdref = var_clampf(motor->ipark.Vdref + motor->pi_Id.Out, -0.06f, 0.06f);
+    motor->ipark.Vdref = motor->pi_Id.Out;
     motor->ipark.Vqref = motor->pi_Iq.Out;
     motor->ipark.Sin = motor->park.Sin;
     motor->ipark.Cos = motor->park.Cos;

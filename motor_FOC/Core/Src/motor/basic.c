@@ -46,7 +46,7 @@ MotorParameter motor_h = {
         .w1 = 1.0f,
     },
     .pi_Iq = {
-        .Ref = 0.5f,
+        .Ref = 0.0f,
         .Kp = 0.3f,
         .Ki = 0.001f,
         // .Umax = 0.75f, In motor_init

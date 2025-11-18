@@ -70,7 +70,8 @@ void motor_hall_exti(MotorParameter *motor)
     // 
     #ifndef MOTOR_FOC_SPIN_DEBUG
     if (
-           (motor->mode == MOTOR_CTRL_120)
+           (motor->mode == MOTOR_CTRL_LOCK)
+        || (motor->mode == MOTOR_CTRL_120)
         || (motor->mode == MOTOR_CTRL_180)
     ) deg_ctrl_load(motor);
     #else
@@ -124,8 +125,8 @@ void motor_pwm_pulse(MotorParameter *motor)
         motor->tim_it_acc = 0;
         // stop_check(motor);
         PI_run(&motor->pi_spd);
-        // motor->spd_Iq_add = var_clampf((motor->spd_Iq_add + motor->pi_spd.Out), 0.15f, 0.2f);
-        motor->spd_Iq_add = motor->pi_spd.Ref < 0 ?
+        // motor->spd_Iq_set = var_clampf((motor->spd_Iq_set + motor->pi_spd.Out), 0.15f, 0.2f);
+        motor->spd_Iq_set = motor->pi_spd.Ref < 0 ?
             -motor->const_h.rated_current : motor->const_h.rated_current;
     }
     vec_ctrl_clarke(motor);

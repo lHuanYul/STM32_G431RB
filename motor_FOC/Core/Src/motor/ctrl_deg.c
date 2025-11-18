@@ -25,22 +25,24 @@ static const uint8_t seq_index_ccw[] = {0xFF, 5, 3, 4, 1, 0, 2, 0xFF};
 inline void deg_ctrl_load(const MotorParameter *motor)
 {
     uint8_t idx = seq_index_ccw[motor->exti_hall_curt];
-    if (motor->pi_spd.Ref < 0)
+    switch (motor->mode)
     {
-        switch (motor->mode)
+        case MOTOR_CTRL_LOCK:
         {
-            case MOTOR_CTRL_120:
-            {
-                idx = (idx + 3) % 6;
-                break;
-            }
-            case MOTOR_CTRL_180:
-            {
-                idx = (idx + 2) % 6;
-                break;
-            }
-            default: return;
+            idx = (idx + 4) % 6;
+            break;
         }
+        case MOTOR_CTRL_120:
+        {
+            if (motor->pi_spd.Ref < 0) idx = (idx + 3) % 6;
+            break;
+        }
+        case MOTOR_CTRL_180:
+        {
+            if (motor->pi_spd.Ref < 0) idx = (idx + 2) % 6;
+            break;
+        }
+        default: return;
     }
     uint8_t i;
     uint32_t compare = (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_deg);
@@ -54,6 +56,7 @@ inline void deg_ctrl_load(const MotorParameter *motor)
                 state = seq_map_120[idx][i];
                 break;
             }
+            case MOTOR_CTRL_LOCK:
             case MOTOR_CTRL_180:
             {
                 state = seq_map_180[idx][i];
@@ -74,7 +77,8 @@ inline void deg_ctrl_load(const MotorParameter *motor)
             case LOW_PASS:
             {
                 HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-                __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i], motor->const_h.PWM_htimx->Init.Period);
+                __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i],
+                    motor->const_h.PWM_htimx->Init.Period);
                 HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
                 break;

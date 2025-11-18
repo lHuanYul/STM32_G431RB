@@ -41,6 +41,7 @@ typedef struct MotorConst
 typedef enum MotorCtrlMode
 {
     MOTOR_CTRL_INIT,
+    MOTOR_CTRL_LOCK,
     MOTOR_CTRL_120,
     MOTOR_CTRL_180,
     MOTOR_CTRL_FOC,
@@ -64,7 +65,7 @@ typedef struct MotorParameter
     // 從尾往轉子 順時針為負
     PI_CTRL             pi_spd;
     
-    float32_t           spd_Iq_add;
+    float32_t           spd_Iq_set;
     // 目前霍爾相位
     volatile float32_t  exti_hall_rad;
     // 電角度
