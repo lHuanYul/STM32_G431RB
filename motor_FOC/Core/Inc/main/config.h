@@ -43,6 +43,7 @@
 #define DIV_2_3         (2.0f / 3.0f)   // 2/3
 #define ONE_DIV_SQRT3   0.577350269189626f  // 1/(根號3)
 #define SQRT3_DIV_2     0.866025403784439f  // (根號3)/2
+#define RPM_TO_RAD      (PI_MUL_2 / 60.0f)  //
 
 #define BOARD_LED_TOGGLE    HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 #define BOARD_LED_ON        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET)

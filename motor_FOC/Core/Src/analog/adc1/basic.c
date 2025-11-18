@@ -9,12 +9,12 @@ CURRENT_ADC adc_test = {
     },
 };
 
-// CH11 PB12
+// CH11 PB12 0.097
 CURRENT_ADC adc_0 = {
     .const_h = {
         .hadcx = &hadc1,
         .rankx = ADC_INJECTED_RANK_1,
-        .sensitive = 0.097f,
+        .sensitive = 0.1f,
     },
     .current_trs = 1.0f,
 };

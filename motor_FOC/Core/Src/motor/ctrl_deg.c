@@ -34,12 +34,12 @@ inline void deg_ctrl_load(const MotorParameter *motor)
         }
         case MOTOR_CTRL_120:
         {
-            if (motor->pi_spd.Ref < 0) idx = (idx + 3) % 6;
+            if (motor->rpm_ref.reverse) idx = (idx + 3) % 6;
             break;
         }
         case MOTOR_CTRL_180:
         {
-            if (motor->pi_spd.Ref < 0) idx = (idx + 2) % 6;
+            if (motor->rpm_ref.reverse) idx = (idx + 2) % 6;
             break;
         }
         default: return;
@@ -68,7 +68,8 @@ inline void deg_ctrl_load(const MotorParameter *motor)
         {
             case HIGH_PASS:
             {
-                __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i], compare);
+                __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i],
+                    compare);
                 HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
@@ -76,9 +77,9 @@ inline void deg_ctrl_load(const MotorParameter *motor)
             }
             case LOW_PASS:
             {
-                HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i],
                     motor->const_h.PWM_htimx->Init.Period);
+                HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
                 break;

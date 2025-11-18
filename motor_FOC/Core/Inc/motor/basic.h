@@ -44,8 +44,24 @@ typedef enum MotorCtrlMode
     MOTOR_CTRL_LOCK,
     MOTOR_CTRL_120,
     MOTOR_CTRL_180,
-    MOTOR_CTRL_FOC,
+    MOTOR_CTRL_FOC_RATED,
+    MOTOR_CTRL_FOC_PEAK,
 } MotorCtrlMode;
+
+typedef struct MotorRpm
+{
+    volatile bool reverse;
+    volatile float32_t value;
+} MotorRpm;
+
+typedef struct MotorRpmIq
+{
+    const float32_t rpm_max;
+    const float32_t rpm_min;
+    const float32_t Iq_max;
+    const float32_t Iq_min;
+    float32_t Iq_scale;
+} MotorRpmIq;
 
 typedef struct MotorParameter
 {
@@ -62,10 +78,15 @@ typedef struct MotorParameter
     float32_t           dbg_tim_it_freq;
     // 馬達控制方式
     MotorCtrlMode       mode;
-    // 從尾往轉子 順時針為負
-    PI_CTRL             pi_spd;
-    
-    float32_t           spd_Iq_set;
+
+    MotorRpm            rpm_ref;
+
+    MotorRpm            rpm_fbk;
+
+    MotorRpmIq          rpm_iq_rated;
+
+    MotorRpmIq          rpm_iq_peak;
+
     // 目前霍爾相位
     volatile float32_t  exti_hall_rad;
     // 電角度
@@ -81,6 +102,8 @@ typedef struct MotorParameter
     uint16_t            tim_it_acc;
     // 停轉計數器
     uint16_t            stop_spin_acc;
+
+    volatile uint32_t   hall_offline;
     // 上次霍爾相位
     uint8_t             exti_hall_last;
     // 目前霍爾相位
@@ -90,6 +113,10 @@ typedef struct MotorParameter
     // FOC 霍爾相位和
     // tim_hall_total = tim_hall_last*10 + exti_hall_curt;
     uint16_t            tim_hall_total;
+    // 從尾往轉子 順時針為負
+    PI_CTRL             pi_spd;
+    
+    float32_t           spd_Iq_set;
     // 電流 ADC
     CURRENT_ADC         *adc_a;
     // 電流 ADC
@@ -123,5 +150,5 @@ extern MotorParameter motor_h;
 void motor_init(MotorParameter *motor);
 
 // 從尾往轉子 順時針為負
-void motor_set_speed(MotorParameter *motor, float32_t speed);
+void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed);
 void motor_switch_ctrl(MotorParameter *motor, MotorCtrlMode ctrl);

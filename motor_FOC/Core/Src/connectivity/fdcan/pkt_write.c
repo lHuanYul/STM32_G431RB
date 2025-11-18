@@ -261,7 +261,7 @@ Result fdcan_pkt_write(FdcanPkt* pkt, DataType type)
             pkt->id = FDCAN_DATA_ID;
             RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 8));
             pkt->data[0] = CMD_DATA_B0_CONTROL;
-            RESULT_CHECK_HANDLE(pkt_data_write_f32(pkt, SPD_START_BYTE, motor_h.pi_spd.Fbk));
+            RESULT_CHECK_HANDLE(pkt_data_write_f32(pkt, SPD_START_BYTE, motor_h.rpm_fbk.value));
             return RESULT_OK(pkt);
         }
         default: return fdcan_pkt_write_inner(pkt, type);

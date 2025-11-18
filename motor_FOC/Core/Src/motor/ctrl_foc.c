@@ -17,40 +17,6 @@ static const float32_t hall_elec_angle[8] = {
 inline void vec_ctrl_hall_angle_trf(MotorParameter *motor)
 {
     motor->exti_hall_rad = hall_elec_angle[motor->exti_hall_curt];
-    // switch(motor->exti_hall_curt)
-    // {
-    //     case 4:
-    //     {
-    //         motor->exti_hall_rad = 0.0f;
-    //         break;
-    //     }
-    //     case 6:
-    //     {
-    //         motor->exti_hall_rad = 1.0f * PI_DIV_3;
-    //         break;
-    //     }
-    //     case 2:
-    //     {
-    //         motor->exti_hall_rad = 2.0f * PI_DIV_3;
-    //         break;
-    //     }
-    //     case 3:
-    //     {
-    //         motor->exti_hall_rad = 3.0f * PI_DIV_3;
-    //         break;
-    //     }
-    //     case 1:
-    //     {
-    //         motor->exti_hall_rad = 4.0f * PI_DIV_3;
-    //         break;
-    //     }
-    //     case 5:
-    //     {
-    //         motor->exti_hall_rad = 5.0f * PI_DIV_3;
-    //         break;
-    //     }
-    //     default: break;;
-    // }
 }
 
 inline Result vec_ctrl_hall_angle_chk(MotorParameter *motor)
@@ -86,26 +52,25 @@ inline void vec_ctrl_park(MotorParameter *motor)
 
 inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
 {
-    if(motor->pi_spd.Fbk != 0.0f)
+    if(motor->rpm_fbk.value != 0.0f)
     {
         motor->pi_Id.Fbk = motor->park.Ds;
         PI_run(&motor->pi_Id);
 
-        motor->pi_Iq.Ref = motor->spd_Iq_set;
         motor->pi_Iq.Fbk = motor->park.Qs;
         PI_run(&motor->pi_Iq);
     }
     else
     {
-        motor->pi_Iq.Out = motor->pi_spd.Ref < 0 ?
-            -motor->const_h.peak_current : motor->const_h.peak_current;
+        motor->pi_Iq.Out = (!motor->rpm_ref.reverse) ?
+            motor->const_h.peak_current : -motor->const_h.peak_current;
     }
 }
 
 inline void vec_ctrl_ipark(MotorParameter *motor)
 {
-    // motor->ipark.Vdref = var_clampf(motor->ipark.Vdref + motor->pi_Id.Out, -0.06f, 0.06f);
-    motor->ipark.Vdref = motor->pi_Id.Out;
+    motor->ipark.Vdref = var_clampf(motor->ipark.Vdref + motor->pi_Id.Out, -0.06f, 0.06f);
+    // motor->ipark.Vdref = motor->pi_Id.Out;
     motor->ipark.Vqref = motor->pi_Iq.Out;
     motor->ipark.Sin = motor->park.Sin;
     motor->ipark.Cos = motor->park.Cos;

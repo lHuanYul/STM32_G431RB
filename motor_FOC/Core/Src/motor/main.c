@@ -27,6 +27,27 @@ void motor_hall_exti(MotorParameter *motor)
         }
         return;
     }
+    // ccw clw check
+    if (
+           motor->exti_hall_curt == hall_seq_ccw[motor->exti_hall_last]
+        || motor->exti_hall_last == 0
+    ) {
+        motor->rpm_fbk.reverse = 0;
+        motor->hall_offline = 0;
+    }
+    else if (motor->exti_hall_curt == hall_seq_clw[motor->exti_hall_last])
+    {
+        motor->rpm_fbk.reverse = 1;
+        motor->hall_offline = 0;
+    }
+    else
+    {
+        motor->hall_offline++;
+        motor->rpm_fbk.reverse = 0;
+        motor->rpm_fbk.value = 0.0f;
+        motor->foc_angle_itpl = 0;
+    }
+    // if (motor->hall_offline) return;
     vec_ctrl_hall_angle_trf(motor);
     // rpm calculate
     motor->exti_hall_acc++;
@@ -37,37 +58,19 @@ void motor_hall_exti(MotorParameter *motor)
         __HAL_TIM_SET_COUNTER(motor->const_h.SPD_htimx, 0);
         if (htim_cnt == 0)
         {
-            motor->pi_spd.Fbk = 0.0f;
-            motor->foc_angle_itpl = 0;
+            motor->rpm_fbk.reverse = 0;
+            motor->rpm_fbk.value = 0.0f;
+            motor->foc_angle_itpl = 0.0f;
         }
         else
         {
-            motor->pi_spd.Fbk = motor->tfm_rpm_fbk / (float32_t)htim_cnt;
-            motor->foc_angle_itpl = motor->tfm_foc_it_angle_itpl / (float32_t)htim_cnt;
+            motor->rpm_fbk.value = motor->tfm_rpm_fbk / (float32_t)htim_cnt;
+            motor->foc_angle_itpl = (!motor->rpm_fbk.reverse) ?
+                 motor->tfm_foc_it_angle_itpl / (float32_t)htim_cnt :
+                -motor->tfm_foc_it_angle_itpl / (float32_t)htim_cnt;
         }
     }
-    // ccw clw check
-    if (
-           motor->exti_hall_curt == hall_seq_ccw[motor->exti_hall_last]
-        || motor->exti_hall_last == 0
-    ) {
-        if (motor->pi_spd.Ref >= 0) motor->foc_angle_acc = 0.0f;
-    }
-    else if (motor->exti_hall_curt == hall_seq_clw[motor->exti_hall_last])
-    {
-        if (motor->pi_spd.Ref < 0) motor->foc_angle_acc = 0.0f;
-        if (motor->exti_hall_acc == 0)
-        {
-            motor->pi_spd.Fbk *= -1;
-            motor->foc_angle_itpl *= -1;
-        }
-    }
-    else
-    {
-        motor->pi_spd.Fbk = 0.0f;
-        motor->foc_angle_itpl = 0;
-    }
-    // 
+    //
     #ifndef MOTOR_FOC_SPIN_DEBUG
     if (
            (motor->mode == MOTOR_CTRL_LOCK)
@@ -123,11 +126,15 @@ void motor_pwm_pulse(MotorParameter *motor)
     if (motor->tim_it_acc >= 100)
     {
         motor->tim_it_acc = 0;
+        motor->pi_spd.Ref = (motor->rpm_ref.reverse == motor->rpm_fbk.reverse) ?
+            motor->rpm_ref.value : 0.0f;
+        motor->pi_spd.Fbk = motor->rpm_fbk.value;
         // stop_check(motor);
         PI_run(&motor->pi_spd);
         // motor->spd_Iq_set = var_clampf((motor->spd_Iq_set + motor->pi_spd.Out), 0.15f, 0.2f);
-        motor->spd_Iq_set = motor->pi_spd.Ref < 0 ?
-            -motor->const_h.rated_current : motor->const_h.rated_current;
+        motor->pi_Iq.Ref = (!motor->rpm_ref.reverse) ?
+            motor->const_h.rated_current : -motor->const_h.rated_current;
+        motor->spd_Iq_set = 1.9f/4000.0f;
     }
     vec_ctrl_clarke(motor);
     vec_ctrl_park(motor);
@@ -136,14 +143,15 @@ void motor_pwm_pulse(MotorParameter *motor)
     vec_ctrl_svgen(motor);
     vec_ctrl_svpwm(motor);
     #ifndef MOTOR_FOC_SPIN_DEBUG
-    if (motor->mode == MOTOR_CTRL_FOC) vec_ctrl_load(motor);
+    if (motor->mode == MOTOR_CTRL_FOC_RATED) vec_ctrl_load(motor);
     #endif
 }
 
 void motor_stop_trigger(MotorParameter *motor)
 {
     motor->stop_spin_acc = 0;
-    motor->pi_spd.Fbk = 0;    // 歸零速度實際值
+    motor->rpm_fbk.reverse = 0;
+    motor->rpm_fbk.value = 0;
     motor->pi_spd.i1 = 0;     // 重置i控制舊值
 
     motor->pi_Iq.Out = 0;
@@ -204,13 +212,13 @@ static void motor_setup(MotorParameter *motor)
 void StartMotorTask(void *argument)
 {
     motor_setup(&motor_h);
-    motor_set_speed(&motor_h, 250);
+    motor_set_speed(&motor_h, 0, 250.0f);
 
     motor_switch_ctrl(&motor_h, MOTOR_CTRL_180);
     motor_hall_exti(&motor_h);
     osDelay(2000);
 
-    motor_switch_ctrl(&motor_h, MOTOR_CTRL_FOC);
-    motor_hall_exti(&motor_h);
+    motor_switch_ctrl(&motor_h, MOTOR_CTRL_FOC_RATED);
+    // motor_hall_exti(&motor_h);
     StopTask();
 }

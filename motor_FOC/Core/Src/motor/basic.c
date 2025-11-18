@@ -30,19 +30,16 @@ MotorParameter motor_h = {
     .adc_b = &adc_1,
     // Blue
     .adc_c = &adc_2,
+    .rpm_iq_rated = {
+        
+    },
+    .rpm_iq_peak = {
+    },
     .pi_spd = {
         .Kp = 0.000025f,
         .Ki = 0.002f,
         .Umax = 0.1f,
         .Umin = -0.1f,
-        .w1 = 1.0f,
-    },
-    .pi_Id = {
-        .Ref = 0.0f,
-        .Kp = 0.2f,
-        .Ki = 0.001f,
-        .Umax = 0.01f,
-        .Umin = -0.01f,
         .w1 = 1.0f,
     },
     .pi_Iq = {
@@ -51,6 +48,15 @@ MotorParameter motor_h = {
         .Ki = 0.001f,
         // .Umax = 0.75f, In motor_init
         // .Umin = -0.75f, In motor_init
+        .w1 = 1.0f,
+    },
+    .pi_Id = {
+        .Ref = 0.0f,
+        .Kp = 0.2f,
+        .Ki = 0.001f,
+        // +-0.01
+        .Umax = 0.01f,
+        .Umin = -0.01f,
         .w1 = 1.0f,
     },
     .pwm_duty_deg = 1.0f,
@@ -62,10 +68,10 @@ inline void motor_init(MotorParameter *motor)
     motor->pi_Iq.Umin = -motor->const_h.rated_current;
 }
 
-void motor_set_speed(MotorParameter *motor, float32_t speed)
+void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed)
 {
-    // speed = var_clampf(speed, -100.0f, 100.0f);
-    motor->pi_spd.Ref = speed;
+    motor->rpm_ref.reverse = reverse;
+    motor->rpm_ref.value = speed;
 }
 
 void motor_switch_ctrl(MotorParameter *motor, MotorCtrlMode ctrl)
@@ -77,7 +83,7 @@ void motor_switch_ctrl(MotorParameter *motor, MotorCtrlMode ctrl)
         {
             break;
         }
-        case MOTOR_CTRL_FOC:
+        case MOTOR_CTRL_FOC_RATED:
         {
             HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0]);
             HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1]);
