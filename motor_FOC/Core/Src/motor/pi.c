@@ -3,18 +3,18 @@
 
 void PI_run(PI_CTRL *pi)
 {
-    pi->Dlta = pi->Ref - pi->Fbk;
-    pi->up = pi->Kp * pi->Dlta;
-    if (pi->Out == pi->v1)
+    pi->Delta = pi->ref - pi->fbk;
+    pi->Up = pi->Kp * pi->Delta;
+    if (pi->out == pi->out_ori)
     {
-        pi->ui = pi->Ki * pi->up + pi->i1;
+        pi->Ui = pi->Uil + pi->Ki * pi->Up;
     }
     else
     {
-        pi->ui = pi->i1;
+        pi->Ui = pi->Uil;
     }
-    pi->i1 = pi->ui;
-    pi->v1 = pi->up + pi->ui;
-    pi->Out = var_clampf(pi->v1, pi->Umin, pi->Umax);
-    pi->w1 = (pi->Out == pi->v1) ? 1.0f : 0.0f;
+    pi->Uil = pi->Ui;
+    pi->out_ori = pi->Up + pi->Ui;
+    pi->out = var_clampf(pi->out_ori, pi->min, pi->max);
+    pi->sat = (pi->out == pi->out_ori) ? 1 : 0;
 }

@@ -54,24 +54,24 @@ inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
 {
     if(motor->rpm_fbk.value != 0.0f)
     {
-        motor->pi_Id.Fbk = motor->park.Ds;
+        motor->pi_Id.fbk = motor->park.Ds;
         PI_run(&motor->pi_Id);
 
-        motor->pi_Iq.Fbk = motor->park.Qs;
+        motor->pi_Iq.fbk = motor->park.Qs;
         PI_run(&motor->pi_Iq);
     }
     else
     {
-        motor->pi_Iq.Out = (!motor->rpm_ref.reverse) ?
+        motor->pi_Iq.out = (!motor->rpm_ref.reverse) ?
             motor->const_h.peak_current : -motor->const_h.peak_current;
     }
 }
 
 inline void vec_ctrl_ipark(MotorParameter *motor)
 {
-    motor->ipark.Vdref = var_clampf(motor->ipark.Vdref + motor->pi_Id.Out, -0.06f, 0.06f);
-    // motor->ipark.Vdref = motor->pi_Id.Out;
-    motor->ipark.Vqref = motor->pi_Iq.Out;
+    // motor->ipark.Vdref = var_clampf(motor->ipark.Vdref + motor->pi_Id.out, -0.06f, 0.06f);
+    motor->ipark.Vdref = motor->pi_Id.out;
+    motor->ipark.Vqref = motor->pi_Iq.out;
     motor->ipark.Sin = motor->park.Sin;
     motor->ipark.Cos = motor->park.Cos;
     IPARK_run(&motor->ipark);

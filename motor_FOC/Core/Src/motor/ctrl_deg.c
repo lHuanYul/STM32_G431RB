@@ -4,48 +4,62 @@
 #define HIGH_PASS   1
 #define NONE_PASS   0
 #define LOW_PASS   -1
+// static const int8_t seq_map_120[6][3] = {
+//     { HIGH_PASS, LOW_PASS,  NONE_PASS },
+//     { HIGH_PASS, NONE_PASS, LOW_PASS  },
+//     { NONE_PASS, HIGH_PASS, LOW_PASS  },
+//     { LOW_PASS,  HIGH_PASS, NONE_PASS },
+//     { LOW_PASS,  NONE_PASS, HIGH_PASS },
+//     { NONE_PASS, LOW_PASS,  HIGH_PASS },
+// };
+// static const uint8_t index_120_ccw[] = {0xFF, 5, 3, 4, 1, 0, 2, 0xFF};
 static const int8_t seq_map_120[6][3] = {
-  { HIGH_PASS, LOW_PASS,  NONE_PASS },
-  { HIGH_PASS, NONE_PASS, LOW_PASS  },
-  { NONE_PASS, HIGH_PASS, LOW_PASS  },
-  { LOW_PASS,  HIGH_PASS, NONE_PASS },
-  { LOW_PASS,  NONE_PASS, HIGH_PASS },
-  { NONE_PASS, LOW_PASS,  HIGH_PASS }
+    { HIGH_PASS, NONE_PASS, LOW_PASS  },
+    { NONE_PASS, HIGH_PASS, LOW_PASS  },
+    { LOW_PASS,  HIGH_PASS, NONE_PASS },
+    { LOW_PASS,  NONE_PASS, HIGH_PASS },
+    { NONE_PASS, LOW_PASS,  HIGH_PASS },
+    { HIGH_PASS, LOW_PASS,  NONE_PASS },
 };
+static const uint8_t index_120_ccw[] = {0xFF, 4, 2, 3, 0, 5, 1, 0xFF};
 static const int8_t seq_map_180[6][3] = {
-    { HIGH_PASS, LOW_PASS,  LOW_PASS  }, // 6
-    { HIGH_PASS, HIGH_PASS, LOW_PASS  }, // 2
-    { LOW_PASS,  HIGH_PASS, LOW_PASS  }, // 3
-    { LOW_PASS,  HIGH_PASS, HIGH_PASS }, // 1
-    { LOW_PASS,  LOW_PASS,  HIGH_PASS }, // 5
-    { HIGH_PASS, LOW_PASS,  HIGH_PASS }  // 4
+    { HIGH_PASS, LOW_PASS,  HIGH_PASS }, // 0-4
+    { HIGH_PASS, LOW_PASS,  LOW_PASS  }, // 1-6
+    { HIGH_PASS, HIGH_PASS, LOW_PASS  }, // 2-2
+    { LOW_PASS,  HIGH_PASS, LOW_PASS  }, // 3-3
+    { LOW_PASS,  HIGH_PASS, HIGH_PASS }, // 4-1
+    { LOW_PASS,  LOW_PASS,  HIGH_PASS }, // 5-5
 };
-static const uint8_t seq_index_ccw[] = {0xFF, 5, 3, 4, 1, 0, 2, 0xFF};
+//                                      0,    1, 2, 3, 4, 5, 6, 7
+static const uint8_t index_180_ccw[] = {0xFF, 5, 3, 4, 1, 0, 2, 0xFF};
+static const uint8_t index_180_clw[] = {0xFF, 3, 1, 2, 5, 4, 0, 0xFF};
 
-inline void deg_ctrl_load(const MotorParameter *motor)
+inline void deg_ctrl_load(MotorParameter *motor)
 {
-    uint8_t idx = seq_index_ccw[motor->exti_hall_curt];
+    uint8_t idx;
     switch (motor->mode)
     {
         case MOTOR_CTRL_LOCK:
         {
-            idx = (idx + 4) % 6;
+            idx = (index_180_ccw[motor->exti_hall_curt] + 5) % 6;
             break;
         }
         case MOTOR_CTRL_120:
         {
+            idx = index_120_ccw[motor->exti_hall_curt];
             if (motor->rpm_ref.reverse) idx = (idx + 3) % 6;
             break;
         }
         case MOTOR_CTRL_180:
         {
-            if (motor->rpm_ref.reverse) idx = (idx + 2) % 6;
+            idx = (!motor->rpm_ref.reverse) ?
+                index_180_ccw[motor->exti_hall_curt] : index_180_clw[motor->exti_hall_curt];
             break;
         }
         default: return;
     }
     uint8_t i;
-    uint32_t compare = (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_deg);
+    uint32_t compare = (uint32_t)((float32_t)motor->const_h.PWM_htimx->Init.Period * motor->pwm_duty_deg);
     for (i = 0; i < 3; i++)
     {
         int8_t state;
@@ -68,18 +82,18 @@ inline void deg_ctrl_load(const MotorParameter *motor)
         {
             case HIGH_PASS:
             {
+                HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i],
                     compare);
                 HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-                HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
                 break;
             }
             case LOW_PASS:
             {
+                HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i],
                     motor->const_h.PWM_htimx->Init.Period);
-                HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
                 break;

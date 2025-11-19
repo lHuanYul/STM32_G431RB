@@ -2,4 +2,4 @@
 
 #include "motor/basic.h"
 
-void deg_ctrl_load(const MotorParameter *motor);
+void deg_ctrl_load(MotorParameter *motor);

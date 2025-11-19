@@ -99,9 +99,9 @@ void motor_hall_exti(MotorParameter *motor)
 //         if (motor->stop_spin_acc >= MOTOR_STOP_TRI)
 //         {
 //             motor->stop_spin_acc = 0;
-//             motor->pi_spd.Fbk = 0;    // 歸零速度實際值
+//             motor->pi_spd.fbk = 0;    // 歸零速度實際值
 //             __HAL_TIM_SET_COUNTER(motor->const_h.SPD_htimx, 0);
-//             motor->pi_spd.i1 = 0;     // 重置i控制舊值
+//             motor->pi_spd.Uil = 0;     // 重置i控制舊值
 //             motor_foc_rot_stop(motor);
 //         }
 //     }
@@ -126,13 +126,13 @@ void motor_pwm_pulse(MotorParameter *motor)
     if (motor->tim_it_acc >= 100)
     {
         motor->tim_it_acc = 0;
-        motor->pi_spd.Ref = (motor->rpm_ref.reverse == motor->rpm_fbk.reverse) ?
+        motor->pi_spd.ref = (motor->rpm_ref.reverse == motor->rpm_fbk.reverse) ?
             motor->rpm_ref.value : 0.0f;
-        motor->pi_spd.Fbk = motor->rpm_fbk.value;
+        motor->pi_spd.fbk = motor->rpm_fbk.value;
         // stop_check(motor);
         PI_run(&motor->pi_spd);
-        // motor->spd_Iq_set = var_clampf((motor->spd_Iq_set + motor->pi_spd.Out), 0.15f, 0.2f);
-        motor->pi_Iq.Ref = (!motor->rpm_ref.reverse) ?
+        // motor->spd_Iq_set = var_clampf((motor->spd_Iq_set + motor->pi_spd.out), 0.15f, 0.2f);
+        motor->pi_Iq.ref = (!motor->rpm_ref.reverse) ?
             motor->const_h.rated_current : -motor->const_h.rated_current;
         motor->spd_Iq_set = 1.9f/4000.0f;
     }
@@ -152,9 +152,9 @@ void motor_stop_trigger(MotorParameter *motor)
     motor->stop_spin_acc = 0;
     motor->rpm_fbk.reverse = 0;
     motor->rpm_fbk.value = 0;
-    motor->pi_spd.i1 = 0;     // 重置i控制舊值
+    motor->pi_spd.Uil = 0;     // 重置i控制舊值
 
-    motor->pi_Iq.Out = 0;
+    motor->pi_Iq.out = 0;
     motor->foc_angle_acc = 0.0f;
 }
 
