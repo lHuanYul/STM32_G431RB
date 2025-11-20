@@ -3,9 +3,9 @@
 
 void PI_run(PI_CTRL *pi)
 {
-    pi->Delta = pi->ref - pi->fbk;
-    pi->Up = pi->Kp * pi->Delta;
-    if (pi->out == pi->out_ori)
+    pi->Err = pi->ref - pi->fbk;
+    pi->Up = pi->Kp * pi->Err;
+    if (pi->out == pi->ori)
     {
         pi->Ui = pi->Uil + pi->Ki * pi->Up;
     }
@@ -14,7 +14,7 @@ void PI_run(PI_CTRL *pi)
         pi->Ui = pi->Uil;
     }
     pi->Uil = pi->Ui;
-    pi->out_ori = pi->Up + pi->Ui;
-    pi->out = var_clampf(pi->out_ori, pi->min, pi->max);
-    pi->sat = (pi->out == pi->out_ori) ? 1 : 0;
+    pi->ori = pi->Up + pi->Ui;
+    pi->out = var_clampf(pi->ori, pi->min, pi->max);
+    pi->sat = (pi->out == pi->ori) ? 1 : 0;
 }

@@ -52,31 +52,35 @@ inline void vec_ctrl_park(MotorParameter *motor)
 
 inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
 {
-    if(motor->rpm_fbk.value != 0.0f)
-    {
-        motor->pi_Id.fbk = motor->park.Ds;
-        PI_run(&motor->pi_Id);
-
-        motor->pi_Iq.fbk = motor->park.Qs;
-        PI_run(&motor->pi_Iq);
-    }
-    else
+    if(motor->rpm_fbk.value == 0.0f)
     {
         motor->pi_Iq.out = (!motor->rpm_ref.reverse) ?
             motor->const_h.peak_current : -motor->const_h.peak_current;
+        return;
     }
+        motor->pi_Id.ref = 0.0f,
+        motor->pi_Id.fbk = motor->park.Ds;
+        PI_run(&motor->pi_Id);
+
+        motor->pi_Iq.ref = (!motor->rpm_ref.reverse) ?
+            motor->const_h.rated_current : -motor->const_h.rated_current;
+        motor->pi_Iq.fbk = motor->park.Qs;
+        PI_run(&motor->pi_Iq);
+
+        motor->pi_Iq.Up = var_clampf((motor->pi_Iq.Up), -0.1f, 0.1f);
+        motor->pi_Iq.out = var_clampf((motor->pi_Iq.ref + motor->pi_Iq.Up), -0.75f, 0.75f);
 }
 
 inline void vec_ctrl_ipark(MotorParameter *motor)
 {
-    // motor->ipark.Vdref = var_clampf(motor->ipark.Vdref + motor->pi_Id.out, -0.06f, 0.06f);
-    motor->ipark.Vdref = motor->pi_Id.out;
+    motor->ipark.Vdref = var_clampf(motor->ipark.Vdref + motor->pi_Id.out, -0.06f, 0.06f);
     motor->ipark.Vqref = motor->pi_Iq.out;
     motor->ipark.Sin = motor->park.Sin;
     motor->ipark.Cos = motor->park.Cos;
     IPARK_run(&motor->ipark);
     RESULT_CHECK_HANDLE(trigo_atan(motor->ipark.Alpha, motor->ipark.Beta, &motor->elec_theta_rad));
-    motor->elec_theta_rad = var_wrap_pos(motor->elec_theta_rad, PI_MUL_2);
+    // motor->elec_theta_rad = var_wrap_pos(motor->elec_theta_rad, PI_MUL_2);
+    motor->elec_theta_rad = var_wrap_pos(motor->elec_theta_rad, PI_DIV_3);
 }
 
 float32_t sec_chk[30] = {0};
@@ -98,20 +102,21 @@ inline void vec_ctrl_svgen(MotorParameter *motor)
     sec_mem = motor->svgendq.Sector;
 }
 
+#define SQUARE(x) (x*x)
 inline void vec_ctrl_svpwm(MotorParameter *motor)
 {
     if (
         arm_sqrt_f32(
-            motor->svgendq.Ualpha * motor->svgendq.Ualpha + motor->svgendq.Ubeta * motor->svgendq.Ubeta,
+            SQUARE(motor->svgendq.Ualpha) + SQUARE(motor->svgendq.Ubeta),
             &motor->v_ref
         ) != ARM_MATH_SUCCESS
     ) while (1) {};
-    float32_t theta = var_wrap_pos(motor->elec_theta_rad, PI_DIV_3);
+    // float32_t theta = var_wrap_pos(motor->elec_theta_rad, PI_DIV_3);
     // T1: 第一個有源向量導通時間 在該sector內靠近前一個主向量的時間比例(由sin(π/3−θ)決定)
     // T2: 第二個有源向量導通時間 在該sector內靠近下一個主向量的時間比例(由sin(θ)決定)
     float32_t T1, T2;
-    RESULT_CHECK_HANDLE(trigo_sin_cosf(PI_DIV_3 - theta, &T1, NULL));
-    RESULT_CHECK_HANDLE(trigo_sin_cosf(theta, &T2, NULL));
+    RESULT_CHECK_HANDLE(trigo_sin_cosf(PI_DIV_3 - motor->elec_theta_rad, &T1, NULL));
+    RESULT_CHECK_HANDLE(trigo_sin_cosf(motor->elec_theta_rad, &T2, NULL));
     T1 *= motor->v_ref;
     T2 *= motor->v_ref;
     // T0div2: 零向量時間的一半 將整個零向量時間平均分配到PWM週期的前後兩端 讓波形中心對稱

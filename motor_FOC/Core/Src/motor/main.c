@@ -132,8 +132,6 @@ void motor_pwm_pulse(MotorParameter *motor)
         // stop_check(motor);
         PI_run(&motor->pi_spd);
         // motor->spd_Iq_set = var_clampf((motor->spd_Iq_set + motor->pi_spd.out), 0.15f, 0.2f);
-        motor->pi_Iq.ref = (!motor->rpm_ref.reverse) ?
-            motor->const_h.rated_current : -motor->const_h.rated_current;
         motor->spd_Iq_set = 1.9f/4000.0f;
     }
     vec_ctrl_clarke(motor);

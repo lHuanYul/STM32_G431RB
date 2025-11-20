@@ -36,6 +36,7 @@ MotorParameter motor_h = {
     .rpm_iq_peak = {
     },
     .pi_spd = {
+        .ref = 0.0f,
         .Kp = 0.000025f,
         .Ki = 0.002f,
         .max = 0.1f,
@@ -43,7 +44,6 @@ MotorParameter motor_h = {
         .sat = 1.0f,
     },
     .pi_Iq = {
-        .ref = 0.0f,
         .Kp = 0.3f,
         .Ki = 0.001f,
         // .max = 0.75f, In motor_init
@@ -51,10 +51,8 @@ MotorParameter motor_h = {
         .sat = 1.0f,
     },
     .pi_Id = {
-        .ref = 0.0f,
         .Kp = 0.2f,
         .Ki = 0.001f,
-        // +-0.01
         .max = 0.01f,
         .min = -0.01f,
         .sat = 1.0f,
