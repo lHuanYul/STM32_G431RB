@@ -11,6 +11,7 @@
 #include <float.h>
 #include <string.h>
 
+#define ATTR_X(...) __attribute__((__VA_ARGS__))
 #define ATTR_UNUSED __attribute__((unused))
 
 // ! SYSTEM config, Change CAREFULLY --------------------
@@ -25,11 +26,11 @@
 
 #define STM32_DEVICE
 #define STM32_G431RB
+#define ITS_CHECK(its, tag) (((its) & (tag)) != RESET)
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 #define MCU_MOTOR_CTRL
 // #define MOTOR_FOC_SPIN_DEBUG
 
-#define ITS_CHECK(its, tag) (((its) & (tag)) != RESET)
 #ifndef PI // 180 deg
     #define PI  3.14159265358979f
     // #define PI  3.14159265358979323846f 

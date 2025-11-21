@@ -118,11 +118,11 @@ typedef struct MotorParameter
     
     float32_t           spd_Iq_set;
     // 電流 ADC
-    CURRENT_ADC         *adc_a;
+    ADC_PARAMETER         *adc_a;
     // 電流 ADC
-    CURRENT_ADC         *adc_b;
+    ADC_PARAMETER         *adc_b;
     // 電流 ADC
-    CURRENT_ADC         *adc_c;
+    ADC_PARAMETER         *adc_c;
     // clarke
     CLARKE              clarke;
     // park

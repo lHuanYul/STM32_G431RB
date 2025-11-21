@@ -47,7 +47,7 @@ static inline void iir(uint8_t adc_id, float32_t *adc_store)
     *adc_store += ALPHA * (avg - *adc_store);
 }
 
-Result adc_renew(CURRENT_ADC *adc)
+Result adc_renew(ADC_PARAMETER *adc)
 {
     adc->adc_value = (uint16_t)HAL_ADCEx_InjectedGetValue(adc->const_h.hadcx, adc->const_h.rankx);
     // iir(adc->const_h.rankx, &adc->adc_value);
@@ -55,7 +55,7 @@ Result adc_renew(CURRENT_ADC *adc)
     return RESULT_OK(NULL);
 }
 
-void adc_set_zero_point(CURRENT_ADC *adc)
+void adc_set_zero_point(ADC_PARAMETER *adc)
 {
     adc->current_trs = ADC_TO_VOL / ADC_VOL_SEP / adc->const_h.sensitive;
     // average(adc->const_h.id, &adc->adc_value);

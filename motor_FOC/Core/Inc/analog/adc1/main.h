@@ -6,5 +6,5 @@
 
 extern ADC_HandleTypeDef hadc1;
 
-void adc_set_zero_point(CURRENT_ADC *adc);
-Result adc_renew(CURRENT_ADC *adc);
+void adc_set_zero_point(ADC_PARAMETER *adc);
+Result adc_renew(ADC_PARAMETER *adc);

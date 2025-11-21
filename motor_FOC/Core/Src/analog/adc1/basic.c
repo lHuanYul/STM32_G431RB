@@ -1,7 +1,7 @@
 #include "analog/adc1/basic.h"
 #include "adc.h"
 
-CURRENT_ADC adc_test = {
+ADC_PARAMETER adc_test = {
     .const_h = {
         .hadcx = &hadc1,
         .rankx = 3,
@@ -10,7 +10,7 @@ CURRENT_ADC adc_test = {
 };
 
 // CH11 PB12 0.097
-CURRENT_ADC adc_0 = {
+ADC_PARAMETER adc_0 = {
     .const_h = {
         .hadcx = &hadc1,
         .rankx = ADC_INJECTED_RANK_1,
@@ -20,7 +20,7 @@ CURRENT_ADC adc_0 = {
 };
 
 // CH12 PB1
-CURRENT_ADC adc_1 = {
+ADC_PARAMETER adc_1 = {
     .const_h = {
         .hadcx = &hadc1,
         .rankx = ADC_INJECTED_RANK_2,
@@ -30,7 +30,7 @@ CURRENT_ADC adc_1 = {
 };
 
 // CH14 PB11
-CURRENT_ADC adc_2 = {
+ADC_PARAMETER adc_2 = {
     .const_h = {
         .hadcx = &hadc1,
         .rankx = ADC_INJECTED_RANK_3,
