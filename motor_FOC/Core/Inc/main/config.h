@@ -11,7 +11,7 @@
 #include <float.h>
 #include <string.h>
 
-#define UNUSED_FNC          __attribute__((unused))
+#define ATTR_UNUSED __attribute__((unused))
 
 // ! SYSTEM config, Change CAREFULLY --------------------
 // ! Also CHECK ALL basic.c file
@@ -25,6 +25,7 @@
 
 #define STM32_DEVICE
 #define STM32_G431RB
+#define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 #define MCU_MOTOR_CTRL
 // #define MOTOR_FOC_SPIN_DEBUG
 

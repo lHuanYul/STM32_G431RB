@@ -216,7 +216,7 @@ void StartMotorTask(void *argument)
     motor_hall_exti(&motor_h);
     osDelay(2000);
 
-    motor_switch_ctrl(&motor_h, MOTOR_CTRL_FOC_RATED);
+    // motor_switch_ctrl(&motor_h, MOTOR_CTRL_FOC_RATED);
     // motor_hall_exti(&motor_h);
     StopTask();
 }

@@ -238,6 +238,7 @@ Result pkt_vehi_set_speed(FdcanPkt* pkt, Percentage value)
 }
 #endif
 
+#ifdef MCU_MOTOR_CTRL
 #include "motor/basic.h"
 
 static float ftest = 0.0;
@@ -268,6 +269,7 @@ Result fdcan_pkt_write(FdcanPkt* pkt, DataType type)
     }
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
+#endif
 
 Result trsm_pkt_proc(void)
 {

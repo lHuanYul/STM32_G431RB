@@ -502,6 +502,7 @@ static Result arm_motor_set(FdcanPkt* pkt, ArmMotorParameter* arm)
 }
 #endif
 
+#ifdef MCU_MOTOR_CTRL
 #include "motor/basic.h"
 
 Result fdcan_pkt_ist_read(FdcanPkt* pkt)
@@ -535,6 +536,7 @@ Result fdcan_pkt_ist_read(FdcanPkt* pkt)
         default: return fdcan_pkt_ist_read_inner(pkt);
     }
 }
+#endif
 
 Result fdcan_pkt_rcv_read(FdcanPkt* pkt)
 {
