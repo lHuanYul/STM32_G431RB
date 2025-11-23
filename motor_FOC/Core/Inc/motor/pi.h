@@ -11,7 +11,7 @@ typedef struct PI_CTRL {
     float32_t   max;
     float32_t   min;
     float32_t   Kp;     // Parameter: proportional loop gain 比例增益
-    float32_t   Ki;     // Parameter: integral gain 積分增益 Ki*Ts/Kp
+    float32_t   Ki;     // Parameter: integral gain 積分增益 Ki'=Ki*Ts/Kp
     float32_t   Err;    // Data: ref - Fbk
     float32_t   Up;     // Data: proportional term 比例項 Kp * Err
     float32_t   Ui;     // Data: integral term 積分項

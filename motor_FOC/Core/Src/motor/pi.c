@@ -8,6 +8,7 @@ void PI_run(PI_CTRL *pi)
     if (pi->out == pi->ori)
     {
         pi->Ui = pi->Uil + pi->Ki * pi->Up;
+        // pi->Ui = pi->Uil + pi->Ki * pi->Err;
     }
     else
     {
