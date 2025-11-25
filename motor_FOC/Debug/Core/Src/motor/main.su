@@ -1,6 +1,6 @@
 ../Core/Src/motor/main.c:8:6:motor_hall_exti	24	static
 ../Core/Src/motor/main.c:113:6:motor_adc_renew	40	static
 ../Core/Src/motor/main.c:120:6:motor_pwm_pulse	24	static
-../Core/Src/motor/main.c:150:6:motor_stop_trigger	16	static
-../Core/Src/motor/main.c:161:13:motor_setup	48	static
-../Core/Src/motor/main.c:212:6:StartMotorTask	16	static
+../Core/Src/motor/main.c:148:6:motor_stop_trigger	16	static
+../Core/Src/motor/main.c:159:13:motor_setup	48	static
+../Core/Src/motor/main.c:210:6:StartMotorTask	16	static

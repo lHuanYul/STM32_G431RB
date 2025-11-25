@@ -3,7 +3,7 @@
 ../Core/Src/motor/ctrl_foc.c:29:13:vec_ctrl_clarke	16	static
 ../Core/Src/motor/ctrl_foc.c:40:13:vec_ctrl_park	24	static
 ../Core/Src/motor/ctrl_foc.c:53:13:vec_ctrl_pi_id_iq	16	static
-../Core/Src/motor/ctrl_foc.c:70:13:vec_ctrl_ipark	24	static
-../Core/Src/motor/ctrl_foc.c:85:13:vec_ctrl_svgen	16	static
-../Core/Src/motor/ctrl_foc.c:101:13:vec_ctrl_svpwm	56	static
-../Core/Src/motor/ctrl_foc.c:166:13:vec_ctrl_load	16	static
+../Core/Src/motor/ctrl_foc.c:74:13:vec_ctrl_ipark	24	static
+../Core/Src/motor/ctrl_foc.c:89:13:vec_ctrl_svgen	16	static
+../Core/Src/motor/ctrl_foc.c:106:13:vec_ctrl_svpwm	56	static
+../Core/Src/motor/ctrl_foc.c:171:13:vec_ctrl_load	16	static

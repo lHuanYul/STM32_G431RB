@@ -30,9 +30,7 @@ static const int8_t seq_map_180[6][3] = {
     { LOW_PASS,  HIGH_PASS, HIGH_PASS }, // 4-1
     { LOW_PASS,  LOW_PASS,  HIGH_PASS }, // 5-5
 };
-//                                      0,    1, 2, 3, 4, 5, 6, 7
-static const uint8_t index_180_ccw[] = {0xFF, 5, 3, 4, 1, 0, 2, 0xFF};
-static const uint8_t index_180_clw[] = {0xFF, 3, 1, 2, 5, 4, 0, 0xFF};
+static const uint8_t index_180[] = {0xFF, 4, 2, 3, 0, 5, 1, 0xFF};
 
 inline void deg_ctrl_load(MotorParameter *motor)
 {
@@ -41,7 +39,7 @@ inline void deg_ctrl_load(MotorParameter *motor)
     {
         case MOTOR_CTRL_LOCK:
         {
-            idx = (index_180_ccw[motor->exti_hall_curt] + 5) % 6;
+            idx = index_180[motor->exti_hall_curt];
             break;
         }
         case MOTOR_CTRL_120:
@@ -53,13 +51,16 @@ inline void deg_ctrl_load(MotorParameter *motor)
         case MOTOR_CTRL_180:
         {
             idx = (!motor->rpm_ref.reverse) ?
-                index_180_ccw[motor->exti_hall_curt] : index_180_clw[motor->exti_hall_curt];
+                  index_180[motor->exti_hall_curt] + 2  // + 1
+                : index_180[motor->exti_hall_curt] + 4; // + 5
+            idx %= 6;
             break;
         }
         default: return;
     }
     uint8_t i;
-    uint32_t compare = (uint32_t)((float32_t)motor->const_h.PWM_htimx->Init.Period * motor->pwm_duty_deg);
+    uint32_t compare =
+        (uint32_t)((float32_t)motor->const_h.PWM_htimx->Init.Period * motor->pwm_duty_deg);
     for (i = 0; i < 3; i++)
     {
         int8_t state;

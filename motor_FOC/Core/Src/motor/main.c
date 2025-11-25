@@ -199,7 +199,7 @@ static void motor_setup(MotorParameter *motor)
         motor->const_h.PWM_htimx->Init.Period - 1);
     ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start(motor->const_h.PWM_htimx));
     ERROR_CHECK_HAL_HANDLE(HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_MID_TIM_CH_x));
-    ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start(motor->const_h.SPD_htimx));
+    ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start_IT(motor->const_h.SPD_htimx));
 
     osDelay(1000);
     adc_set_zero_point(motor_h.adc_a);
