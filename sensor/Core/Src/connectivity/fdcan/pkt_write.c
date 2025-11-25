@@ -1,0 +1,288 @@
+#include "connectivity/fdcan/pkt_write.h"
+#include "connectivity/fdcan/pkt_read.h"
+#include "main/variable_cal.h"
+
+__weak Result fdcan_pkt_write_inner(FdcanPkt* pkt, DataType type)
+{
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
+
+__weak Result trsm_pkt_proc_inner(void)
+{
+    return RESULT_OK(NULL);
+}
+
+#ifdef PRINCIPAL_PROGRAM
+#include "motor/main.h"
+
+static inline Result fdcan_pkt_write_inner(FdcanPkt* pkt, DataType type)
+{
+    switch (type)
+    {
+        case DATA_TYPE_LEFT_SPEED:
+        {
+            pkt->id = FDCAN_DATA_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = CMD_DATA_B1_LEFT_SPEED;
+            var_f32_to_u8_be(motor_left.rps_present, pkt->data + 2);
+            pkt->len = 6;
+            return RESULT_OK(pkt);
+        }
+        case DATA_TYPE_LEFT_DUTY:
+        {
+            pkt->id = FDCAN_DATA_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = CMD_DATA_B1_LEFT_DUTY;
+            pkt->data[2] = motor_left.pwm_duty;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case DATA_TYPE_RIGHT_SPEED:
+        {
+            pkt->id = FDCAN_DATA_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = CMD_DATA_B1_RIGHT_SPEED;
+            var_f32_to_u8_be(motor_left.rps_present, pkt->data + 2);
+            pkt->len = 6;
+            return RESULT_OK(pkt);
+        }
+        case DATA_TYPE_RIGHT_DUTY:
+        {
+            pkt->id = FDCAN_DATA_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = CMD_DATA_B1_RIGHT_DUTY;
+            pkt->data[2] = motor_right.pwm_duty;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
+    }
+}
+#endif
+
+#ifdef ANCILLARY_PROGRAM
+#include "robotic_arm/main.h"
+
+static inline Result fdcan_pkt_write_inner(FdcanPkt* pkt, DataType type)
+{
+    switch (type)
+    {
+        case DATA_TYPE_ARM_BOTTOM:
+        {
+            pkt->id = FDCAN_ARM_DATA_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = CMD_DATA_B1_ARM_BOTTOM;
+            pkt->data[2] = (arm_bottom.tim_current - ARM_TIM_MIN) / 2;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case DATA_TYPE_ARM_SHOULDER:
+        {
+            pkt->id = FDCAN_ARM_DATA_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = CMD_DATA_B1_ARM_SHOULDER;
+            pkt->data[2] = (arm_shoulder.tim_current - ARM_TIM_MIN) / 2;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case DATA_TYPE_ARM_ELBOW_BTM:
+        {
+            pkt->id = FDCAN_ARM_DATA_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = CMD_DATA_B1_ARM_ELBOW_BTM;
+            pkt->data[2] = (arm_elbow_btm.tim_current - ARM_TIM_MIN) / 2;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case DATA_TYPE_ARM_ELBOW_TOP:
+        {
+            pkt->id = FDCAN_ARM_DATA_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = CMD_DATA_B1_ARM_ELBOW_TOP;
+            pkt->data[2] = (arm_elbow_top.tim_current - ARM_TIM_MIN) / 2;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case DATA_TYPE_ARM_WRIST:
+        {
+            pkt->id = FDCAN_ARM_DATA_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = CMD_DATA_B1_ARM_WRIST;
+            pkt->data[2] = (arm_wrist.tim_current - ARM_TIM_MIN) / 2;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case DATA_TYPE_ARM_FINGER:
+        {
+            pkt->id = FDCAN_ARM_DATA_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = CMD_DATA_B1_ARM_FINGER;
+            pkt->data[2] = (arm_finger.tim_current - ARM_TIM_MIN);
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        default: return RESULT_ERROR(RES_ERR_NOT_FOUND);
+    }
+}
+
+Result fdcan_rfid_pkt_write(FdcanPkt* pkt, uint32_t uid, uint8_t n_exist)
+{
+    if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
+    pkt->id = FDCAN_ARM_DATA_ID;
+    pkt->data[0] = CMD_MAP_B0_CONTROL;
+    pkt->data[1] = CMD_MAP_B1_INFO;
+    var_u32_to_u8_be(uid, pkt->data + 2);
+    pkt->data[6] = n_exist;
+    pkt->len = 7;
+    return RESULT_OK(pkt);
+}
+
+Result pkt_vehi_set_mode(FdcanPkt* pkt, VehicleMode mode, uint8_t value)
+{
+    if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
+    pkt->id = FDCAN_VEHI_ID;
+    pkt->data[0] = CMD_VEHI_B0_CONTROL;
+    pkt->data[1] = CMD_VEHI_B1_MODE;
+    switch (mode)
+    {
+        case VEHICLE_MODE_FREE:
+        {
+            pkt->data[2] = CMD_VEHI_B2_FREE;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case VEHICLE_MODE_END:
+        {
+            pkt->data[2] = CMD_VEHI_B2_END;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case VEHICLE_MODE_F_TRACK:
+        {
+            pkt->data[2] = CMD_VEHI_B2_F_TRACK;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case VEHICLE_MODE_TRACK:
+        {
+            pkt->data[2] = CMD_VEHI_B2_TRACK;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case VEHICLE_MODE_SEARCH:
+        {
+            pkt->data[2] = CMD_VEHI_B2_SEARCH;
+            pkt->len = 3;
+            return RESULT_OK(pkt);
+        }
+        case VEHICLE_MODE_ROTATE:
+        {
+            pkt->data[2] = CMD_VEHI_B2_ROTATE;
+            pkt->data[3] = value;
+            pkt->len = 4;
+            return RESULT_OK(pkt);
+        }
+        default: break;
+    }
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
+
+Result pkt_vehi_set_motion(FdcanPkt* pkt, VehicleMotion motion)
+{
+    if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
+    pkt->id = FDCAN_VEHI_ID;
+    pkt->data[0] = CMD_VEHI_B0_CONTROL;
+    pkt->data[1] = CMD_VEHI_B1_MOTION;
+    pkt->len = 3;
+    switch (motion)
+    {
+        case VEHICLE_MOTION_STOP:
+        {
+            pkt->data[2] = CMD_VEHI_B2_FREE;
+            return RESULT_OK(pkt);
+        }
+        case VEHICLE_MOTION_FORWARD:
+        {
+            pkt->data[2] = CMD_VEHI_B2_END;
+            return RESULT_OK(pkt);
+        }
+        case VEHICLE_MOTION_BACKWARD:
+        {
+            pkt->data[2] = CMD_VEHI_B2_F_TRACK;
+            return RESULT_OK(pkt);
+        }
+        case VEHICLE_MOTION_CLOCKWISE:
+        {
+            pkt->data[2] = CMD_VEHI_B2_SEARCH;
+            return RESULT_OK(pkt);
+        }
+        case VEHICLE_MOTION_C_CLOCKWISE:
+        {
+            pkt->data[2] = CMD_VEHI_B2_TRACK;
+            return RESULT_OK(pkt);
+        }
+        default: break;
+    }
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
+
+Result pkt_vehi_set_speed(FdcanPkt* pkt, Percentage value)
+{
+    if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
+    pkt->id = FDCAN_VEHI_ID;
+    pkt->data[0] = CMD_VEHI_B0_CONTROL;
+    pkt->data[1] = CMD_VEHI_B1_SPEED;
+    pkt->data[2] = value;
+    pkt->len = 3;
+    return RESULT_OK(pkt);
+}
+#endif
+
+#ifdef MCU_MOTOR_CTRL
+#include "motor/basic.h"
+
+static float ftest = 0.0;
+Result fdcan_pkt_write(FdcanPkt* pkt, DataType type)
+{
+    if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
+    switch (type)
+    {
+        case DATA_TYPE_TEST:
+        {
+            pkt->id = FDCAN_TEST_ID;
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            pkt->data[1] = 0xFF;
+            var_f32_to_u8_be(ftest++, pkt->data + 2);
+            pkt->len = 6;
+            return RESULT_OK(pkt);
+        }
+        case DATA_TYPE_SPD:
+        {
+            #define SPD_START_BYTE 4
+            pkt->id = FDCAN_DATA_ID;
+            RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 8));
+            pkt->data[0] = CMD_DATA_B0_CONTROL;
+            RESULT_CHECK_HANDLE(pkt_data_write_f32(pkt, SPD_START_BYTE, motor_h.rpm_fbk.value));
+            return RESULT_OK(pkt);
+        }
+        default: return fdcan_pkt_write_inner(pkt, type);
+    }
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
+#endif
+
+Result trsm_pkt_proc(void)
+{
+    Result result = RESULT_OK(NULL);
+    if (fdacn_data_store == FNC_ENABLE)
+    {
+        #ifdef ENABLE_CON_PKT_TEST
+        FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_pkt_write(pkt, DATA_TYPE_TEST);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        #else
+        return trsm_pkt_proc_inner();
+        #endif
+    }
+    return result;
+}
