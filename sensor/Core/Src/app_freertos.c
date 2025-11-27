@@ -61,10 +61,10 @@ const osThreadAttr_t UsTask_attributes = {
   .priority = (osPriority_t) osPriorityHigh,
   .stack_size = 128 * 4
 };
-/* Definitions for AdcTask03 */
-osThreadId_t AdcTask03Handle;
-const osThreadAttr_t AdcTask03_attributes = {
-  .name = "AdcTask03",
+/* Definitions for AdcTask */
+osThreadId_t AdcTaskHandle;
+const osThreadAttr_t AdcTask_attributes = {
+  .name = "AdcTask",
   .priority = (osPriority_t) osPriorityNormal1,
   .stack_size = 128 * 4
 };
@@ -113,8 +113,8 @@ void MX_FREERTOS_Init(void) {
   /* creation of UsTask */
   UsTaskHandle = osThreadNew(StartUsTask, NULL, &UsTask_attributes);
 
-  /* creation of AdcTask03 */
-  AdcTask03Handle = osThreadNew(StartAdcTask, NULL, &AdcTask03_attributes);
+  /* creation of AdcTask */
+  AdcTaskHandle = osThreadNew(StartAdcTask, NULL, &AdcTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
