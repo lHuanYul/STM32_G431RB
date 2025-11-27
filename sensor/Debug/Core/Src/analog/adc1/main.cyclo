@@ -1,0 +1,6 @@
+../Core/Src/analog/adc1/main.c:46:13:max_min	5
+../Core/Src/analog/adc1/main.c:60:13:average	2
+../Core/Src/analog/adc1/main.c:73:13:middle	6
+../Core/Src/analog/adc1/main.c:96:13:iir	1
+../Core/Src/analog/adc1/main.c:103:6:adc_update	2
+../Core/Src/analog/adc1/main.c:113:6:StartAdcTask	1

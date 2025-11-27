@@ -16,6 +16,7 @@
 
 // ! SYSTEM config, Change CAREFULLY --------------------
 // ! Also CHECK ALL basic.c file
+#include "tim.h"
 #include "arm_math.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -33,7 +34,7 @@
 
 #ifndef PI // 180 deg
     #define PI  3.14159265358979f
-    // #define PI  3.14159265358979323846f 
+    // #define PI  3.14159265358979323846f
 #endif
 #define PI_MUL_2        (2.0f * PI)     // 360 deg
 #define PI_DIV_6        (PI / 6.0f)     // 30 deg
@@ -66,6 +67,10 @@
 #define ADC_ACC_CNT_MAX 3000
 #define ADC_TO_VOL      (3.3f/4095.0f)
 #define ADC_VOL_SEP     (2.0f/3.0f)
+
+#define US_SENSOR_HTIM          &htim4
+#define US_SENSOR_TIM_CH        TIM_CHANNEL_1
+#define US_SENSOR_TIM_ACT_CH    HAL_TIM_ACTIVE_CHANNEL_1
 
 // Motor Core
 // 20kHz 50us pwm

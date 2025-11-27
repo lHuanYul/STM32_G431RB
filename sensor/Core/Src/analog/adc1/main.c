@@ -7,7 +7,7 @@ static uint16_t ADC_Values[ADC_COUNT] = {0};
 ADC_PARAMETER adchall_direction = {
     .const_h = {
         .hadcx = &hadc1,
-        // PB12(R16)
+        // PC0
         .rankx = 0,
     },
     .gate = 1780,
@@ -17,7 +17,7 @@ ADC_PARAMETER adchall_direction = {
 ADC_PARAMETER adchall_track_left = {
     .const_h = {
         .hadcx = &hadc1,
-        // PB11(R18)
+        // PC1
         .rankx = 2,
     },
     .gate = 1860,
@@ -27,7 +27,7 @@ ADC_PARAMETER adchall_track_left = {
 ADC_PARAMETER adchall_track_right = {
     .const_h = {
         .hadcx = &hadc1,
-        // PB1(R24)
+        // PC2
         .rankx = 1,
     },
     .gate = 1850,
@@ -37,7 +37,6 @@ ADC_PARAMETER adchall_track_right = {
 ADC_PARAMETER adchall_node = {
     .const_h = {
         .hadcx = &hadc1,
-        // PB0(L34)
         .rankx = 3,
     },
     .gate = 1850,
@@ -47,9 +46,9 @@ ADC_PARAMETER adchall_node = {
 static void max_min (ADC_PARAMETER* adc)
 {
     adc->dbg_tim++;
-    if (adc->dbg_tim >= 100 == 0)
+    if (adc->dbg_tim >= 100)
     {
-        adc->dbg_tim == 0;
+        adc->dbg_tim = 0;
         adc->dbg_max = 0;
         adc->dbg_min = 4095;
     }
@@ -110,11 +109,14 @@ void adc_update(ADC_PARAMETER* adc)
     max_min(adc);
 }
 
+int a = 0;
 void StartAdcTask(void *argument)
 {
+    HAL_ADC_Start(&hadc1);
     HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
     for(;;)
     {
+        a++;
         HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Values, ADC_COUNT);
         osDelay(100);
     }
