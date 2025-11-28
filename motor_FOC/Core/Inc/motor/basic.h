@@ -61,14 +61,12 @@ typedef struct MotorRpm
     volatile float32_t value;
 } MotorRpm;
 
-typedef struct MotorRpmIq
+typedef enum MotorDirState
 {
-    const float32_t rpm_max;
-    const float32_t rpm_min;
-    const float32_t Iq_max;
-    const float32_t Iq_min;
-    float32_t Iq_scale;
-} MotorRpmIq;
+    MOTOR_DIR_NORMAL,
+    MOTOR_DIR_BRAKE_TO_ZERO,
+    MOTOR_DIR_SWITCH_DIR,
+} MotorDirState;
 
 typedef struct MotorParameter
 {
@@ -92,9 +90,7 @@ typedef struct MotorParameter
 
     MotorRpm            rpm_fbk;
 
-    MotorRpmIq          rpm_iq_rated;
-
-    MotorRpmIq          rpm_iq_peak;
+    MotorDirState       dir_state;
 
     // 目前霍爾相位
     volatile float32_t  exti_hall_rad;
@@ -127,11 +123,11 @@ typedef struct MotorParameter
     
     float32_t           spd_Iq_set;
     // 電流 ADC
-    ADC_PARAMETER         *adc_a;
+    ADC_PARAMETER       *adc_a;
     // 電流 ADC
-    ADC_PARAMETER         *adc_b;
+    ADC_PARAMETER       *adc_b;
     // 電流 ADC
-    ADC_PARAMETER         *adc_c;
+    ADC_PARAMETER       *adc_c;
     // clarke
     CLARKE              clarke;
     // park

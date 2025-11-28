@@ -31,11 +31,6 @@ MotorParameter motor_h = {
     .adc_b = &adc_1,
     // Blue
     .adc_c = &adc_2,
-    .rpm_iq_rated = {
-        
-    },
-    .rpm_iq_peak = {
-    },
     .pi_spd = {
         .ref = 0.0f,
         .Kp = 0.000025f,

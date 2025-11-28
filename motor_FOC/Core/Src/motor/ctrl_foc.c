@@ -63,8 +63,6 @@ inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
         motor->pi_Id.fbk = motor->park.Ds;
         PI_run(&motor->pi_Id);
 
-        motor->pi_Iq.ref = (!motor->rpm_ref.reverse) ?
-            motor->const_h.rated_current : -motor->const_h.rated_current;
         motor->pi_Iq.fbk = motor->park.Qs;
         PI_run(&motor->pi_Iq);
 

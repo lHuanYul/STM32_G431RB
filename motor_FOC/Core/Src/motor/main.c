@@ -87,29 +87,6 @@ void motor_hall_exti(MotorParameter *motor)
     #endif
 }
 
-// static inline void stop_check(MotorParameter *motor)
-// {
-//     // 停轉判斷
-//     // 現在與上一個霍爾的總和與之前的總和相同，視為馬達靜止不動
-//     uint8_t current = motor->exti_hall_curt;
-//     uint16_t total = motor->tim_hall_last * 10 + current;
-//     if(total == motor->tim_hall_total)
-//     {
-//         motor->stop_spin_acc++;
-//         if (motor->stop_spin_acc >= MOTOR_STOP_TRI)
-//         {
-//             motor->stop_spin_acc = 0;
-//             motor->pi_spd.fbk = 0;    // 歸零速度實際值
-//             __HAL_TIM_SET_COUNTER(motor->const_h.SPD_htimx, 0);
-//             motor->pi_spd.Uil = 0;     // 重置i控制舊值
-//             motor_foc_rot_stop(motor);
-//         }
-//     }
-//     else motor->stop_spin_acc = 0;
-//     motor->tim_hall_last = current;
-//     motor->tim_hall_total = total;
-// }
-
 void motor_adc_renew(MotorParameter *motor)
 {
     RESULT_CHECK_RET_VOID(adc_renew(motor->adc_a));
@@ -120,19 +97,50 @@ void motor_adc_renew(MotorParameter *motor)
 void motor_pwm_pulse(MotorParameter *motor)
 {
     if (motor->mode_ctrl == MOTOR_CTRL_INIT) return;
-    // motor_adc_renew(motor);
     RESULT_CHECK_RET_VOID(vec_ctrl_hall_angle_chk(motor));
     motor->tim_it_acc++;
-    if (motor->tim_it_acc >= 100)
+    if (motor->tim_it_acc >= 1000)
     {
         motor->tim_it_acc = 0;
-        motor->pi_spd.ref = (motor->rpm_ref.reverse == motor->rpm_fbk.reverse) ?
-            motor->rpm_ref.value : 0.0f;
+        MotorRpm rpm_set;
+        switch (motor->dir_state)
+        {
+            case MOTOR_DIR_NORMAL:
+            {
+                rpm_set.value = motor->rpm_ref.value;
+                if (motor->rpm_ref.reverse != motor->rpm_fbk.reverse)
+                    motor->dir_state = MOTOR_DIR_BRAKE_TO_ZERO;
+                break;
+            }
+            case MOTOR_DIR_BRAKE_TO_ZERO:
+            {
+                rpm_set.value = 0;
+                if (rpm_set.value < 10.0f)
+                    motor->dir_state = MOTOR_DIR_SWITCH_DIR;
+                break;
+            }
+            case MOTOR_DIR_SWITCH_DIR:
+            {
+                rpm_set.reverse = motor->rpm_ref.reverse;
+                rpm_set.value = motor->rpm_ref.value;
+                if (motor->rpm_fbk.reverse == motor->rpm_ref.reverse)
+                    motor->dir_state = MOTOR_DIR_NORMAL;
+                break;
+            }
+        }
+
+        motor->pi_spd.ref = rpm_set.value;
         motor->pi_spd.fbk = motor->rpm_fbk.value;
-        // stop_check(motor);
         PI_run(&motor->pi_spd);
+
+        motor->pwm_duty_deg += motor->pi_spd.out;
+        VAR_CLAMPF(motor->pwm_duty_deg, 0.0f, 1.0f);
+        motor->pi_Iq.ref += motor->pi_spd.out * motor->spd_Iq_set;
+        VAR_CLAMPF(motor->pi_Iq.ref, motor->pi_Iq.min, motor->pi_Iq.max);
+
+        motor->pi_Iq.ref = (!motor->rpm_ref.reverse) ?
+            motor->const_h.rated_current : -motor->const_h.rated_current;
         // motor->spd_Iq_set = var_clampf((motor->spd_Iq_set + motor->pi_spd.out), 0.15f, 0.2f);
-        motor->spd_Iq_set = 1.9f/4000.0f;
     }
     vec_ctrl_clarke(motor);
     vec_ctrl_park(motor);
