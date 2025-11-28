@@ -1,0 +1,6 @@
+../Core/Src/us_sensor/main.c:20:8:us_sensor_start	2
+../Core/Src/us_sensor/main.c:30:8:us_sensor_enable	2
+../Core/Src/us_sensor/main.c:41:8:us_sensor_tri_off	2
+../Core/Src/us_sensor/main.c:50:8:us_sensor_overflow	3
+../Core/Src/us_sensor/main.c:75:8:us_sensor_echo	6
+../Core/Src/us_sensor/main.c:110:7:StartUsTask	1

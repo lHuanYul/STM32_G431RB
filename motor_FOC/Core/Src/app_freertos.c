@@ -61,6 +61,13 @@ const osThreadAttr_t motorTask_attributes = {
   .priority = (osPriority_t) osPriorityAboveNormal,
   .stack_size = 128 * 4
 };
+/* Definitions for FdCanTask */
+osThreadId_t FdCanTaskHandle;
+const osThreadAttr_t FdCanTask_attributes = {
+  .name = "FdCanTask",
+  .priority = (osPriority_t) osPriorityHigh,
+  .stack_size = 256 * 4
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -69,6 +76,7 @@ const osThreadAttr_t motorTask_attributes = {
 
 void StartDefaultTask(void *argument);
 void StartMotorTask(void *argument);
+void StartFdCanTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -104,6 +112,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of motorTask */
   motorTaskHandle = osThreadNew(StartMotorTask, NULL, &motorTask_attributes);
+
+  /* creation of FdCanTask */
+  FdCanTaskHandle = osThreadNew(StartFdCanTask, NULL, &FdCanTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -149,6 +160,24 @@ __weak void StartMotorTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartMotorTask */
+}
+
+/* USER CODE BEGIN Header_StartFdCanTask */
+/**
+* @brief Function implementing the FdCanTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartFdCanTask */
+__weak void StartFdCanTask(void *argument)
+{
+  /* USER CODE BEGIN StartFdCanTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartFdCanTask */
 }
 
 /* Private application code --------------------------------------------------*/

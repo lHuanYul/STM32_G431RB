@@ -54,6 +54,20 @@ const osThreadAttr_t defaultTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 128 * 4
 };
+/* Definitions for UsTask */
+osThreadId_t UsTaskHandle;
+const osThreadAttr_t UsTask_attributes = {
+  .name = "UsTask",
+  .priority = (osPriority_t) osPriorityHigh,
+  .stack_size = 128 * 4
+};
+/* Definitions for AdcTask */
+osThreadId_t AdcTaskHandle;
+const osThreadAttr_t AdcTask_attributes = {
+  .name = "AdcTask",
+  .priority = (osPriority_t) osPriorityNormal1,
+  .stack_size = 128 * 4
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -61,6 +75,8 @@ const osThreadAttr_t defaultTask_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
+void StartUsTask(void *argument);
+void StartAdcTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -94,6 +110,12 @@ void MX_FREERTOS_Init(void) {
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
+  /* creation of UsTask */
+  UsTaskHandle = osThreadNew(StartUsTask, NULL, &UsTask_attributes);
+
+  /* creation of AdcTask */
+  AdcTaskHandle = osThreadNew(StartAdcTask, NULL, &AdcTask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -120,6 +142,42 @@ void StartDefaultTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
+}
+
+/* USER CODE BEGIN Header_StartUsTask */
+/**
+* @brief Function implementing the UsTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartUsTask */
+__weak void StartUsTask(void *argument)
+{
+  /* USER CODE BEGIN StartUsTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartUsTask */
+}
+
+/* USER CODE BEGIN Header_StartAdcTask */
+/**
+* @brief Function implementing the AdcTask03 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartAdcTask */
+__weak void StartAdcTask(void *argument)
+{
+  /* USER CODE BEGIN StartAdcTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartAdcTask */
 }
 
 /* Private application code --------------------------------------------------*/

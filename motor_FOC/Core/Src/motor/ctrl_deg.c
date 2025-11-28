@@ -51,8 +51,8 @@ inline void deg_ctrl_load(MotorParameter *motor)
         case MOTOR_CTRL_180:
         {
             idx = (!motor->rpm_ref.reverse) ?
-                  index_180[motor->exti_hall_curt] + 2  // + 1
-                : index_180[motor->exti_hall_curt] + 4; // + 5
+                  index_180[motor->exti_hall_curt] + 2  // + 1 / 2
+                : index_180[motor->exti_hall_curt] + 4; // + 5 / 4
             idx %= 6;
             break;
         }

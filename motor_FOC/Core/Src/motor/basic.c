@@ -6,8 +6,9 @@ const uint8_t hall_seq_ccw[8] = {0, 5, 3, 1, 6, 4, 2, 0};
 const uint8_t hall_seq_clw[8] = {0, 3, 6, 2, 5, 1, 4, 0};
 MotorParameter motor_h = {
     .const_h = {
+        // Yellow Green Blue
         .Hall_GPIOx         = { GPIOC,       GPIOC,       GPIOC       },
-        .Hall_GPIO_Pin_x    = { GPIO_PIN_12, GPIO_PIN_11, GPIO_PIN_10 },
+        .Hall_GPIO_Pin_x    = { GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12 },
         // H: PC0 PC1 PC2 / L: PB13 PB14 PB15
         // Yellow Green Blue
         .PWM_htimx          = &htim1,
@@ -57,7 +58,7 @@ MotorParameter motor_h = {
         .min = -0.01f,
         .sat = 1.0f,
     },
-    .pwm_duty_deg = 1.0f,
+    .pwm_duty_deg = 0.5f,
 };
 
 inline void motor_init(MotorParameter *motor)
