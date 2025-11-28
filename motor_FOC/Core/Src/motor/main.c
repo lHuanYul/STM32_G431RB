@@ -7,7 +7,7 @@
 
 void motor_hall_exti(MotorParameter *motor)
 {
-    if (motor->mode == MOTOR_CTRL_INIT) return;
+    if (motor->mode_ctrl == MOTOR_CTRL_INIT) return;
     // hall update
     uint8_t hall_last = motor->exti_hall_curt;
     uint8_t hall_current =
@@ -73,9 +73,9 @@ void motor_hall_exti(MotorParameter *motor)
     //
     #ifndef MOTOR_FOC_SPIN_DEBUG
     if (
-           (motor->mode == MOTOR_CTRL_LOCK)
-        || (motor->mode == MOTOR_CTRL_120)
-        || (motor->mode == MOTOR_CTRL_180)
+           (motor->mode_ctrl == MOTOR_CTRL_LOCK)
+        || (motor->mode_ctrl == MOTOR_CTRL_120)
+        || (motor->mode_ctrl == MOTOR_CTRL_180)
     ) deg_ctrl_load(motor);
     #else
     if (expected && (motor->reverse == reverse))
@@ -119,7 +119,7 @@ void motor_adc_renew(MotorParameter *motor)
 
 void motor_pwm_pulse(MotorParameter *motor)
 {
-    if (motor->mode == MOTOR_CTRL_INIT) return;
+    if (motor->mode_ctrl == MOTOR_CTRL_INIT) return;
     // motor_adc_renew(motor);
     RESULT_CHECK_RET_VOID(vec_ctrl_hall_angle_chk(motor));
     motor->tim_it_acc++;
@@ -141,7 +141,7 @@ void motor_pwm_pulse(MotorParameter *motor)
     vec_ctrl_svgen(motor);
     vec_ctrl_svpwm(motor);
     #ifndef MOTOR_FOC_SPIN_DEBUG
-    if (motor->mode == MOTOR_CTRL_FOC_RATED) vec_ctrl_load(motor);
+    if (motor->mode_ctrl == MOTOR_CTRL_FOC_RATED) vec_ctrl_load(motor);
     #endif
 }
 
@@ -210,7 +210,7 @@ static void motor_setup(MotorParameter *motor)
 void StartMotorTask(void *argument)
 {
     motor_setup(&motor_h);
-    motor_set_speed(&motor_h, 0, 250.0f);
+    motor_set_speed(&motor_h, 250.0f);
 
     motor_switch_ctrl(&motor_h, MOTOR_CTRL_180);
     motor_hall_exti(&motor_h);

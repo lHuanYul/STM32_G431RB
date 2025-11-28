@@ -75,13 +75,6 @@ float32_t var_u8_to_f32_be(const uint8_t *u8)
     return f32;
 }
 
-float32_t var_clampf(float32_t val, float32_t min, float32_t max)
-{
-    if (val > max) return max;
-    if (val < min) return min;
-    return val;
-}
-
 float32_t var_wrap_pos(float32_t x, float32_t value)
 {
     int32_t n = (int32_t)(x / value);

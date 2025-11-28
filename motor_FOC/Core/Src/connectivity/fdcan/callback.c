@@ -35,7 +35,6 @@ void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t Bu
 }
 
 FDCAN_RxHeaderTypeDef RxHeader0 = {0};
-FDCAN_RxHeaderTypeDef RxHeader1 = {0};
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
     if(ITS_CHECK(RxFifo0ITs, FDCAN_IT_RX_FIFO0_NEW_MESSAGE))
@@ -45,29 +44,21 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             hfdcan, FDCAN_RX_FIFO0, &RxHeader0, pkt->data));
         pkt->id = RxHeader0.Identifier;
         pkt->len = RxHeader0.DataLength;
-        if (pkt->id >= FDCAN_FILTER0_ID_MIN && pkt->id <= FDCAN_FILTER0_ID_MAX)
-        {
-            fdcan_pkt_ist_read(pkt);
-            fdcan_pkt_pool_free(pkt);
-        }
-        else if (pkt->id >= FDCAN_FILTER1_ID_MIN && pkt->id <= FDCAN_FILTER1_ID_MAX)
-        {
-            RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_recv_pkt_buf, pkt));
-        }
-        else
-        {}
+        RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_recv_pkt_buf, pkt));
     }
 }
 
+ATTR_WEAK Result fdcan_pkt_ist_read(FdcanPkt* pkt) { return RESULT_ERROR(RES_ERR_NOT_FOUND); }
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
     if(ITS_CHECK(RxFifo1ITs, FDCAN_IT_RX_FIFO1_NEW_MESSAGE))
     {
-        // FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        // ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(
-        //     hfdcan, FDCAN_RX_FIFO1, &RxHeader1, pkt->data));
-        // pkt->id = RxHeader1.Identifier;
-        // pkt->len = RxHeader1.DataLength;
-        // RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_recv_pkt_buf, pkt));
+        FDCAN_RxHeaderTypeDef header = {0};
+        FdcanPkt pkt = {0};
+        ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(
+            hfdcan, FDCAN_RX_FIFO1, &header, pkt.data));
+        pkt.id = header.Identifier;
+        pkt.len = header.DataLength;
+        fdcan_pkt_ist_read(&pkt);
     }
 }

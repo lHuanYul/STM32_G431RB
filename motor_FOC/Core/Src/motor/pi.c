@@ -16,6 +16,7 @@ void PI_run(PI_CTRL *pi)
     }
     pi->Uil = pi->Ui;
     pi->ori = pi->Up + pi->Ui;
-    pi->out = var_clampf(pi->ori, pi->min, pi->max);
+    pi->out = pi->ori;
+    VAR_CLAMPF(pi->out, pi->min, pi->max);
     pi->sat = (pi->out == pi->ori) ? 1 : 0;
 }

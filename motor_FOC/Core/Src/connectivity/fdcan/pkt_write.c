@@ -2,12 +2,12 @@
 #include "connectivity/fdcan/pkt_read.h"
 #include "main/variable_cal.h"
 
-__weak Result fdcan_pkt_write_inner(FdcanPkt* pkt, DataType type)
+ATTR_WEAK Result fdcan_pkt_write_inner(FdcanPkt* pkt, DataType type)
 {
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 
-__weak Result trsm_pkt_proc_inner(void)
+ATTR_WEAK Result trsm_pkt_proc_inner(void)
 {
     return RESULT_OK(NULL);
 }

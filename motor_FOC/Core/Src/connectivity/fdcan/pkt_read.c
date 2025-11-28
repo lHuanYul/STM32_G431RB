@@ -2,12 +2,12 @@
 #include "connectivity/cmds.h"
 #include "main/variable_cal.h"
 
-__weak Result fdcan_pkt_ist_read_inner(FdcanPkt* pkt)
+ATTR_WEAK Result fdcan_pkt_ist_read_inner(FdcanPkt* pkt)
 {
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 
-__weak Result fdcan_pkt_rcv_read_inner(FdcanPkt* pkt)
+ATTR_WEAK Result fdcan_pkt_rcv_read_inner(FdcanPkt* pkt)
 {
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
@@ -511,31 +511,31 @@ Result fdcan_pkt_ist_read(FdcanPkt* pkt)
     RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
     switch (code)
     {
-        case CMD_DATA_B0_STOP:
+        case CMD_WHEEL_B0_COAST:
         {
-            fdacn_data_store = FNC_DISABLE;
+            motor_set_rotate_mode(&motor_h, MOTOR_ROT_COAST);
             return RESULT_OK(NULL);
         }
-        case CMD_DATA_B0_START:
+        case CMD_WHEEL_B0_SET_SPD:
         {
-            fdacn_data_store = FNC_ENABLE;
-            return RESULT_OK(NULL);
-        }
-        case CMD_WHEEL_B0_CONTROL:
-        {
-            #define SPD_START_BYTE 4
-            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, SPD_START_BYTE + 2, &code));
-            bool reverse = (!code) ? 0 : 1;
-            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, SPD_START_BYTE + 3, NULL));
             uint8_t spd_u8[4];
-            memcpy(spd_u8, pkt->data + SPD_START_BYTE, 4);
-            float32_t spd_f32 = var_u8_to_f32_be(spd_u8);
-            motor_set_speed(&motor_h, reverse, spd_f32);
+            if (CMD_WHEEL_BX_SPD + 4 >= FDCAN_PKT_LEN)
+                return RESULT_ERROR(RES_ERR_OVERFLOW);
+            memcpy(spd_u8, pkt->data + CMD_WHEEL_BX_SPD, 4);
+            motor_set_rotate_mode(&motor_h, MOTOR_ROT_NORMAL);
+            motor_set_speed(&motor_h, var_u8_to_f32_be(spd_u8));
             return RESULT_OK(NULL);
         }
-        default: return fdcan_pkt_ist_read_inner(pkt);
+        case CMD_WHEEL_B0_LOCK:
+        {
+            motor_set_rotate_mode(&motor_h, MOTOR_ROT_LOCK);
+            return RESULT_OK(NULL);
+        }
+        default: break;
     }
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
+
 #endif
 
 Result fdcan_pkt_rcv_read(FdcanPkt* pkt)

@@ -38,7 +38,7 @@ typedef struct MotorConst
     float32_t           peak_current;
 } MotorConst;
 
-typedef enum MotorCtrlMode
+typedef enum MotorModeCtrl
 {
     MOTOR_CTRL_INIT,
     MOTOR_CTRL_LOCK,
@@ -46,7 +46,14 @@ typedef enum MotorCtrlMode
     MOTOR_CTRL_180,
     MOTOR_CTRL_FOC_RATED,
     MOTOR_CTRL_FOC_PEAK,
-} MotorCtrlMode;
+} MotorModeCtrl;
+
+typedef enum MotorModeRot
+{
+    MOTOR_ROT_COAST,
+    MOTOR_ROT_NORMAL,
+    MOTOR_ROT_LOCK,
+} MotorModeRot;
 
 typedef struct MotorRpm
 {
@@ -76,8 +83,10 @@ typedef struct MotorParameter
     float32_t           dbg_pwm_freq;
     // 計時器頻率
     float32_t           dbg_tim_it_freq;
-    // 馬達控制方式
-    MotorCtrlMode       mode;
+    // 馬達控制模式
+    MotorModeCtrl       mode_ctrl;
+    // 馬達旋轉模式
+    MotorModeRot        mode_rot;
 
     MotorRpm            rpm_ref;
 
@@ -150,5 +159,6 @@ extern MotorParameter motor_h;
 void motor_init(MotorParameter *motor);
 
 // 從尾往轉子 順時針為負
-void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed);
-void motor_switch_ctrl(MotorParameter *motor, MotorCtrlMode ctrl);
+void motor_set_speed(MotorParameter *motor, float32_t speed);
+void motor_set_rotate_mode(MotorParameter *motor, MotorModeRot mode);
+void motor_switch_ctrl(MotorParameter *motor, MotorModeCtrl ctrl);

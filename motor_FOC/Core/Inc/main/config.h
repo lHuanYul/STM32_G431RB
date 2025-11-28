@@ -11,8 +11,8 @@
 #include <float.h>
 #include <string.h>
 
-#define ATTR_X(...) __attribute__((__VA_ARGS__))
 #define ATTR_UNUSED __attribute__((unused))
+#define ATTR_WEAK   __attribute__((weak))
 
 // ! SYSTEM config, Change CAREFULLY --------------------
 // ! Also CHECK ALL basic.c file
@@ -32,8 +32,8 @@
 // #define MOTOR_FOC_SPIN_DEBUG
 
 #ifndef PI // 180 deg
-    #define PI  3.14159265358979f
-    // #define PI  3.14159265358979323846f 
+#define PI  3.14159265358979f
+// #define PI  3.14159265358979323846f 
 #endif
 #define PI_MUL_2        (2.0f * PI)     // 360 deg
 #define PI_DIV_6        (PI / 6.0f)     // 30 deg
@@ -81,6 +81,7 @@
 #define TIM_DTG_500ns   0x55
 #define TIM_DTG_1us     0x95
 
+// LOOK connectivity/cmds
 #define FDCAN_STD_FILTER_NBR    2
 // #define FDCAN_RX0_NBR           16
 // #define FDCAN_RX1_NBR           16
@@ -88,10 +89,10 @@
 // #define FDCAN_TX_BUF_NBR        4
 // #define FDCAN_TX_FIFO_NBR       16
 // #define FDCAN_TX_EVT_NBR        (FDCAN_TX_BUF_NBR+FDCAN_TX_FIFO_NBR)
-#define FDCAN_FILTER0_ID_MIN    0x020
-#define FDCAN_FILTER0_ID_MAX    0x021
-#define FDCAN_FILTER1_ID_MIN    0x022
-#define FDCAN_FILTER1_ID_MAX    0x023
+#define FDCAN_FIFO0_FILTER0_ID_MIN    0x109
+#define FDCAN_FIFO0_FILTER0_ID_MAX    0x109
+#define FDCAN_FIFO1_FILTER0_ID_MIN    0x10A
+#define FDCAN_FIFO1_FILTER0_ID_MAX    0x10F
 #define FDCAN_TEST_ID           0x001
 #define FDCAN_DATA_ID           0x011
 #define FDCAN_PKT_LEN           8

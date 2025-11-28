@@ -41,7 +41,8 @@ inline void vec_ctrl_park(MotorParameter *motor)
 {
     motor->park.Alpha = motor->clarke.Alpha;
     motor->park.Beta = motor->clarke.Beta;
-    motor->foc_angle_acc = var_clampf(motor->foc_angle_acc + motor->foc_angle_itpl, -PI_DIV_3, PI_DIV_3);
+    motor->foc_angle_acc = motor->foc_angle_acc + motor->foc_angle_itpl;
+    VAR_CLAMPF(motor->foc_angle_acc, -PI_DIV_3, PI_DIV_3);
     // 電壓向量應提前90度 +PI_DIV_2
     RESULT_CHECK_HANDLE(trigo_sin_cosf(
         motor->exti_hall_rad + motor->foc_angle_acc + MOTOR_42BLF01_ANGLE + PI_DIV_2,
@@ -67,13 +68,15 @@ inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
         motor->pi_Iq.fbk = motor->park.Qs;
         PI_run(&motor->pi_Iq);
 
-        motor->pi_Iq.Up = var_clampf((motor->pi_Iq.Up), -0.1f, 0.1f);
-        motor->pi_Iq.out = var_clampf((motor->pi_Iq.ref + motor->pi_Iq.Up), -0.75f, 0.75f);
+        VAR_CLAMPF(motor->pi_Iq.Up, -0.1f, 0.1f);
+        motor->pi_Iq.out = motor->pi_Iq.ref + motor->pi_Iq.Up;
+        VAR_CLAMPF(motor->pi_Iq.out, -0.75f, 0.75f);
 }
 
 inline void vec_ctrl_ipark(MotorParameter *motor)
 {
-    motor->ipark.Vdref = var_clampf(motor->ipark.Vdref + motor->pi_Id.out, -0.06f, 0.06f);
+    motor->ipark.Vdref = motor->ipark.Vdref + motor->pi_Id.out;
+    VAR_CLAMPF(motor->ipark.Vdref, -0.06f, 0.06f);
     motor->ipark.Vqref = motor->pi_Iq.out;
     motor->ipark.Sin = motor->park.Sin;
     motor->ipark.Cos = motor->park.Cos;
@@ -170,9 +173,9 @@ inline void vec_ctrl_svpwm(MotorParameter *motor)
 
 inline void vec_ctrl_load(MotorParameter *motor)
 {
-    motor->pwm_duty_u = var_clampf(motor->pwm_duty_u, 0.0f, 1.0f);
-    motor->pwm_duty_v = var_clampf(motor->pwm_duty_v, 0.0f, 1.0f);
-    motor->pwm_duty_w = var_clampf(motor->pwm_duty_w, 0.0f, 1.0f);
+    VAR_CLAMPF(motor->pwm_duty_u, 0.0f, 1.0f);
+    VAR_CLAMPF(motor->pwm_duty_v, 0.0f, 1.0f);
+    VAR_CLAMPF(motor->pwm_duty_w, 0.0f, 1.0f);
     __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u));
     __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_v));
     __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_w));

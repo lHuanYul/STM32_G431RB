@@ -20,7 +20,11 @@ typedef struct IPARK {
     float32_t Beta;     // Output: stationary q-axis stator variable
     float32_t Angle;    // Input: rotating angle (pu)
     float32_t Vdref;    // Input: rotating d-axis stator variable
+    float32_t Vdref_min;
+    float32_t Vdref_max;
     float32_t Vqref;    // Input: rotating q-axis stator variable
+    float32_t Vqref_min;
+    float32_t Vqref_max;
     float32_t Sin;     // Input: Sine term
     float32_t Cos;   // Input: Cosine term
 } IPARK;

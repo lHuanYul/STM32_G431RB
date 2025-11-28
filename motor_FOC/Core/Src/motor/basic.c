@@ -66,13 +66,27 @@ inline void motor_init(MotorParameter *motor)
     motor->pi_Iq.min = -motor->const_h.rated_current;
 }
 
-void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed)
+void motor_set_speed(MotorParameter *motor, float32_t speed)
 {
-    motor->rpm_ref.reverse = reverse;
-    motor->rpm_ref.value = speed;
+    if (speed > 0)
+    {
+        motor->rpm_ref.reverse = 0;
+        motor->rpm_ref.value = speed;
+    }
+    else if (speed < 0)
+    {
+        motor->rpm_ref.reverse = 1;
+        motor->rpm_ref.value = -speed;
+    }
+    else motor->rpm_ref.value = 0;
 }
 
-void motor_switch_ctrl(MotorParameter *motor, MotorCtrlMode ctrl)
+inline void motor_set_rotate_mode(MotorParameter *motor, MotorModeRot mode)
+{
+    motor->mode_rot = mode;
+}
+
+void motor_switch_ctrl(MotorParameter *motor, MotorModeCtrl ctrl)
 {
     switch (ctrl)
     {
@@ -94,5 +108,5 @@ void motor_switch_ctrl(MotorParameter *motor, MotorCtrlMode ctrl)
         }
         default: return;
     }
-    motor->mode = ctrl;
+    motor->mode_ctrl = ctrl;
 }
