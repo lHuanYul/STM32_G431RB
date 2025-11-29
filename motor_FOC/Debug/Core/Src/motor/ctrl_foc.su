@@ -1,9 +1,0 @@
-../Core/Src/motor/ctrl_foc.c:17:13:vec_ctrl_hall_angle_trf	16	static
-../Core/Src/motor/ctrl_foc.c:22:15:vec_ctrl_hall_angle_chk	32	static
-../Core/Src/motor/ctrl_foc.c:29:13:vec_ctrl_clarke	16	static
-../Core/Src/motor/ctrl_foc.c:40:13:vec_ctrl_park	24	static
-../Core/Src/motor/ctrl_foc.c:54:13:vec_ctrl_pi_id_iq	16	static
-../Core/Src/motor/ctrl_foc.c:74:13:vec_ctrl_ipark	24	static
-../Core/Src/motor/ctrl_foc.c:90:13:vec_ctrl_svgen	16	static
-../Core/Src/motor/ctrl_foc.c:107:13:vec_ctrl_svpwm	56	static
-../Core/Src/motor/ctrl_foc.c:172:13:vec_ctrl_load	16	static

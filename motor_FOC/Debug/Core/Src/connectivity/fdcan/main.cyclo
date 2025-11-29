@@ -1,5 +1,0 @@
-../Core/Src/connectivity/fdcan/main.c:7:13:pkt_transmit	3
-../Core/Src/connectivity/fdcan/main.c:22:18:fdcan_pkt_rcv_read	1
-../Core/Src/connectivity/fdcan/main.c:23:15:recv_pkts_proc	3
-../Core/Src/connectivity/fdcan/main.c:34:15:trsm_pkt_proc	3
-../Core/Src/connectivity/fdcan/main.c:55:6:StartFdCanTask	12

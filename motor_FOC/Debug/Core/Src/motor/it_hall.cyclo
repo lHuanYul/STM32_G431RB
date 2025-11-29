@@ -1,3 +1,0 @@
-../Core/Src/motor/it_hall.c:5:22:pos_calculate	1
-../Core/Src/motor/it_hall.c:22:8:motor_hall_update	9
-../Core/Src/motor/it_hall.c:57:8:motor_hall_exti	3

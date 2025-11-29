@@ -1,3 +1,0 @@
-../Core/Src/analog/adc1/main.c:31:13:average	2
-../Core/Src/analog/adc1/main.c:50:8:adc_renew	1
-../Core/Src/analog/adc1/main.c:58:6:adc_set_zero_point	1

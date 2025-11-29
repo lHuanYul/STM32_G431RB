@@ -1,3 +1,0 @@
-../Core/Src/motor/it_hall.c:5:22:pos_calculate	32	static
-../Core/Src/motor/it_hall.c:22:8:motor_hall_update	48	static
-../Core/Src/motor/it_hall.c:57:8:motor_hall_exti	40	static
