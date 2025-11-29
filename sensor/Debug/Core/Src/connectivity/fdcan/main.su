@@ -1,3 +1,0 @@
-../Core/Src/connectivity/fdcan/main.c:12:13:pkt_transmit	32	static
-../Core/Src/connectivity/fdcan/main.c:23:15:recv_pkts_proc	56	static
-../Core/Src/connectivity/fdcan/main.c:35:6:StartFdCanTask	112	static

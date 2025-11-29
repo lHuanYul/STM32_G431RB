@@ -1,5 +1,0 @@
-../Core/Src/rfid/main.c:21:8:rfid_trcv_buf_setaddr	40	static
-../Core/Src/rfid/main.c:34:8:rfid_trcv_buf_setdata	48	static
-../Core/Src/rfid/main.c:46:15:buf_write	56	static
-../Core/Src/rfid/main.c:57:15:buf_read	48	static
-../Core/Src/rfid/main.c:67:6:StartRfidTask	40	static

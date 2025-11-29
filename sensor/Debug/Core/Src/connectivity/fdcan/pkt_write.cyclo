@@ -1,3 +1,0 @@
-../Core/Src/connectivity/fdcan/pkt_write.c:5:15:fdcan_pkt_write_inner	1
-../Core/Src/connectivity/fdcan/pkt_write.c:10:15:trsm_pkt_proc_inner	1
-../Core/Src/connectivity/fdcan/pkt_write.c:274:8:trsm_pkt_proc	2
