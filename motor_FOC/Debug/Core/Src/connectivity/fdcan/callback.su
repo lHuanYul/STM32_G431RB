@@ -1,5 +1,6 @@
 ../Core/Src/connectivity/fdcan/callback.c:6:6:HAL_FDCAN_ErrorStatusCallback	16	static
 ../Core/Src/connectivity/fdcan/callback.c:17:6:HAL_FDCAN_TxEventFifoCallback	56	static
 ../Core/Src/connectivity/fdcan/callback.c:33:6:HAL_FDCAN_TxBufferCompleteCallback	16	static
-../Core/Src/connectivity/fdcan/callback.c:39:6:HAL_FDCAN_RxFifo0Callback	48	static
-../Core/Src/connectivity/fdcan/callback.c:62:6:HAL_FDCAN_RxFifo1Callback	16	static
+../Core/Src/connectivity/fdcan/callback.c:37:6:HAL_FDCAN_RxFifo0Callback	80	static
+../Core/Src/connectivity/fdcan/callback.c:51:18:fdcan_pkt_ist_read	24	static
+../Core/Src/connectivity/fdcan/callback.c:52:6:HAL_FDCAN_RxFifo1Callback	88	static

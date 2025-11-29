@@ -6,9 +6,8 @@
 ../Core/Src/main/variable_cal.c:55:10:var_u8_to_u32_be	1
 ../Core/Src/main/variable_cal.c:63:6:var_f32_to_u8_be	1
 ../Core/Src/main/variable_cal.c:70:11:var_u8_to_f32_be	1
-../Core/Src/main/variable_cal.c:78:11:var_clampf	3
-../Core/Src/main/variable_cal.c:85:11:var_wrap_pos	2
-../Core/Src/main/variable_cal.c:93:11:var_wrap_pi	3
-../Core/Src/main/variable_cal.c:102:11:var_fabsf	1
-../Core/Src/main/variable_cal.c:114:10:var_comb_u16	1
-../Core/Src/main/variable_cal.c:128:10:var_swap_u16	1
+../Core/Src/main/variable_cal.c:78:11:var_wrap_pos	2
+../Core/Src/main/variable_cal.c:86:11:var_wrap_pi	3
+../Core/Src/main/variable_cal.c:95:11:var_fabsf	1
+../Core/Src/main/variable_cal.c:107:10:var_comb_u16	1
+../Core/Src/main/variable_cal.c:121:10:var_swap_u16	1

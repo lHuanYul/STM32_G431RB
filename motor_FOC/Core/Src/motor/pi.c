@@ -3,20 +3,20 @@
 
 void PI_run(PI_CTRL *pi)
 {
-    pi->Err = pi->ref - pi->fbk;
-    pi->Up = pi->Kp * pi->Err;
-    if (pi->out == pi->ori)
+    pi->Error = pi->reference - pi->feedback;
+    pi->Term_p = pi->Kp * pi->Error;
+    if (pi->out == pi->out_origin)
     {
-        pi->Ui = pi->Uil + pi->Ki * pi->Up;
-        // pi->Ui = pi->Uil + pi->Ki * pi->Err;
+        pi->Term_i = pi->Term_i_last + pi->Ki * pi->Term_p;
+        // pi->Term_i = pi->Term_i_last + pi->Ki * pi->Error;
     }
     else
     {
-        pi->Ui = pi->Uil;
+        pi->Term_i = pi->Term_i_last;
     }
-    pi->Uil = pi->Ui;
-    pi->ori = pi->Up + pi->Ui;
-    pi->out = pi->ori;
+    pi->Term_i_last = pi->Term_i;
+    pi->out_origin = pi->Term_p + pi->Term_i;
+    pi->out = pi->out_origin;
     VAR_CLAMPF(pi->out, pi->min, pi->max);
-    pi->sat = (pi->out == pi->ori) ? 1 : 0;
+    pi->saturation = (pi->out == pi->out_origin) ? 1 : 0;
 }

@@ -31,7 +31,6 @@ typedef enum DataType
 } DataType;
 
 Result fdcan_pkt_write(FdcanPkt* pkt, DataType type);
-Result trsm_pkt_proc(void);
 
 #ifdef ANCILLARY_PROGRAM
 Result fdcan_rfid_pkt_write(FdcanPkt* pkt, uint32_t uid, uint8_t n_exist);

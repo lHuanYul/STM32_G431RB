@@ -31,27 +31,28 @@ MotorParameter motor_h = {
     .adc_b = &adc_1,
     // Blue
     .adc_c = &adc_2,
-    .pi_spd = {
-        .ref = 0.0f,
+    .pi_speed = {
+        .reference = 0.0f,
         .Kp = 0.000025f,
         .Ki = 0.002f,
         .max = 0.1f,
         .min = -0.1f,
-        .sat = 1.0f,
+        .saturation = 1.0f,
     },
+    .tfm_duty_Iq = 1.0f,
     .pi_Iq = {
         .Kp = 0.3f,
         .Ki = 0.001f,
         // .max = 0.75f, In motor_init
         // .min = -0.75f, In motor_init
-        .sat = 1.0f,
+        .saturation = 1.0f,
     },
     .pi_Id = {
         .Kp = 0.2f,
         .Ki = 0.001f,
         .max = 0.01f,
         .min = -0.01f,
-        .sat = 1.0f,
+        .saturation = 1.0f,
     },
     .pwm_duty_deg = 0.5f,
 };
@@ -66,23 +67,23 @@ void motor_set_speed(MotorParameter *motor, float32_t speed)
 {
     if (speed > 0)
     {
-        motor->rpm_ref.reverse = 0;
-        motor->rpm_ref.value = speed;
+        motor->rpm_reference.reverse = 0;
+        motor->rpm_reference.value = speed;
     }
     else if (speed < 0)
     {
-        motor->rpm_ref.reverse = 1;
-        motor->rpm_ref.value = -speed;
+        motor->rpm_reference.reverse = 1;
+        motor->rpm_reference.value = -speed;
     }
-    else motor->rpm_ref.value = 0;
+    else motor->rpm_reference.value = 0;
 }
 
-inline void motor_set_rotate_mode(MotorParameter *motor, MotorModeRot mode)
+inline void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode)
 {
-    motor->mode_rot = mode;
+    motor->mode_rotate = mode;
 }
 
-void motor_switch_ctrl(MotorParameter *motor, MotorModeCtrl ctrl)
+void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl)
 {
     switch (ctrl)
     {
@@ -104,5 +105,5 @@ void motor_switch_ctrl(MotorParameter *motor, MotorModeCtrl ctrl)
         }
         default: return;
     }
-    motor->mode_ctrl = ctrl;
+    motor->mode_control = ctrl;
 }

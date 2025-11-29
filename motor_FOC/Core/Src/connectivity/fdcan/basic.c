@@ -31,7 +31,7 @@ Result pkt_data_write_f32(FdcanPkt* pkt, uint8_t start_id, float32_t value)
 void fdcan_pkt_pool_init(void)
 {
     fdcan_pkt_pool.head = NULL;
-    for (size_t i = 0; i < FDCAN_PKT_POOL_CAP; i++) {
+    for (uint8_t i = 0; i < FDCAN_PKT_POOL_CAP; i++) {
         fdcan_pkt_pool.pkt[i].next = fdcan_pkt_pool.head;
         fdcan_pkt_pool.head = &fdcan_pkt_pool.pkt[i];
     }
@@ -73,7 +73,7 @@ FdcanPktBuf fdcan_recv_pkt_buf = {
 Result fdcan_pkt_buf_push(FdcanPktBuf* self, FdcanPkt* pkt)
 {
     if (self->len >= self->cap) return RESULT_ERROR(RES_ERR_OVERFLOW);
-    size_t tail = (self->head + self->len) % self->cap;
+    uint8_t tail = (self->head + self->len) % self->cap;
     self->buf[tail] = pkt;
     self->len++;
     return RESULT_OK(self);
@@ -82,7 +82,7 @@ Result fdcan_pkt_buf_push(FdcanPktBuf* self, FdcanPkt* pkt)
 Result fdcan_pkt_buf_pop(FdcanPktBuf* self)
 {
     if (self->len == 0) return RESULT_ERROR(RES_ERR_EMPTY);
-    size_t head = self->head;
+    uint8_t head = self->head;
     FdcanPkt* pkt = self->buf[head];
     if (--self->len == 0) self->head = 0;
     else self->head = (self->head + 1) % self->cap;

@@ -2,16 +2,6 @@
 #include "connectivity/cmds.h"
 #include "main/variable_cal.h"
 
-ATTR_WEAK Result fdcan_pkt_ist_read_inner(FdcanPkt* pkt)
-{
-    return RESULT_ERROR(RES_ERR_NOT_FOUND);
-}
-
-ATTR_WEAK Result fdcan_pkt_rcv_read_inner(FdcanPkt* pkt)
-{
-    return RESULT_ERROR(RES_ERR_NOT_FOUND);
-}
-
 #ifdef PRINCIPAL_PROGRAM
 #include "vehicle/basic.h"
 #include "motor/main.h"
@@ -508,35 +498,47 @@ static Result arm_motor_set(FdcanPkt* pkt, ArmMotorParameter* arm)
 Result fdcan_pkt_ist_read(FdcanPkt* pkt)
 {
     uint8_t code;
-    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
-    switch (code)
+    switch (pkt->id)
     {
-        case CMD_WHEEL_B0_COAST:
+        case CAN_ID_WHEEL_LEFT_SPD_FBK:
         {
-            motor_set_rotate_mode(&motor_h, MOTOR_ROT_COAST);
-            return RESULT_OK(NULL);
-        }
-        case CMD_WHEEL_B0_SET_SPD:
-        {
-            uint8_t spd_u8[4];
-            if (CMD_WHEEL_BX_SPD + 4 >= FDCAN_PKT_LEN)
-                return RESULT_ERROR(RES_ERR_OVERFLOW);
-            memcpy(spd_u8, pkt->data + CMD_WHEEL_BX_SPD, 4);
-            motor_set_rotate_mode(&motor_h, MOTOR_ROT_NORMAL);
-            motor_set_speed(&motor_h, var_u8_to_f32_be(spd_u8));
-            return RESULT_OK(NULL);
-        }
-        case CMD_WHEEL_B0_LOCK:
-        {
-            motor_set_rotate_mode(&motor_h, MOTOR_ROT_LOCK);
-            return RESULT_OK(NULL);
+            RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
+            switch (code)
+            {
+                case CMD_WHEEL_B0_COAST:
+                {
+                    motor_set_rotate_mode(&motor_h, MOTOR_ROT_COAST);
+                    return RESULT_OK(NULL);
+                }
+                case CMD_WHEEL_B0_SET_SPD:
+                {
+                    uint8_t spd_u8[4];
+                    if (CMD_WHEEL_BX_SPD + 4 >= FDCAN_PKT_LEN)
+                        return RESULT_ERROR(RES_ERR_OVERFLOW);
+                    memcpy(spd_u8, pkt->data + CMD_WHEEL_BX_SPD, 4);
+                    motor_set_rotate_mode(&motor_h, MOTOR_ROT_NORMAL);
+                    motor_set_speed(&motor_h, var_u8_to_f32_be(spd_u8));
+                    return RESULT_OK(NULL);
+                }
+                case CMD_WHEEL_B0_LOCK:
+                {
+                    motor_set_rotate_mode(&motor_h, MOTOR_ROT_LOCK);
+                    return RESULT_OK(NULL);
+                }
+                default: break;
+            }
         }
         default: break;
     }
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
-
 #endif
+
+#ifdef PROJECT_MAIN
+Result fdcan_pkt_ist_read(FdcanPkt* pkt)
+{
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
+}
 
 Result fdcan_pkt_rcv_read(FdcanPkt* pkt)
 {
@@ -544,6 +546,8 @@ Result fdcan_pkt_rcv_read(FdcanPkt* pkt)
     RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
     switch (code)
     {
-        default: return fdcan_pkt_rcv_read_inner(pkt);
+        default: break;
     }
+    return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
+#endif

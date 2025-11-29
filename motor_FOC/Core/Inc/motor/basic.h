@@ -38,7 +38,7 @@ typedef struct MotorConst
     float32_t           peak_current;
 } MotorConst;
 
-typedef enum MotorModeCtrl
+typedef enum MotorModeControl
 {
     MOTOR_CTRL_INIT,
     MOTOR_CTRL_LOCK,
@@ -46,14 +46,14 @@ typedef enum MotorModeCtrl
     MOTOR_CTRL_180,
     MOTOR_CTRL_FOC_RATED,
     MOTOR_CTRL_FOC_PEAK,
-} MotorModeCtrl;
+} MotorModeControl;
 
-typedef enum MotorModeRot
+typedef enum MotorModeRotate
 {
     MOTOR_ROT_COAST,
     MOTOR_ROT_NORMAL,
     MOTOR_ROT_LOCK,
-} MotorModeRot;
+} MotorModeRotate;
 
 typedef struct MotorRpm
 {
@@ -78,17 +78,20 @@ typedef struct MotorParameter
     // PWM 週期 → 電角度內插轉換常數
     // Δθ_elec(rad) = [ (TIM_tim_t * ARR) / ELE_tim_t ] × (π/3) / htim_cnt
     float32_t           tfm_foc_it_angle_itpl;
+
+    float32_t           tfm_duty_Iq;
+
     float32_t           dbg_pwm_freq;
     // 計時器頻率
     float32_t           dbg_tim_it_freq;
     // 馬達控制模式
-    MotorModeCtrl       mode_ctrl;
+    MotorModeControl    mode_control;
     // 馬達旋轉模式
-    MotorModeRot        mode_rot;
+    MotorModeRotate     mode_rotate;
 
-    MotorRpm            rpm_ref;
+    MotorRpm            rpm_reference;
 
-    MotorRpm            rpm_fbk;
+    MotorRpm            rpm_feedback;
 
     MotorDirState       dir_state;
 
@@ -112,16 +115,10 @@ typedef struct MotorParameter
     // 上次霍爾相位
     uint8_t             exti_hall_last;
     // 目前霍爾相位
-    volatile uint8_t    exti_hall_curt;
-    // 上次 FOC 霍爾相位
-    uint8_t             tim_hall_last;
-    // FOC 霍爾相位和
-    // tim_hall_total = tim_hall_last*10 + exti_hall_curt;
-    uint16_t            tim_hall_total;
-    // 從尾往轉子 順時針為負
-    PI_CTRL             pi_spd;
+    volatile uint8_t    exti_hall_curent;
+    // 從尾往轉子 順時針value為負
+    PI_CTRL             pi_speed;
     
-    float32_t           spd_Iq_set;
     // 電流 ADC
     ADC_PARAMETER       *adc_a;
     // 電流 ADC
@@ -156,5 +153,5 @@ void motor_init(MotorParameter *motor);
 
 // 從尾往轉子 順時針為負
 void motor_set_speed(MotorParameter *motor, float32_t speed);
-void motor_set_rotate_mode(MotorParameter *motor, MotorModeRot mode);
-void motor_switch_ctrl(MotorParameter *motor, MotorModeCtrl ctrl);
+void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode);
+void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl);

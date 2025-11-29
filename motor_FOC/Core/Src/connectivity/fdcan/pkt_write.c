@@ -2,16 +2,6 @@
 #include "connectivity/fdcan/pkt_read.h"
 #include "main/variable_cal.h"
 
-ATTR_WEAK Result fdcan_pkt_write_inner(FdcanPkt* pkt, DataType type)
-{
-    return RESULT_ERROR(RES_ERR_NOT_FOUND);
-}
-
-ATTR_WEAK Result trsm_pkt_proc_inner(void)
-{
-    return RESULT_OK(NULL);
-}
-
 #ifdef PRINCIPAL_PROGRAM
 #include "motor/main.h"
 
@@ -258,31 +248,13 @@ Result fdcan_pkt_write(FdcanPkt* pkt, DataType type)
         }
         case DATA_TYPE_SPD:
         {
-            #define SPD_START_BYTE 4
-            pkt->id = FDCAN_DATA_ID;
-            RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 8));
-            pkt->data[0] = CMD_DATA_B0_CONTROL;
-            RESULT_CHECK_HANDLE(pkt_data_write_f32(pkt, SPD_START_BYTE, motor_h.rpm_fbk.value));
+            pkt->id = CAN_ID_WHEEL_LEFT_SPD_FBK;
+            RESULT_CHECK_HANDLE(pkt_data_write_f32(pkt, 0, motor_h.rpm_feedback.value));
+            RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, sizeof(float32_t)));
             return RESULT_OK(pkt);
         }
-        default: return fdcan_pkt_write_inner(pkt, type);
+        default: break;
     }
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 #endif
-
-Result trsm_pkt_proc(void)
-{
-    Result result = RESULT_OK(NULL);
-    if (fdacn_data_store == FNC_ENABLE)
-    {
-        #ifdef ENABLE_CON_PKT_TEST
-        FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_pkt_write(pkt, DATA_TYPE_TEST);
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
-        #else
-        return trsm_pkt_proc_inner();
-        #endif
-    }
-    return result;
-}

@@ -1,3 +1,4 @@
-../Core/Src/motor/basic.c:64:13:motor_init	1
-../Core/Src/motor/basic.c:70:6:motor_set_speed	1
-../Core/Src/motor/basic.c:76:6:motor_switch_ctrl	4
+../Core/Src/motor/basic.c:60:13:motor_init	1
+../Core/Src/motor/basic.c:66:6:motor_set_speed	3
+../Core/Src/motor/basic.c:81:13:motor_set_rotate_mode	1
+../Core/Src/motor/basic.c:86:6:motor_switch_ctrl	4

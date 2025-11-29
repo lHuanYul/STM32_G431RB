@@ -30,9 +30,9 @@ void fdcan_pkt_pool_free(FdcanPkt* pkt);
 typedef struct FdcanPktBuf
 {
     FdcanPkt**  buf;
-    size_t      head;
-    size_t      len;
-    size_t      cap;
+    uint8_t     head;
+    uint8_t     len;
+    uint8_t     cap;
 } FdcanPktBuf;
 extern FdcanPktBuf fdcan_trsm_pkt_buf;
 extern FdcanPktBuf fdcan_recv_pkt_buf;

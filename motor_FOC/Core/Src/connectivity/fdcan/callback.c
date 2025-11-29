@@ -34,16 +34,16 @@ void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t Bu
 {
 }
 
-FDCAN_RxHeaderTypeDef RxHeader0 = {0};
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
     if(ITS_CHECK(RxFifo0ITs, FDCAN_IT_RX_FIFO0_NEW_MESSAGE))
     {
+        FDCAN_RxHeaderTypeDef header = {0};
         FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
         ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(
-            hfdcan, FDCAN_RX_FIFO0, &RxHeader0, pkt->data));
-        pkt->id = RxHeader0.Identifier;
-        pkt->len = RxHeader0.DataLength;
+            hfdcan, FDCAN_RX_FIFO0, &header, pkt->data));
+        pkt->id = header.Identifier;
+        pkt->len = header.DataLength;
         RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_recv_pkt_buf, pkt));
     }
 }

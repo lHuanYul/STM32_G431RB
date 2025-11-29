@@ -5,7 +5,6 @@
 #pragma once
 
 #include "main/config.h"
-#include "main.h"
 
 typedef struct SuccessResult
 {

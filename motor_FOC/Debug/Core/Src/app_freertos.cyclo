@@ -1,3 +1,4 @@
-../Core/Src/app_freertos.c:80:6:MX_FREERTOS_Init	1
-../Core/Src/app_freertos.c:125:13:StartDefaultTask	1
-../Core/Src/app_freertos.c:143:13:StartMotorTask	1
+../Core/Src/app_freertos.c:88:6:MX_FREERTOS_Init	1
+../Core/Src/app_freertos.c:136:13:StartDefaultTask	1
+../Core/Src/app_freertos.c:154:13:StartMotorTask	1
+../Core/Src/app_freertos.c:172:13:StartFdCanTask	1

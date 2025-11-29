@@ -16,7 +16,7 @@ static const float32_t hall_elec_angle[8] = {
 
 inline void vec_ctrl_hall_angle_trf(MotorParameter *motor)
 {
-    motor->exti_hall_rad = hall_elec_angle[motor->exti_hall_curt];
+    motor->exti_hall_rad = hall_elec_angle[motor->exti_hall_curent];
 }
 
 inline Result vec_ctrl_hall_angle_chk(MotorParameter *motor)
@@ -53,21 +53,21 @@ inline void vec_ctrl_park(MotorParameter *motor)
 
 inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
 {
-    if(motor->rpm_fbk.value == 0.0f)
+    if(motor->rpm_feedback.value == 0.0f)
     {
-        motor->pi_Iq.out = (!motor->rpm_ref.reverse) ?
+        motor->pi_Iq.out = (!motor->rpm_reference.reverse) ?
             motor->const_h.peak_current : -motor->const_h.peak_current;
         return;
     }
-        motor->pi_Id.ref = 0.0f,
-        motor->pi_Id.fbk = motor->park.Ds;
+        motor->pi_Id.reference = 0.0f,
+        motor->pi_Id.feedback = motor->park.Ds;
         PI_run(&motor->pi_Id);
 
-        motor->pi_Iq.fbk = motor->park.Qs;
+        motor->pi_Iq.feedback = motor->park.Qs;
         PI_run(&motor->pi_Iq);
 
-        VAR_CLAMPF(motor->pi_Iq.Up, -0.1f, 0.1f);
-        motor->pi_Iq.out = motor->pi_Iq.ref + motor->pi_Iq.Up;
+        VAR_CLAMPF(motor->pi_Iq.Term_p, -0.1f, 0.1f);
+        motor->pi_Iq.out = motor->pi_Iq.reference + motor->pi_Iq.Term_p;
         VAR_CLAMPF(motor->pi_Iq.out, -0.75f, 0.75f);
 }
 
@@ -95,7 +95,7 @@ inline void vec_ctrl_svgen(MotorParameter *motor)
 
     if (motor->svgendq.Sector != sec_mem)
     {
-        sec_chk[chk_cnt++] = motor->exti_hall_curt;
+        sec_chk[chk_cnt++] = motor->exti_hall_curent;
         // sec_chk[chk_cnt++] = motor->elec_theta_rad;
         sec_chk[chk_cnt++] = motor->svgendq.Sector;
         if (chk_cnt >= 30) chk_cnt = 0;
