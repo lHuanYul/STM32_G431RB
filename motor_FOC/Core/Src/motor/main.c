@@ -250,6 +250,7 @@ static void motor_setup(MotorParameter *motor)
 void StartMotorTask(void *argument)
 {
     motor_setup(&motor_h);
+    motor_set_rotate_mode(&motor_h, MOTOR_ROT_NORMAL);
     motor_set_speed(&motor_h, 0, 200.0f);
 
     motor_switch_ctrl(&motor_h, MOTOR_CTRL_180);
