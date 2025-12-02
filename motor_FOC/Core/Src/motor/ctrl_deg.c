@@ -37,23 +37,28 @@ inline void deg_ctrl_load(MotorParameter *motor)
     uint8_t idx;
     switch (motor->mode_control)
     {
-        case MOTOR_CTRL_LOCK:
-        {
-            idx = index_180[motor->exti_hall_curent];
-            break;
-        }
         case MOTOR_CTRL_120:
         {
-            idx = index_120_ccw[motor->exti_hall_curent];
-            if (motor->rpm_reference.reverse) idx = (idx + 3) % 6;
+            if (motor->mode_rotate == MOTOR_ROT_LOCK)
+                idx = index_180[motor->exti_hall_curent];
+            else
+            {
+                idx = index_120_ccw[motor->exti_hall_curent];
+                if (motor->rpm_reference.reverse) idx = (idx + 3) % 6;
+            }
             break;
         }
         case MOTOR_CTRL_180:
         {
-            idx = (!motor->rpm_reference.reverse) ?
-                  index_180[motor->exti_hall_curent] + 2  // + 1 / 2
-                : index_180[motor->exti_hall_curent] + 4; // + 5 / 4
-            idx %= 6;
+            if (motor->mode_rotate == MOTOR_ROT_LOCK)
+                idx = index_180[motor->exti_hall_curent];
+            else
+            {
+                idx = (!motor->rpm_reference.reverse) ?
+                    index_180[motor->exti_hall_curent] + 2  // + 1 / 2
+                    : index_180[motor->exti_hall_curent] + 4; // + 5 / 4
+                idx %= 6;
+            }
             break;
         }
         default: return;
@@ -71,7 +76,6 @@ inline void deg_ctrl_load(MotorParameter *motor)
                 state = seq_map_120[idx][i];
                 break;
             }
-            case MOTOR_CTRL_LOCK:
             case MOTOR_CTRL_180:
             {
                 state = seq_map_180[idx][i];

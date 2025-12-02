@@ -30,6 +30,15 @@
 #define ITS_CHECK(its, tag) (((its) & (tag)) != RESET)
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 #define MCU_MOTOR_CTRL
+#include "connectivity/cmds.h"
+#define FDCAN_FIFO0_FILTER0_ID_MIN  0x100
+#define FDCAN_FIFO0_FILTER0_ID_MAX  0x10F
+#define FDCAN_FIFO1_FILTER0_ID_MIN  0x140
+#define FDCAN_FIFO1_FILTER0_ID_MAX  0x14F
+#define FDCAN_TEST_ID               0x001
+#define FDCAN_DATA_ID               0x011
+#define FDCAN_WHEEL_FBK_ID          CAN_ID_WHEEL_LEFT_SPD_FBK
+#define FDCAN_WHEEL_SET_ID          CAN_ID_WHEEL_LEFT_SET
 // #define MOTOR_FOC_SPIN_DEBUG
 
 #ifndef PI // 180 deg
@@ -82,7 +91,6 @@
 #define TIM_DTG_500ns   0x55
 #define TIM_DTG_1us     0x95
 
-// LOOK connectivity/cmds
 #define FDCAN_STD_FILTER_NBR    2
 // #define FDCAN_RX0_NBR           16
 // #define FDCAN_RX1_NBR           16
@@ -90,12 +98,6 @@
 // #define FDCAN_TX_BUF_NBR        4
 // #define FDCAN_TX_FIFO_NBR       16
 // #define FDCAN_TX_EVT_NBR        (FDCAN_TX_BUF_NBR+FDCAN_TX_FIFO_NBR)
-#define FDCAN_FIFO0_FILTER0_ID_MIN    0x109
-#define FDCAN_FIFO0_FILTER0_ID_MAX    0x109
-#define FDCAN_FIFO1_FILTER0_ID_MIN    0x10A
-#define FDCAN_FIFO1_FILTER0_ID_MAX    0x10F
-#define FDCAN_TEST_ID           0x001
-#define FDCAN_DATA_ID           0x011
 #define FDCAN_PKT_LEN           8
 #define FDCAN_PKT_POOL_CAP      32
 #define FDCAN_TRSM_BUF_CAP      10
@@ -103,3 +105,5 @@
 
 // ! Also CHECK ALL basic.c file
 // ! SYSTEM config END ------------------------------
+
+typedef uint8_t Percentage;

@@ -40,10 +40,8 @@ typedef struct MotorConst
 
 typedef enum MotorModeControl
 {
-    MOTOR_CTRL_INIT,
-    MOTOR_CTRL_LOCK,
-    MOTOR_CTRL_120,
     MOTOR_CTRL_180,
+    MOTOR_CTRL_120,
     MOTOR_CTRL_FOC_RATED,
     MOTOR_CTRL_FOC_PEAK,
 } MotorModeControl;
@@ -52,21 +50,22 @@ typedef enum MotorModeRotate
 {
     MOTOR_ROT_COAST,
     MOTOR_ROT_NORMAL,
+    MOTOR_ROT_LOCK_PRE,
     MOTOR_ROT_LOCK,
 } MotorModeRotate;
+
+typedef enum DirectionState
+{
+    DIRECTION_NORMAL,
+    DIRECTION_BRAKE_TO_ZERO,
+    DIRECTION_SWITCH_DIR,
+} DirectionState;
 
 typedef struct MotorRpm
 {
     volatile bool reverse;
     volatile float32_t value;
 } MotorRpm;
-
-typedef enum MotorDirState
-{
-    MOTOR_DIR_NORMAL,
-    MOTOR_DIR_BRAKE_TO_ZERO,
-    MOTOR_DIR_SWITCH_DIR,
-} MotorDirState;
 
 typedef struct MotorParameter
 {
@@ -93,7 +92,9 @@ typedef struct MotorParameter
 
     MotorRpm            rpm_feedback;
 
-    MotorDirState       dir_state;
+    float32_t           rpm_save_stop;
+
+    DirectionState       dir_state;
 
     // 目前霍爾相位
     volatile float32_t  exti_hall_rad;
@@ -152,6 +153,6 @@ extern MotorParameter motor_h;
 void motor_init(MotorParameter *motor);
 
 // 從尾往轉子 順時針為負
-void motor_set_speed(MotorParameter *motor, float32_t speed);
+void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed);
 void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode);
 void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl);

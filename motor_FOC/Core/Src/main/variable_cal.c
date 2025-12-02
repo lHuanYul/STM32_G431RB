@@ -123,3 +123,30 @@ uint16_t var_swap_u16(uint16_t value)
     return    ((value & 0x00FFU) << 8)
             | ((value & 0xFF00U) >> 8);
 }
+
+void var_u16_to_u8_be(uint32_t value, uint8_t *u8)
+{
+    u8[0] = (uint8_t)(value >> 8);
+    u8[1] = (uint8_t)(value);
+}
+
+uint16_t var_u8_to_u16_be(const uint8_t *u8)
+{
+    return ((uint16_t)u8[2] << 8) |
+           ((uint16_t)u8[3]);
+}
+
+void var_i16_to_u8_be(int16_t value, uint8_t* u8)
+{
+    uint16_t u16;
+    memcpy(&u16, &value, sizeof(u16));
+    var_u16_to_u8_be(u16, u8);
+}
+
+int16_t var_u8_to_i16_be(const uint8_t *u8)
+{
+    uint16_t u16 = var_u8_to_u16_be(u8);
+    int16_t i16;
+    memcpy(&i16, &u16, sizeof(i16));
+    return i16;
+}

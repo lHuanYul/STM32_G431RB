@@ -28,6 +28,13 @@ Result pkt_data_write_f32(FdcanPkt* pkt, uint8_t start_id, float32_t value)
     return RESULT_OK(NULL);
 }
 
+Result pkt_data_write_i16(FdcanPkt* pkt, uint8_t start_id, int16_t value)
+{
+    if (pkt->len < start_id + sizeof(value)) return RESULT_ERROR(RES_ERR_FULL);
+    var_i16_to_u8_be(value, pkt->data + start_id);
+    return RESULT_OK(NULL);
+}
+
 void fdcan_pkt_pool_init(void)
 {
     fdcan_pkt_pool.head = NULL;
@@ -79,11 +86,16 @@ Result fdcan_pkt_buf_push(FdcanPktBuf* self, FdcanPkt* pkt)
     return RESULT_OK(self);
 }
 
-Result fdcan_pkt_buf_pop(FdcanPktBuf* self)
+Result fdcan_pkt_buf_get(FdcanPktBuf* self)
 {
     if (self->len == 0) return RESULT_ERROR(RES_ERR_EMPTY);
-    uint8_t head = self->head;
-    FdcanPkt* pkt = self->buf[head];
+    FdcanPkt* pkt = self->buf[self->head];
+    return RESULT_OK(pkt);
+}
+
+Result fdcan_pkt_buf_pop(FdcanPktBuf* self)
+{
+    FdcanPkt* pkt = RESULT_UNWRAP_RET_RES(fdcan_pkt_buf_get(self));
     if (--self->len == 0) self->head = 0;
     else self->head = (self->head + 1) % self->cap;
     return RESULT_OK(pkt);

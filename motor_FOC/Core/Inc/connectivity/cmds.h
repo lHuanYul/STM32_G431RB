@@ -28,8 +28,8 @@
 //----------------------------------------------------------------------------------------------------
 #define CAN_ID_WHEEL_LEFT_SPD_FBK   (uint16_t)0x100
 #define CAN_ID_WHEEL_RIGHT_SPD_FBK  (uint16_t)0x101
-#define CAN_ID_WHEEL_LEFT_SPD_REF   (uint16_t)0x140
-#define CAN_ID_WHEEL_RIGHT_SPD_REF  (uint16_t)0x141
+#define CAN_ID_WHEEL_LEFT_SET       (uint16_t)0x140
+#define CAN_ID_WHEEL_RIGHT_SET      (uint16_t)0x141
 
 #define CMD_WHEEL_B0_COAST          (uint8_t)0x00
 #define CMD_WHEEL_B0_SET_SPD        (uint8_t)0x01

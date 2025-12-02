@@ -7,7 +7,6 @@
 
 void motor_hall_exti(MotorParameter *motor)
 {
-    if (motor->mode_control == MOTOR_CTRL_INIT) return;
     // hall update
     uint8_t hall_last = motor->exti_hall_curent;
     uint8_t hall_current =
@@ -47,11 +46,10 @@ void motor_hall_exti(MotorParameter *motor)
         motor->rpm_feedback.value = 0.0f;
         motor->foc_angle_itpl = 0;
     }
-    // if (motor->hall_offline) return;
     vec_ctrl_hall_angle_trf(motor);
     // rpm calculate
     motor->exti_hall_acc++;
-    if (motor->exti_hall_acc >= 6)
+    if (motor->exti_hall_acc >= 18)
     {
         motor->exti_hall_acc = 0;
         uint32_t htim_cnt = __HAL_TIM_GET_COUNTER(motor->const_h.SPD_htimx);
@@ -73,8 +71,7 @@ void motor_hall_exti(MotorParameter *motor)
     //
     #ifndef MOTOR_FOC_SPIN_DEBUG
     if (
-           (motor->mode_control == MOTOR_CTRL_LOCK)
-        || (motor->mode_control == MOTOR_CTRL_120)
+           (motor->mode_control == MOTOR_CTRL_120)
         || (motor->mode_control == MOTOR_CTRL_180)
     ) deg_ctrl_load(motor);
     #else
@@ -96,42 +93,38 @@ void motor_adc_renew(MotorParameter *motor)
 
 void motor_pwm_pulse(MotorParameter *motor)
 {
-    if (motor->mode_control == MOTOR_CTRL_INIT) return;
     RESULT_CHECK_RET_VOID(vec_ctrl_hall_angle_chk(motor));
     motor->tim_it_acc++;
     if (motor->tim_it_acc >= 1000)
     {
         motor->tim_it_acc = 0;
+        bool save_stop = (motor->rpm_feedback.value < motor->rpm_save_stop) ? 1 : 0;
+        bool ref_fbk_same_dir = (motor->rpm_reference.reverse == motor->rpm_feedback.reverse) ? 1 : 0;
         MotorRpm rpm_set;
         switch (motor->dir_state)
         {
-            case MOTOR_DIR_NORMAL:
+            case DIRECTION_NORMAL:
             {
                 rpm_set.value = motor->rpm_reference.value;
-                if (motor->rpm_reference.reverse != motor->rpm_feedback.reverse)
-                    motor->dir_state = MOTOR_DIR_BRAKE_TO_ZERO;
+                if (!ref_fbk_same_dir) motor->dir_state = DIRECTION_BRAKE_TO_ZERO;
                 break;
             }
-            case MOTOR_DIR_BRAKE_TO_ZERO:
+            case DIRECTION_BRAKE_TO_ZERO:
             {
                 rpm_set.value = 0;
-                if (rpm_set.value < 10.0f)
-                    motor->dir_state = MOTOR_DIR_SWITCH_DIR;
+                if (save_stop) motor->dir_state = DIRECTION_SWITCH_DIR;
                 break;
             }
-            case MOTOR_DIR_SWITCH_DIR:
+            case DIRECTION_SWITCH_DIR:
             {
                 rpm_set.reverse = motor->rpm_reference.reverse;
                 rpm_set.value = motor->rpm_reference.value;
-                if (motor->rpm_feedback.reverse == motor->rpm_reference.reverse)
-                    motor->dir_state = MOTOR_DIR_NORMAL;
+                if (ref_fbk_same_dir) motor->dir_state = DIRECTION_NORMAL;
                 break;
             }
         }
 
-        motor->pi_speed.reference = rpm_set.value;
         motor->pi_speed.feedback = motor->rpm_feedback.value;
-        PI_run(&motor->pi_speed);
         switch (motor->mode_rotate)
         {
             case MOTOR_ROT_COAST:
@@ -141,10 +134,32 @@ void motor_pwm_pulse(MotorParameter *motor)
             }
             case MOTOR_ROT_NORMAL:
             {
+                motor->pi_speed.reference = rpm_set.value;
+                PI_run(&motor->pi_speed);
                 motor->pwm_duty_deg += motor->pi_speed.out;
                 VAR_CLAMPF(motor->pwm_duty_deg, 0.0f, 1.0f);
+
                 motor->pi_Iq.reference += motor->pi_speed.out * motor->tfm_duty_Iq;
                 VAR_CLAMPF(motor->pi_Iq.reference, motor->pi_Iq.min, motor->pi_Iq.max);
+                break;
+            }
+            case MOTOR_ROT_LOCK_PRE:
+            {
+                // motor->pwm_duty_deg = 0.0f;
+
+                motor->pi_speed.reference = 0.0f;
+                PI_run(&motor->pi_speed);
+                motor->pwm_duty_deg += motor->pi_speed.out;
+                VAR_CLAMPF(motor->pwm_duty_deg, 0.0f, 1.0f);
+
+                motor->pi_Iq.reference += motor->pi_speed.out * motor->tfm_duty_Iq;
+                VAR_CLAMPF(motor->pi_Iq.reference, motor->pi_Iq.min, motor->pi_Iq.max);
+
+                if (save_stop)
+                {
+                    motor->mode_rotate = MOTOR_ROT_LOCK;
+                    motor->pwm_duty_deg = 0.2f;
+                }
                 break;
             }
             case MOTOR_ROT_LOCK:
@@ -152,13 +167,13 @@ void motor_pwm_pulse(MotorParameter *motor)
                 motor->pwm_duty_deg = 0.2f;
                 break;
             }
-            default: break;
         }
 
         motor->pi_Iq.reference = (!motor->rpm_reference.reverse) ?
             motor->const_h.rated_current : -motor->const_h.rated_current;
         // motor->tfm_duty_Iq = var_clampf((motor->tfm_duty_Iq + motor->pi_speed.out), 0.15f, 0.2f);
     }
+
     vec_ctrl_clarke(motor);
     vec_ctrl_park(motor);
     vec_ctrl_pi_id_iq(motor);
@@ -196,7 +211,7 @@ static void motor_setup(MotorParameter *motor)
     const float32_t ELE_tim_f =
         (float32_t)*motor->const_h.SPD_tim_clk /
         (float32_t)(motor->const_h.SPD_htimx->Init.Prescaler + 1U);
-    // TIM_tim_t：PWM 控制定時器每個計數週期的時間 (秒/計數)
+    // FOC_tim_t：PWM 控制定時器每個計數週期的時間 (秒/計數)
     // = (PSC + 1) / TIM_timer_clock
     const float32_t FOC_tim_t =
         (float32_t)(motor->const_h.IT20k_htimx->Init.Prescaler + 1U) /
@@ -208,9 +223,9 @@ static void motor_setup(MotorParameter *motor)
         (float32_t)*motor->const_h.SPD_tim_clk;
     motor->dbg_pwm_freq = PWM_tim_f / (motor->const_h.PWM_htimx->Init.Period * 2);
     motor->dbg_tim_it_freq = FOC_tim_f / motor->const_h.IT20k_htimx->Init.Period;
-    // ELE_tim_f / (6.0f * (float32_t)MOTOR_42BLF01_POLE / 2.0f * MOTOR_42BLF01_GEAR) * 60.0f;
+    // ELE_tim_f / (18.0f * (float32_t)MOTOR_42BLF01_POLE / 2.0f * MOTOR_42BLF01_GEAR) * 60.0f;
     motor->tfm_rpm_fbk =
-        ELE_tim_f / (float32_t)MOTOR_42BLF01_POLE * 20.0f;
+        ELE_tim_f / ((float32_t)MOTOR_42BLF01_POLE * 9.0f) * 60.0f;
     motor->tfm_foc_it_angle_itpl =
         FOC_tim_t / ELE_tim_t * (float32_t)(motor->const_h.IT20k_htimx->Init.Period) * PI_DIV_3;
 
@@ -235,7 +250,7 @@ static void motor_setup(MotorParameter *motor)
 void StartMotorTask(void *argument)
 {
     motor_setup(&motor_h);
-    motor_set_speed(&motor_h, 250.0f);
+    motor_set_speed(&motor_h, 0, 200.0f);
 
     motor_switch_ctrl(&motor_h, MOTOR_CTRL_180);
     motor_hall_exti(&motor_h);

@@ -54,6 +54,7 @@ MotorParameter motor_h = {
         .min = -0.01f,
         .saturation = 1.0f,
     },
+    .rpm_save_stop = 10.0f,
     .pwm_duty_deg = 0.5f,
 };
 
@@ -63,23 +64,21 @@ inline void motor_init(MotorParameter *motor)
     motor->pi_Iq.min = -motor->const_h.rated_current;
 }
 
-void motor_set_speed(MotorParameter *motor, float32_t speed)
+void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed)
 {
-    if (speed > 0)
-    {
-        motor->rpm_reference.reverse = 0;
-        motor->rpm_reference.value = speed;
-    }
-    else if (speed < 0)
-    {
-        motor->rpm_reference.reverse = 1;
-        motor->rpm_reference.value = -speed;
-    }
-    else motor->rpm_reference.value = 0;
+    if (speed != 0) motor->rpm_reference.reverse = reverse;
+    motor->rpm_reference.value = speed;
 }
 
 inline void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode)
 {
+    if (
+        mode != MOTOR_ROT_COAST &&
+        mode != MOTOR_ROT_NORMAL &&
+        mode != MOTOR_ROT_LOCK_PRE &&
+        mode != MOTOR_ROT_LOCK
+    ) return;
+    if (mode == MOTOR_ROT_LOCK) mode = MOTOR_ROT_LOCK_PRE;
     motor->mode_rotate = mode;
 }
 
@@ -103,7 +102,6 @@ void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl)
             HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2]);
             break;
         }
-        default: return;
     }
     motor->mode_control = ctrl;
 }

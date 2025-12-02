@@ -4,19 +4,27 @@
 #include "connectivity/fdcan/pkt_read.h"
 #include "connectivity/fdcan/pkt_write.h"
 
-static void pkt_transmit(void)
+Result fdcan_pkt_transmit(FdcanPkt* pkt)
 {
-    Result result = fdcan_pkt_buf_pop(&fdcan_trsm_pkt_buf);
-    if (RESULT_CHECK_RAW(result)) return;
-    FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(result);
     FDCAN_TxHeaderTypeDef header = {
         .ErrorStateIndicator = FDCAN_ESI_PASSIVE,
         .TxEventFifoControl = FDCAN_STORE_TX_EVENTS,
     };
     header.Identifier = pkt->id;
     header.DataLength = pkt->len;
-    HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &header, pkt->data);
+    ERROR_CHECK_HAL_RET_RES(HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &header, pkt->data));
+    return RESULT_OK(NULL);
+}
+
+static Result trsm_pkts_proc(void)
+{
+    Result result = fdcan_pkt_buf_get(&fdcan_trsm_pkt_buf);
+    if (RESULT_CHECK_RAW(result)) return RESULT_OK(NULL);
+    FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(result);
+    RESULT_CHECK_RET_RES(fdcan_pkt_transmit(pkt));
+    fdcan_pkt_buf_pop(&fdcan_trsm_pkt_buf);
     fdcan_pkt_pool_free(pkt);
+    return RESULT_OK(NULL);
 }
 
 ATTR_WEAK Result fdcan_pkt_rcv_read(FdcanPkt* pkt) { return RESULT_ERROR(RES_ERR_NOT_FOUND); }
@@ -31,7 +39,7 @@ static Result recv_pkts_proc(uint8_t count)
     return RESULT_OK(NULL);
 }
 
-static Result trsm_pkt_proc(void)
+static Result auto_pkt_proc(void)
 {
     Result result = RESULT_OK(NULL);
     if (fdacn_data_store == FNC_ENABLE)
@@ -43,7 +51,7 @@ static Result trsm_pkt_proc(void)
         fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         #else
         pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_pkt_write(pkt, DATA_TYPE_SPD);
+        fdcan_pkt_write_spd_fbk(pkt);
         fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         #endif
     }
@@ -51,7 +59,7 @@ static Result trsm_pkt_proc(void)
 }
 
 uint32_t fdcan_tick;
-#define FDCAN_TASK_DELAY_MS 10
+#define FDCAN_TASK_DELAY_MS 5
 void StartFdCanTask(void *argument)
 {
     #ifdef DISABLE_FDCAN
@@ -107,12 +115,16 @@ void StartFdCanTask(void *argument)
             HAL_FDCAN_Stop(&hfdcan1);
             HAL_FDCAN_Start(&hfdcan1);
         }
-        pkt_transmit();
-        recv_pkts_proc(5);
+        trsm_pkts_proc();
         if (fdcan_tick % 10 == 0)
         {
+            recv_pkts_proc(5);
+        }
+        if (fdcan_tick % 20 == 0)
+        {
+            recv_pkts_proc(5);
             fdcan_tick = 0;
-            if (fdacn_data_store == FNC_ENABLE) trsm_pkt_proc();
+            if (fdacn_data_store == FNC_ENABLE) auto_pkt_proc();
         }
         osDelayUntil(next_wake);
         next_wake += osPeriod;
