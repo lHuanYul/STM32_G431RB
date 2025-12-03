@@ -3,7 +3,7 @@
 #include "main/variable_cal.h"
 
 static float ftest = 0.0;
-Result fdcan_pkt_write_test(FdcanPkt* pkt)
+Result fdcan_pkt_write_test(FdcanPkt *pkt)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
     pkt->id = FDCAN_TEST_ID;
@@ -17,26 +17,39 @@ Result fdcan_pkt_write_test(FdcanPkt* pkt)
 #ifdef MCU_MOTOR_CTRL
 #include "motor/basic.h"
 
-Result fdcan_pkt_write_spd_fbk(FdcanPkt* pkt)
+Result fdcan_pkt_write_spd_fbk(FdcanPkt *pkt)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
     MotorParameter *motor = &motor_h;
     pkt->id = FDCAN_WHEEL_FBK_ID;
-    RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 1 + sizeof(motor->rpm_feedback.value)));
-    pkt->data[0] = (uint8_t)motor->mode_rotate;
-    var_f32_to_u8_be(motor->rpm_feedback.value, pkt->data + 1);
+    RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 1 + sizeof(float32_t)));
+    pkt->data[0] = motor->mode_rotate;
+    pkt->data[1] = motor->rpm_feedback.reverse;
+    var_f32_to_u8_be(motor->rpm_feedback.value, pkt->data + 2);
     return RESULT_OK(pkt);
 }
 #endif
 
 #ifdef MCU_VEHICLE_MAIN
-Result fdcan_pkt_write_motor(FdcanPkt* pkt, uint16_t id, uint8_t mode, float32_t spd)
+Result fdcan_pkt_write_motor(FdcanPkt *pkt, MotorSet *motor)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
-    pkt->id = id;
-    pkt->data[0] = mode;
-    RESULT_CHECK_HANDLE(pkt_data_write_f32(pkt, 1, spd));
-    RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 1 + sizeof(float32_t)));
+    pkt->id = motor->id;
+    pkt->data[0] = motor->mode;
+    pkt->data[1] = motor->reverse;
+    var_f32_to_u8_be(motor->value, pkt->data + 2);
+    RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 2 + sizeof(float32_t)));
     return RESULT_OK(pkt);
+}
+
+Result fdcan_vehicle_motor_send(VehicleParameter *vehicle)
+{
+    FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    fdcan_pkt_write_motor(pkt, &vehicle->motor_left);
+    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+    pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+    fdcan_pkt_write_motor(pkt, &vehicle->motor_right);
+    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+    return RESULT_OK(NULL);
 }
 #endif

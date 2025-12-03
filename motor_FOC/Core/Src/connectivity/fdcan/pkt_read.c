@@ -5,7 +5,7 @@
 #ifdef MCU_MOTOR_CTRL
 #include "motor/basic.h"
 
-Result fdcan_pkt_ist_read(FdcanPkt* pkt)
+Result fdcan_pkt_ist_read(FdcanPkt *pkt)
 {
     uint8_t code;
     switch (pkt->id)
@@ -47,24 +47,29 @@ Result fdcan_pkt_ist_read(FdcanPkt* pkt)
 #ifdef MCU_VEHICLE_MAIN
 #include "vehicle/main.h"
 
-Result fdcan_pkt_ist_read(FdcanPkt* pkt)
+static Result motor_pkt(FdcanPkt *pkt, MotorSet *motor)
+{
+    if (pkt->len != 1 + sizeof(float32_t)) return RESULT_ERROR(RES_ERR_NOT_FOUND);
+    motor->mode = pkt->data[0];
+    motor->reverse = pkt->data[1];
+    uint8_t spd_u8[sizeof(float32_t)];
+    memcpy(spd_u8, pkt->data + 2, sizeof(float32_t));
+    motor->value = var_u8_to_f32_be(spd_u8);
+    return RESULT_OK(NULL);
+}
+
+Result fdcan_pkt_ist_read(FdcanPkt *pkt)
 {
     uint8_t code;
     switch (pkt->id)
     {
         case CAN_ID_WHEEL_LEFT_SPD_FBK:
         {
-            uint8_t spd_u8[sizeof(float32_t)];
-            memcpy(spd_u8, pkt->data + 1, sizeof(float32_t));
-            vehicle_h.motor_l_spd = var_u8_to_f32_be(spd_u8);
-            break;
+            return motor_pkt(pkt, &vehicle_h.motor_left_fbk);
         }
         case CAN_ID_WHEEL_RIGHT_SPD_FBK:
         {
-            uint8_t spd_u8[sizeof(float32_t)];
-            memcpy(spd_u8, pkt->data + 1, sizeof(float32_t));
-            vehicle_h.motor_r_spd = var_u8_to_f32_be(spd_u8);
-            break;
+            return motor_pkt(pkt, &vehicle_h.motor_right_fbk);
         }
         case CAN_ID_HALL_ALL:
         {
@@ -104,7 +109,7 @@ Result fdcan_pkt_ist_read(FdcanPkt* pkt)
     return RESULT_ERROR(RES_ERR_NOT_FOUND);
 }
 
-Result fdcan_pkt_rcv_read(FdcanPkt* pkt)
+Result fdcan_pkt_rcv_read(FdcanPkt *pkt)
 {
     uint8_t code;
     RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));

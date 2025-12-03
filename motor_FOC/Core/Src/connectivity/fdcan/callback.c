@@ -39,7 +39,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     if(ITS_CHECK(RxFifo0ITs, FDCAN_IT_RX_FIFO0_NEW_MESSAGE))
     {
         FDCAN_RxHeaderTypeDef header = {0};
-        FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
         ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_GetRxMessage(
             hfdcan, FDCAN_RX_FIFO0, &header, pkt->data));
         pkt->id = header.Identifier;
@@ -48,7 +48,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     }
 }
 
-ATTR_WEAK Result fdcan_pkt_ist_read(FdcanPkt* pkt) { return RESULT_ERROR(RES_ERR_NOT_FOUND); }
+ATTR_WEAK Result fdcan_pkt_ist_read(FdcanPkt *pkt) { return RESULT_ERROR(RES_ERR_NOT_FOUND); }
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
     if(ITS_CHECK(RxFifo1ITs, FDCAN_IT_RX_FIFO1_NEW_MESSAGE))

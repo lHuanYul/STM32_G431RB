@@ -4,7 +4,7 @@
 #include "connectivity/fdcan/pkt_read.h"
 #include "connectivity/fdcan/pkt_write.h"
 
-Result fdcan_pkt_transmit(FdcanPkt* pkt)
+Result fdcan_pkt_transmit(FdcanPkt *pkt)
 {
     FDCAN_TxHeaderTypeDef header = {
         .ErrorStateIndicator = FDCAN_ESI_PASSIVE,
@@ -20,19 +20,19 @@ static Result trsm_pkts_proc(void)
 {
     Result result = fdcan_pkt_buf_get(&fdcan_trsm_pkt_buf);
     if (RESULT_CHECK_RAW(result)) return RESULT_OK(NULL);
-    FdcanPkt* pkt = RESULT_UNWRAP_HANDLE(result);
+    FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(result);
     RESULT_CHECK_RET_RES(fdcan_pkt_transmit(pkt));
     fdcan_pkt_buf_pop(&fdcan_trsm_pkt_buf);
     fdcan_pkt_pool_free(pkt);
     return RESULT_OK(NULL);
 }
 
-ATTR_WEAK Result fdcan_pkt_rcv_read(FdcanPkt* pkt) { return RESULT_ERROR(RES_ERR_NOT_FOUND); }
+ATTR_WEAK Result fdcan_pkt_rcv_read(FdcanPkt *pkt) { return RESULT_ERROR(RES_ERR_NOT_FOUND); }
 static Result recv_pkts_proc(uint8_t count)
 {
     for (uint8_t i = 0; i < count; i++)
     {
-        FdcanPkt* pkt = RESULT_UNWRAP_RET_RES(fdcan_pkt_buf_pop(&fdcan_recv_pkt_buf));
+        FdcanPkt *pkt = RESULT_UNWRAP_RET_RES(fdcan_pkt_buf_pop(&fdcan_recv_pkt_buf));
         fdcan_pkt_rcv_read(pkt);
         fdcan_pkt_pool_free(pkt);
     }

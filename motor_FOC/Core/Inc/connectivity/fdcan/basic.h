@@ -12,10 +12,8 @@ typedef struct FdcanPkt
     uint8_t len;
     struct FdcanPkt *next;
 } FdcanPkt;
-Result fdcan_pkt_get_byte(FdcanPkt* pkt, uint8_t id, uint8_t* container);
-Result fdcan_pkt_set_len(FdcanPkt* pkt, uint8_t len);
-Result pkt_data_write_f32(FdcanPkt* pkt, uint8_t start_id, float32_t value);
-Result pkt_data_write_i16(FdcanPkt* pkt, uint8_t start_id, int16_t value);
+Result fdcan_pkt_get_byte(FdcanPkt *pkt, uint8_t id, uint8_t* container);
+Result fdcan_pkt_set_len(FdcanPkt *pkt, uint8_t len);
 
 typedef struct FdcanPktPool
 {
@@ -26,7 +24,7 @@ typedef struct FdcanPktPool
 extern FdcanPktPool fdcan_pkt_pool;
 void fdcan_pkt_pool_init(void);
 Result fdcan_pkt_pool_alloc(void);
-void fdcan_pkt_pool_free(FdcanPkt* pkt);
+void fdcan_pkt_pool_free(FdcanPkt *pkt);
 
 typedef struct FdcanPktBuf
 {
@@ -37,7 +35,7 @@ typedef struct FdcanPktBuf
 } FdcanPktBuf;
 extern FdcanPktBuf fdcan_trsm_pkt_buf;
 extern FdcanPktBuf fdcan_recv_pkt_buf;
-Result fdcan_pkt_buf_push(FdcanPktBuf* self, FdcanPkt* pkt);
+Result fdcan_pkt_buf_push(FdcanPktBuf* self, FdcanPkt *pkt);
 Result fdcan_pkt_buf_get(FdcanPktBuf* self);
 Result fdcan_pkt_buf_pop(FdcanPktBuf* self);
 
