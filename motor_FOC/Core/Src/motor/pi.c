@@ -18,5 +18,5 @@ void PI_run(PI_CTRL *pi)
     pi->out_origin = pi->Term_p + pi->Term_i;
     pi->out = pi->out_origin;
     VAR_CLAMPF(pi->out, pi->min, pi->max);
-    pi->saturation = (pi->out == pi->out_origin) ? 1 : 0;
+    pi->saturation = (pi->out != pi->out_origin) ? true : false;
 }

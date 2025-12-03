@@ -26,27 +26,31 @@ void motor_hall_exti(MotorParameter *motor)
         }
         return;
     }
+    vec_ctrl_hall_angle_trf(motor);
     // ccw clw check
     if (
            motor->exti_hall_curent == hall_seq_ccw[motor->exti_hall_last]
         || motor->exti_hall_last == 0
     ) {
         motor->rpm_feedback.reverse = 0;
-        motor->hall_offline = 0;
+        motor->hall_wrong = 0;
     }
     else if (motor->exti_hall_curent == hall_seq_clw[motor->exti_hall_last])
     {
         motor->rpm_feedback.reverse = 1;
-        motor->hall_offline = 0;
+        motor->hall_wrong = 0;
     }
     else
     {
-        motor->hall_offline++;
+        motor->hall_wrong++;
         motor->rpm_feedback.reverse = 0;
         motor->rpm_feedback.value = 0.0f;
         motor->foc_angle_itpl = 0;
     }
-    vec_ctrl_hall_angle_trf(motor);
+    if (motor->exti_hall_acc == 0)
+    {
+
+    }
     // rpm calculate
     motor->exti_hall_acc++;
     if (motor->exti_hall_acc >= 18)
@@ -180,14 +184,12 @@ void motor_pwm_pulse(MotorParameter *motor)
     vec_ctrl_ipark(motor);
     vec_ctrl_svgen(motor);
     vec_ctrl_svpwm(motor);
-    #ifndef MOTOR_FOC_SPIN_DEBUG
-    if (motor->mode_control == MOTOR_CTRL_FOC_RATED) vec_ctrl_load(motor);
-    #endif
 }
 
 void motor_stop_trigger(MotorParameter *motor)
 {
     motor->stop_spin_acc = 0;
+    motor->exti_hall_acc = 0;
     motor->rpm_feedback.reverse = 0;
     motor->rpm_feedback.value = 0;
     motor->pi_speed.Term_i_last = 0;     // 重置i控制舊值
@@ -223,9 +225,8 @@ static void motor_setup(MotorParameter *motor)
         (float32_t)*motor->const_h.SPD_tim_clk;
     motor->dbg_pwm_freq = PWM_tim_f / (motor->const_h.PWM_htimx->Init.Period * 2);
     motor->dbg_tim_it_freq = FOC_tim_f / motor->const_h.IT20k_htimx->Init.Period;
-    // ELE_tim_f / (18.0f * (float32_t)MOTOR_42BLF01_POLE / 2.0f * MOTOR_42BLF01_GEAR) * 60.0f;
     motor->tfm_rpm_fbk =
-        ELE_tim_f / ((float32_t)MOTOR_42BLF01_POLE * 9.0f) * 60.0f;
+        (3.0f * ELE_tim_f * 60.0f) / (float32_t)MOTOR_42BLF01_POLE;
     motor->tfm_foc_it_angle_itpl =
         FOC_tim_t / ELE_tim_t * (float32_t)(motor->const_h.IT20k_htimx->Init.Period) * PI_DIV_3;
 
@@ -239,7 +240,7 @@ static void motor_setup(MotorParameter *motor)
         motor->const_h.PWM_htimx->Init.Period - 1);
     ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start(motor->const_h.PWM_htimx));
     ERROR_CHECK_HAL_HANDLE(HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_MID_TIM_CH_x));
-    ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start_IT(motor->const_h.SPD_htimx));
+    HAL_TIM_Base_Start_IT(motor->const_h.SPD_htimx);
 
     osDelay(1000);
     adc_set_zero_point(motor_h.adc_a);
@@ -251,10 +252,11 @@ void StartMotorTask(void *argument)
 {
     motor_setup(&motor_h);
     motor_set_rotate_mode(&motor_h, MOTOR_ROT_NORMAL);
-    motor_set_speed(&motor_h, 0, 200.0f);
+    motor_set_speed(&motor_h, 0, 1000.0f);
 
     motor_switch_ctrl(&motor_h, MOTOR_CTRL_180);
     motor_hall_exti(&motor_h);
+
     osDelay(2000);
 
     // motor_switch_ctrl(&motor_h, MOTOR_CTRL_FOC_RATED);

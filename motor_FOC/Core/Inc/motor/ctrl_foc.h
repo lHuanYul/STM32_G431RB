@@ -11,4 +11,3 @@ void vec_ctrl_pi_id_iq(MotorParameter *motor);
 void vec_ctrl_ipark(MotorParameter *motor);
 void vec_ctrl_svgen(MotorParameter *motor);
 void vec_ctrl_svpwm(MotorParameter *motor);
-void vec_ctrl_load(MotorParameter *motor);

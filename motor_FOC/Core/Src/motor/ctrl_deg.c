@@ -32,6 +32,89 @@ static const int8_t seq_map_180[6][3] = {
 };
 static const uint8_t index_180[] = {0xFF, 4, 2, 3, 0, 5, 1, 0xFF};
 
+uint32_t dbg_check;
+// inline void deg_ctrl_load(MotorParameter *motor)
+// {
+//     uint8_t idx;
+//     switch (motor->mode_control)
+//     {
+//         case MOTOR_CTRL_120:
+//         {
+//             if (motor->mode_rotate == MOTOR_ROT_LOCK)
+//                 idx = index_180[motor->exti_hall_curent];
+//             else
+//             {
+//                 idx = index_120_ccw[motor->exti_hall_curent];
+//                 if (motor->rpm_reference.reverse) idx = (idx + 3) % 6;
+//             }
+//             break;
+//         }
+//         case MOTOR_CTRL_180:
+//         {
+//             if (motor->mode_rotate == MOTOR_ROT_LOCK)
+//                 idx = index_180[motor->exti_hall_curent];
+//             else
+//             {
+//                 idx = (!motor->rpm_reference.reverse) ?
+//                     index_180[motor->exti_hall_curent] + 2  // + 1 / 2
+//                     : index_180[motor->exti_hall_curent] + 4; // + 5 / 4
+//                 idx %= 6;
+//             }
+//             break;
+//         }
+//         default: return;
+//     }
+//     uint8_t i;
+//     uint32_t compare =
+//         (uint32_t)((float32_t)motor->const_h.PWM_htimx->Init.Period * (1 - motor->pwm_duty_deg));
+//     for (i = 0; i < 3; i++)
+//     {
+//         int8_t state;
+//         switch (motor->mode_control)
+//         {
+//             case MOTOR_CTRL_120:
+//             {
+//                 state = seq_map_120[idx][i];
+//                 break;
+//             }
+//             case MOTOR_CTRL_180:
+//             {
+//                 state = seq_map_180[idx][i];
+//                 break;
+//             }
+//             default: return;
+//         }
+//         switch (state)
+//         {
+//             case HIGH_PASS:
+//             {
+//                 HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+//                 __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i],
+//                     compare);
+//                 HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+//                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+//                 break;
+//             }
+//             case LOW_PASS:
+//             {
+//                 HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+//                 __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i],
+//                     motor->const_h.PWM_htimx->Init.Period);
+//                 HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+//                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
+//                 break;
+//             }
+//             default:
+//             {
+//                 HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+//                 HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+//                 // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+//                 break;
+//             }
+//         }
+//     }
+// }
+
 inline void deg_ctrl_load(MotorParameter *motor)
 {
     uint8_t idx;
@@ -64,8 +147,6 @@ inline void deg_ctrl_load(MotorParameter *motor)
         default: return;
     }
     uint8_t i;
-    uint32_t compare =
-        (uint32_t)((float32_t)motor->const_h.PWM_htimx->Init.Period * motor->pwm_duty_deg);
     for (i = 0; i < 3; i++)
     {
         int8_t state;
@@ -87,20 +168,12 @@ inline void deg_ctrl_load(MotorParameter *motor)
         {
             case HIGH_PASS:
             {
-                HAL_TIMEx_PWMN_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-                __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i],
-                    compare);
-                HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-                // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_RESET);
+                motor->pwm_duty_u = motor->pwm_duty_deg;
                 break;
             }
             case LOW_PASS:
             {
-                HAL_TIM_PWM_Stop(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-                __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i],
-                    motor->const_h.PWM_htimx->Init.Period);
-                HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-                // HAL_GPIO_WritePin(motor->const_h.Coil_GPIOx[i], motor->const_h.Coil_GPIO_Pin_x[i],  GPIO_PIN_SET);
+                motor->pwm_duty_u = motor->pwm_duty_deg;
                 break;
             }
             default:
@@ -112,4 +185,5 @@ inline void deg_ctrl_load(MotorParameter *motor)
             }
         }
     }
+    motor_pwm_load(motor);
 }

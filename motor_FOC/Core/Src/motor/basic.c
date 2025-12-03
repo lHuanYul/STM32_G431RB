@@ -105,3 +105,13 @@ void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl)
     }
     motor->mode_control = ctrl;
 }
+
+void motor_pwm_load(MotorParameter *motor)
+{
+    VAR_CLAMPF(motor->pwm_duty_u, 0.0f, 1.0f);
+    VAR_CLAMPF(motor->pwm_duty_v, 0.0f, 1.0f);
+    VAR_CLAMPF(motor->pwm_duty_w, 0.0f, 1.0f);
+    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u));
+    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_v));
+    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_w));
+}

@@ -106,13 +106,13 @@ typedef struct MotorParameter
     // foc_angle_acc += foc_angle_itpl; 過一霍爾中斷後重置
     float32_t           foc_angle_acc;
     // 霍爾計數
-    volatile uint8_t    exti_hall_acc;
+    uint8_t             exti_hall_acc;
     // 計時中斷計數
     uint16_t            tim_it_acc;
     // 停轉計數器
     uint16_t            stop_spin_acc;
 
-    volatile uint32_t   hall_offline;
+    volatile uint32_t   hall_wrong;
     // 上次霍爾相位
     uint8_t             exti_hall_last;
     // 目前霍爾相位
@@ -141,7 +141,7 @@ typedef struct MotorParameter
     
     float32_t           v_ref;
     // PWM duty
-    float32_t           pwm_duty_deg;
+    volatile float32_t  pwm_duty_deg;
     // PWM duty
     float32_t           pwm_duty_u;
     // PWM duty
@@ -156,3 +156,4 @@ void motor_init(MotorParameter *motor);
 void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed);
 void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode);
 void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl);
+void motor_pwm_load(MotorParameter *motor);
