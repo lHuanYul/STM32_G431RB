@@ -12,6 +12,7 @@ Result fdcan_pkt_ist_read(FdcanPkt *pkt)
     {
         case FDCAN_WHEEL_SET_ID:
         {
+            motor_alive(&motor_h);
             RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 0, &code));
             switch (code)
             {
@@ -32,7 +33,7 @@ Result fdcan_pkt_ist_read(FdcanPkt *pkt)
                 }
                 case CMD_WHEEL_B0_LOCK:
                 {
-                    motor_set_rotate_mode(&motor_h, MOTOR_ROT_LOCK_PRE);
+                    motor_set_rotate_mode(&motor_h, MOTOR_ROT_LOCK);
                     return RESULT_OK(NULL);
                 }
                 default: break;

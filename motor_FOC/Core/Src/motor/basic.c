@@ -58,7 +58,7 @@ MotorParameter motor_h = {
     .pwm_duty_deg = 0.5f,
 };
 
-inline void motor_init(MotorParameter *motor)
+void motor_init(MotorParameter *motor)
 {
     motor->pi_Iq.max =  motor->const_h.rated_current;
     motor->pi_Iq.min = -motor->const_h.rated_current;
@@ -70,16 +70,21 @@ void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed)
     motor->rpm_reference.value = speed;
 }
 
-inline void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode)
+void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode)
 {
     if (
         mode != MOTOR_ROT_COAST &&
         mode != MOTOR_ROT_NORMAL &&
-        mode != MOTOR_ROT_LOCK_PRE &&
-        mode != MOTOR_ROT_LOCK
+        mode != MOTOR_ROT_LOCK &&
+        mode != MOTOR_ROT_LOCK_CHK
     ) return;
-    if (mode == MOTOR_ROT_LOCK) mode = MOTOR_ROT_LOCK_PRE;
+    if (mode == MOTOR_ROT_LOCK_CHK) mode = MOTOR_ROT_LOCK;
     motor->mode_rotate = mode;
+}
+
+void motor_alive(MotorParameter *motor)
+{
+    motor->alive_tick = HAL_GetTick();
 }
 
 void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl)
@@ -88,18 +93,15 @@ void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl)
     {
         case MOTOR_CTRL_120:
         case MOTOR_CTRL_180:
-        {
-            break;
-        }
         case MOTOR_CTRL_FOC_PEAK:
         case MOTOR_CTRL_FOC_RATED:
         {
-            HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0]);
-            HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1]);
-            HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2]);
-            HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0]);
-            HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1]);
-            HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2]);
+            uint8_t i;
+            for (i = 0; i < 3; i++)
+            {
+                HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+                HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+            }
             break;
         }
     }
@@ -111,7 +113,10 @@ void motor_pwm_load(MotorParameter *motor)
     VAR_CLAMPF(motor->pwm_duty_u, 0.0f, 1.0f);
     VAR_CLAMPF(motor->pwm_duty_v, 0.0f, 1.0f);
     VAR_CLAMPF(motor->pwm_duty_w, 0.0f, 1.0f);
-    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_u));
-    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_v));
-    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2], (uint32_t)((float32_t)TIM1_ARR * motor->pwm_duty_w));
+    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[0],
+        (uint32_t)(motor->tfm_pwm_period * motor->pwm_duty_u));
+    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[1],
+        (uint32_t)(motor->tfm_pwm_period * motor->pwm_duty_v));
+    __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2],
+        (uint32_t)(motor->tfm_pwm_period * motor->pwm_duty_w));
 }

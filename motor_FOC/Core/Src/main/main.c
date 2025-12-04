@@ -33,7 +33,6 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     if (hadc == motor_h.adc_a->const_h.hadcx)
     {
-        motor_adc_renew(&motor_h);
         motor_pwm_pulse(&motor_h);
     }
 }

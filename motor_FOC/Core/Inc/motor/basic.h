@@ -50,8 +50,8 @@ typedef enum MotorModeRotate
 {
     MOTOR_ROT_COAST,
     MOTOR_ROT_NORMAL,
-    MOTOR_ROT_LOCK_PRE,
     MOTOR_ROT_LOCK,
+    MOTOR_ROT_LOCK_CHK,
 } MotorModeRotate;
 
 typedef enum DirectionState
@@ -74,15 +74,21 @@ typedef struct MotorParameter
     // 霍爾間隔 → 輸出軸轉速(RPM) 轉換常數
     // RPM = [ELE_tim_f * 60] / [6 × (POLE/2) × GEAR × htim_cnt]
     float32_t           tfm_rpm_fbk;
+
+    float32_t           tfm_pwm_period;
     // PWM 週期 → 電角度內插轉換常數
     // Δθ_elec(rad) = [ (TIM_tim_t * ARR) / ELE_tim_t ] × (π/3) / htim_cnt
     float32_t           tfm_foc_it_angle_itpl;
 
+
     float32_t           tfm_duty_Iq;
 
     float32_t           dbg_pwm_freq;
+
     // 計時器頻率
     float32_t           dbg_tim_it_freq;
+
+    uint32_t            alive_tick;
     // 馬達控制模式
     MotorModeControl    mode_control;
     // 馬達旋轉模式
@@ -94,7 +100,7 @@ typedef struct MotorParameter
 
     float32_t           rpm_save_stop;
 
-    DirectionState       dir_state;
+    DirectionState      dir_state;
 
     // 目前霍爾相位
     volatile float32_t  exti_hall_rad;
@@ -155,5 +161,6 @@ void motor_init(MotorParameter *motor);
 // 從尾往轉子 順時針為負
 void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed);
 void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode);
+void motor_alive(MotorParameter *motor);
 void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl);
 void motor_pwm_load(MotorParameter *motor);

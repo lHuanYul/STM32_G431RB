@@ -74,10 +74,20 @@ void motor_hall_exti(MotorParameter *motor)
     }
     //
     #ifndef MOTOR_FOC_SPIN_DEBUG
-    if (
-           (motor->mode_control == MOTOR_CTRL_120)
-        || (motor->mode_control == MOTOR_CTRL_180)
-    ) deg_ctrl_load(motor);
+    switch (motor->mode_control)
+    {
+        case MOTOR_CTRL_120:
+        {
+            deg_ctrl_120_load(motor);
+            break;
+        }
+        case MOTOR_CTRL_180:
+        {
+            deg_ctrl_180_load(motor);
+            break;
+        }
+        default: break;
+    }
     #else
     if (expected && (motor->reverse == reverse))
     {
@@ -88,7 +98,7 @@ void motor_hall_exti(MotorParameter *motor)
     #endif
 }
 
-void motor_adc_renew(MotorParameter *motor)
+static void motor_adc_renew(MotorParameter *motor)
 {
     RESULT_CHECK_RET_VOID(adc_renew(motor->adc_a));
     RESULT_CHECK_RET_VOID(adc_renew(motor->adc_b));
@@ -97,6 +107,7 @@ void motor_adc_renew(MotorParameter *motor)
 
 void motor_pwm_pulse(MotorParameter *motor)
 {
+    motor_adc_renew(&motor_h);
     RESULT_CHECK_RET_VOID(vec_ctrl_hall_angle_chk(motor));
     motor->tim_it_acc++;
     if (motor->tim_it_acc >= 1000)
@@ -147,7 +158,7 @@ void motor_pwm_pulse(MotorParameter *motor)
                 VAR_CLAMPF(motor->pi_Iq.reference, motor->pi_Iq.min, motor->pi_Iq.max);
                 break;
             }
-            case MOTOR_ROT_LOCK_PRE:
+            case MOTOR_ROT_LOCK:
             {
                 // motor->pwm_duty_deg = 0.0f;
 
@@ -161,12 +172,12 @@ void motor_pwm_pulse(MotorParameter *motor)
 
                 if (save_stop)
                 {
-                    motor->mode_rotate = MOTOR_ROT_LOCK;
+                    motor->mode_rotate = MOTOR_ROT_LOCK_CHK;
                     motor->pwm_duty_deg = 0.2f;
                 }
                 break;
             }
-            case MOTOR_ROT_LOCK:
+            case MOTOR_ROT_LOCK_CHK:
             {
                 motor->pwm_duty_deg = 0.2f;
                 break;
@@ -184,6 +195,11 @@ void motor_pwm_pulse(MotorParameter *motor)
     vec_ctrl_ipark(motor);
     vec_ctrl_svgen(motor);
     vec_ctrl_svpwm(motor);
+
+    if (HAL_GetTick() - motor->alive_tick >= 1000)
+    {
+        motor_set_rotate_mode(motor, MOTOR_ROT_LOCK);
+    }
 }
 
 void motor_stop_trigger(MotorParameter *motor)
@@ -223,10 +239,13 @@ static void motor_setup(MotorParameter *motor)
     const float32_t ELE_tim_t =
         (float32_t)(motor->const_h.SPD_htimx->Init.Prescaler + 1U) /
         (float32_t)*motor->const_h.SPD_tim_clk;
+
     motor->dbg_pwm_freq = PWM_tim_f / (motor->const_h.PWM_htimx->Init.Period * 2);
     motor->dbg_tim_it_freq = FOC_tim_f / motor->const_h.IT20k_htimx->Init.Period;
+
     motor->tfm_rpm_fbk =
         (3.0f * ELE_tim_f * 60.0f) / (float32_t)MOTOR_42BLF01_POLE;
+    motor->tfm_pwm_period = motor->const_h.PWM_htimx->Init.Period;
     motor->tfm_foc_it_angle_itpl =
         FOC_tim_t / ELE_tim_t * (float32_t)(motor->const_h.IT20k_htimx->Init.Period) * PI_DIV_3;
 
@@ -240,9 +259,15 @@ static void motor_setup(MotorParameter *motor)
         motor->const_h.PWM_htimx->Init.Period - 1);
     ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start(motor->const_h.PWM_htimx));
     ERROR_CHECK_HAL_HANDLE(HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_MID_TIM_CH_x));
+    uint8_t i;
+    for (i = 0; i < 3; i++)
+    {
+        HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+        HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+    }
     HAL_TIM_Base_Start_IT(motor->const_h.SPD_htimx);
-
     osDelay(1000);
+
     adc_set_zero_point(motor_h.adc_a);
     adc_set_zero_point(motor_h.adc_b);
     adc_set_zero_point(motor_h.adc_c);
