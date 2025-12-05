@@ -196,10 +196,10 @@ void motor_pwm_pulse(MotorParameter *motor)
     vec_ctrl_svgen(motor);
     vec_ctrl_svpwm(motor);
 
-    if (HAL_GetTick() - motor->alive_tick >= 1000)
-    {
-        motor_set_rotate_mode(motor, MOTOR_ROT_LOCK);
-    }
+    // if (HAL_GetTick() - motor->alive_tick >= 1000)
+    // {
+    //     motor_set_rotate_mode(motor, MOTOR_ROT_LOCK);
+    // }
 }
 
 void motor_stop_trigger(MotorParameter *motor)
@@ -277,7 +277,7 @@ void StartMotorTask(void *argument)
 {
     motor_setup(&motor_h);
     motor_set_rotate_mode(&motor_h, MOTOR_ROT_NORMAL);
-    motor_set_speed(&motor_h, 0, 1000.0f);
+    motor_set_speed(&motor_h, 0, 500.0f);
 
     motor_switch_ctrl(&motor_h, MOTOR_CTRL_180);
     motor_hall_exti(&motor_h);

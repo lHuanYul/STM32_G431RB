@@ -104,6 +104,7 @@ void deg_ctrl_180_load(MotorParameter *motor)
         {
             case HIGH_PASS:
             {
+                // *duty[i] = 0;
                 *duty[i] = motor->pwm_duty_deg;
                 break;
             }
