@@ -36,3 +36,4 @@ typedef struct PI_CTRL {
 }
 
 void PI_run(PI_CTRL *pi);
+void PI_reset(PI_CTRL *pi);

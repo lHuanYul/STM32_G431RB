@@ -16,7 +16,7 @@ static const float32_t hall_elec_angle[8] = {
 
 inline void vec_ctrl_hall_angle_trf(MotorParameter *motor)
 {
-    motor->exti_hall_rad = hall_elec_angle[motor->exti_hall_curent];
+    motor->exti_hall_rad = hall_elec_angle[motor->hall_current];
 }
 
 inline Result vec_ctrl_hall_angle_chk(MotorParameter *motor)
@@ -95,7 +95,7 @@ inline void vec_ctrl_svgen(MotorParameter *motor)
 
     if (motor->svgendq.Sector != sec_mem)
     {
-        sec_chk[chk_cnt++] = motor->exti_hall_curent;
+        sec_chk[chk_cnt++] = motor->hall_current;
         // sec_chk[chk_cnt++] = motor->elec_theta_rad;
         sec_chk[chk_cnt++] = motor->svgendq.Sector;
         if (chk_cnt >= 30) chk_cnt = 0;

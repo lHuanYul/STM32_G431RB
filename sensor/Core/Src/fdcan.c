@@ -21,7 +21,7 @@
 #include "fdcan.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "main/config.h"
 /* USER CODE END 0 */
 
 FDCAN_HandleTypeDef hfdcan1;

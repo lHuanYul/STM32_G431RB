@@ -10,21 +10,7 @@ inline void INIT_OWN(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    if (
-           (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[0]) // 2
-        || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[1]) // 12
-        || (GPIO_Pin == motor_left.const_h.Hall_GPIO_Pin_x[2]) // 15
-    ) {
-        motor_HALL_EXTI(&motor_left);
-    }
-    else if (
-           (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[0]) // 8
-        || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[1]) // 4
-        || (GPIO_Pin == motor_right.const_h.Hall_GPIO_Pin_x[2]) // 5
-    ) {
-        motor_HALL_EXTI(&motor_right);
-    }
-    else if (GPIO_Pin == us_sensor_head.const_h.echo_GPIO_Pin_x) // 6
+    if (GPIO_Pin == us_sensor_head.const_h.echo_GPIO_Pin_x) // 6
     {
         us_sensor_echo();
     }
@@ -32,16 +18,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    if (htim == MOTOR_HTIM1) // 100us
-    {
-        if (motor_tick % 500 == 0) // 50ms
-        {
-            motor_tick = 0;
-
-        }
-        motor_tick++;
-    }
-    else if (htim == US_SENSOR_HTIM)
+    if (htim == US_SENSOR_HTIM)
     {
         us_sensor_overflow();
     }

@@ -90,7 +90,7 @@ Result us_sensor_echo(void)
             uss_danger_flag = true;
             FdcanPkt* pkt;
             pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-            fdcan_rfid_reset(pkt);
+            // fdcan_rfid_reset(pkt);
             fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         }
     }

@@ -68,7 +68,7 @@
 // 霍爾訊號與實際電角校正
 // 霍爾超前實際為負
 #define MOTOR_42BLF01_ANGLE     (PI_DIV_6*-5.0f) // 6 // -3/3 -4/2 -5/2 -6/6
-#define MOTOR_STOP_TRI          50
+#define MOTOR_RPM_CNT           18
 
 #define ADC_COUNT       4
 #define ADC_NEED_LEN    5 // 511

@@ -13,6 +13,7 @@
 
 #define ATTR_X(...) __attribute__((__VA_ARGS__))
 #define ATTR_UNUSED __attribute__((unused))
+#define ATTR_WEAK   __attribute__((weak))
 
 // ! SYSTEM config, Change CAREFULLY --------------------
 // ! Also CHECK ALL basic.c file
@@ -88,7 +89,7 @@
 #define TIM_DTG_500ns   0x55
 #define TIM_DTG_1us     0x95
 
-#define FDCAN_STD_FILTER_NBR    2
+#define FDCAN_FILTER_COUNT      2
 // #define FDCAN_RX0_NBR           16
 // #define FDCAN_RX1_NBR           16
 // #define FDCAN_RX_BUF_NBR        0

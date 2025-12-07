@@ -12,6 +12,7 @@ extern bool new_card;
 typedef enum CardState
 {
     CARD_STATE_NONE,
+    CARD_STATE_NEW,
     CARD_STATE_EXIST,
 } CardState;
 

@@ -12,6 +12,7 @@ typedef struct FdcanPkt
     uint8_t len;
     struct FdcanPkt *next;
 } FdcanPkt;
+bool fdcan_pkt_check_len(FdcanPkt *pkt, uint8_t len);
 Result fdcan_pkt_get_byte(FdcanPkt *pkt, uint8_t id, uint8_t* container);
 Result fdcan_pkt_set_len(FdcanPkt *pkt, uint8_t len);
 

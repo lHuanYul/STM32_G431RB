@@ -7,6 +7,12 @@ bool fdcan_bus_off = false;
 
 FncState fdacn_data_store = FNC_DISABLE;
 
+bool fdcan_pkt_check_len(FdcanPkt *pkt, uint8_t len)
+{
+    if (pkt->len <= len) return 0;
+    return 1;
+}
+
 Result fdcan_pkt_get_byte(FdcanPkt *pkt, uint8_t id, uint8_t* container)
 {
     if (pkt->len <= id) return RESULT_ERROR(RES_ERR_NOT_FOUND);

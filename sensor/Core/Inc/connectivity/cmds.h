@@ -26,6 +26,26 @@
 //      CMD_DATA_B3_VALUE                           // 資料編號(can)    // 目標ID(車輛位置)
 
 //----------------------------------------------------------------------------------------------------
+#define CAN_ID_WHEEL_LEFT_SPD_FBK   (uint16_t)0x100
+#define CAN_ID_WHEEL_RIGHT_SPD_FBK  (uint16_t)0x101
+#define CAN_ID_WHEEL_LEFT_SET       (uint16_t)0x140
+#define CAN_ID_WHEEL_RIGHT_SET      (uint16_t)0x141
+#define CMD_WHEEL_B0_COAST          (uint8_t)0x00
+#define CMD_WHEEL_B0_BREAK          (uint8_t)0x01
+#define CMD_WHEEL_B0_NORMAL         (uint8_t)0x02
+#define CMD_WHEEL_B0_LOCK           (uint8_t)0x03
+#define CMD_WHEEL_B1_REVERSE
+#define CMD_WHEEL_B25_SPD
+
+#define CAN_ID_HALL_ALL             (uint16_t)0x110
+#define CMD_HALL_B0_FRONT
+#define CMD_HALL_B1_LEFT
+#define CMD_HALL_B2_RIGHT
+// #define CMD_HALL_B3_BATTRY
+#define CAN_ID_RFID                 (uint16_t)0x111
+#define CMD_RFID_B0_NEW
+#define CMD_RFID_B14_ID
+
 #define CMD_WHEEL_B0_CONTROL        (uint8_t)0x20   // 馬達控制
 
 #define CMD_WHEEL_B1_LEFT           (uint8_t)0x01   // 左

@@ -49,6 +49,7 @@ typedef enum MotorModeControl
 typedef enum MotorModeRotate
 {
     MOTOR_ROT_COAST,
+    MOTOR_ROT_BREAK,
     MOTOR_ROT_NORMAL,
     MOTOR_ROT_LOCK,
     MOTOR_ROT_LOCK_CHK,
@@ -115,14 +116,16 @@ typedef struct MotorParameter
     uint8_t             exti_hall_acc;
     // 計時中斷計數
     uint16_t            tim_it_acc;
-    // 停轉計數器
-    uint16_t            stop_spin_acc;
+    // 停轉時間
+    uint32_t            stop_spin_time;
 
     volatile uint32_t   hall_wrong;
-    // 上次霍爾相位
-    uint8_t             exti_hall_last;
     // 目前霍爾相位
-    volatile uint8_t    exti_hall_curent;
+    volatile uint8_t    hall_current;
+    // 上次霍爾相位
+    uint8_t             hall_chk_last;
+
+    // uint8_t             hall_chk_curent;
     // 從尾往轉子 順時針value為負
     PI_CTRL             pi_speed;
     
