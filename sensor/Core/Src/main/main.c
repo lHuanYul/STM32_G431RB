@@ -18,7 +18,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    if (htim == US_SENSOR_HTIM)
+    if (htim == us_sensor_head.const_h.htimx)
     {
         us_sensor_overflow();
     }
@@ -26,8 +26,10 @@ void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == US_SENSOR_HTIM && htim->Channel == US_SENSOR_TIM_ACT_CH)
-    {
+    if (
+        htim == us_sensor_head.const_h.htimx &&
+        htim->Channel == us_sensor_head.const_h.HAL_TIM_ACTIVE_CHANNEL_x
+    ) {
         us_sensor_tri_off();
     }
 }

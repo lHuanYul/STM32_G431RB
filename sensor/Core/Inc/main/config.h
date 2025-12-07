@@ -15,6 +15,7 @@
 #define ATTR_UNUSED __attribute__((unused))
 #define ATTR_WEAK   __attribute__((weak))
 
+
 // ! SYSTEM config, Change CAREFULLY --------------------
 // ! Also CHECK ALL basic.c file
 #include "tim.h"
@@ -68,10 +69,6 @@
 #define ADC_ACC_CNT_MAX 3000
 #define ADC_TO_VOL      (3.3f/4095.0f)
 #define ADC_VOL_SEP     (2.0f/3.0f)
-
-#define US_SENSOR_HTIM          &htim4
-#define US_SENSOR_TIM_CH        TIM_CHANNEL_1
-#define US_SENSOR_TIM_ACT_CH    HAL_TIM_ACTIVE_CHANNEL_1
 
 // Motor Core
 // 20kHz 50us pwm

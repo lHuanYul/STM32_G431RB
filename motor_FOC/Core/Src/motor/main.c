@@ -4,6 +4,7 @@
 #include "motor/ctrl_foc.h"
 #include "analog/adc1/main.h"
 #include "motor/trigonometric.h"
+#include "connectivity/fdcan/pkt_write.h"
 
 static void hall_update(MotorParameter *motor)
 {
@@ -116,10 +117,6 @@ static void motor_adc_renew(MotorParameter *motor)
 
 static void ref_update(MotorParameter *motor)
 {
-    motor->tim_it_acc++;
-    if (motor->tim_it_acc < 1000) return;
-
-    motor->tim_it_acc = 0;
     bool save_stop = (motor->rpm_feedback.value < motor->rpm_save_stop) ? 1 : 0;
     bool ref_fbk_same_dir = (motor->rpm_reference.reverse == motor->rpm_feedback.reverse) ? 1 : 0;
     MotorRpm rpm_set;
@@ -189,8 +186,11 @@ void motor_pwm_pulse(MotorParameter *motor)
 {
     motor_adc_renew(&motor_h);
     RESULT_CHECK_RET_VOID(vec_ctrl_hall_angle_chk(motor));
-    ref_update(motor);
-
+    motor->tim_it_acc++;
+    if (motor->tim_it_acc % 1000 == 0) ref_update(motor);
+    if (motor->tim_it_acc % 2000 == 0) fdcan_motor_send(motor);
+    if (motor->tim_it_acc >= 20000) motor->tim_it_acc = 0;
+    
     vec_ctrl_clarke(motor);
     vec_ctrl_park(motor);
     vec_ctrl_pi_id_iq(motor);

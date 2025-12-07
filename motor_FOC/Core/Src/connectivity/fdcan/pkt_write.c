@@ -17,16 +17,23 @@ Result fdcan_pkt_write_test(FdcanPkt *pkt)
 #ifdef MCU_MOTOR_CTRL
 #include "motor/basic.h"
 
-Result fdcan_pkt_write_spd_fbk(FdcanPkt *pkt)
+static Result motor_fbk(FdcanPkt *pkt, MotorParameter *motor)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
-    MotorParameter *motor = &motor_h;
     pkt->id = FDCAN_WHEEL_FBK_ID;
     RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 1 + sizeof(float32_t)));
     pkt->data[0] = motor->mode_rotate;
     pkt->data[1] = motor->rpm_feedback.reverse;
     var_f32_to_u8_be(motor->rpm_feedback.value, pkt->data + 2);
     return RESULT_OK(pkt);
+}
+
+Result fdcan_motor_send(MotorParameter *motor)
+{
+    FdcanPkt *pkt = RESULT_UNWRAP_RET_RES(fdcan_pkt_pool_alloc());
+    motor_fbk(pkt, &motor_h);
+    RESULT_CHECK_RET_RES(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+    return RESULT_OK(NULL);
 }
 #endif
 

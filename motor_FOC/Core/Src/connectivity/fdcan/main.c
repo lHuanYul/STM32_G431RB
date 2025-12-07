@@ -50,9 +50,6 @@ static Result auto_pkt_proc(void)
         fdcan_pkt_write(pkt, DATA_TYPE_TEST);
         fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         #else
-        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
-        fdcan_pkt_write_spd_fbk(pkt);
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         #endif
     }
     return result;

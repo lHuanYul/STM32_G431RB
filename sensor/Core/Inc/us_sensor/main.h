@@ -5,12 +5,15 @@
 
 typedef struct USSConst
 {
-    GPIO_TypeDef* trig_GPIOx;
-    uint16_t trig_GPIO_Pin_x;
-    GPIO_TypeDef* echo_GPIOx;
-    uint16_t echo_GPIO_Pin_x;
-    float warning;
-    float danger;
+    TIM_HandleTypeDef*  htimx;
+    uint32_t            TIM_CHANNEL_x;
+    HAL_TIM_ActiveChannel HAL_TIM_ACTIVE_CHANNEL_x;
+    GPIO_TypeDef*       trig_GPIOx;
+    uint16_t            trig_GPIO_Pin_x;
+    GPIO_TypeDef*       echo_GPIOx;
+    uint16_t            echo_GPIO_Pin_x;
+    float               warning_gate;
+    float               danger_gate;
 } USSConst;
 
 typedef enum USSState
