@@ -39,9 +39,10 @@ void fdcan_pkt_pool_init(void)
 
 Result fdcan_pkt_pool_alloc(void)
 {
-    if (fdcan_pkt_pool.head == NULL) {
-        return RESULT_ERROR(RES_ERR_EMPTY);
-    }
+    if (
+        fdcan_pkt_pool.head == NULL ||
+        fdcan_pkt_pool.remain == 0
+    ) while(1);
     FdcanPkt *pkt = fdcan_pkt_pool.head;
     fdcan_pkt_pool.head = pkt->next;
     pkt->next = NULL;
@@ -51,6 +52,7 @@ Result fdcan_pkt_pool_alloc(void)
 
 void fdcan_pkt_pool_free(FdcanPkt *pkt)
 {
+    if (fdcan_pkt_pool.remain >= FDCAN_PKT_POOL_CAP) while(1);
     memset(pkt->data, 0, sizeof(pkt->data));
     pkt->len = 0;
     pkt->next = fdcan_pkt_pool.head;

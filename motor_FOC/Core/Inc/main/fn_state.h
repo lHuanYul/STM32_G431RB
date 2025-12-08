@@ -62,7 +62,7 @@ typedef struct Result
         if (RESULT_CHECK_RAW(res))          \
         {                                   \
             last_error = res.result.error;  \
-            while (1) {}                    \
+            while (1);                      \
         }                                   \
     } while (0)
 
@@ -72,7 +72,7 @@ typedef struct Result
         if (RESULT_CHECK_RAW(res))          \
         {                                   \
             last_error = res.result.error;  \
-            while (1) {}                    \
+            while (1);                      \
         }                                   \
         (res).result.success.obj;           \
     })
@@ -87,10 +87,15 @@ typedef struct Result
         }                                   \
     } while (0)
 
-#define RESULT_UNWRAP_RET_VOID(res) \
-    ({                              \
-        RESULT_CHECK_RET_VOID(res); \
-        (res).result.success.obj;   \
+#define RESULT_UNWRAP_RET_VOID(expr)        \
+    ({                                      \
+        Result res = (expr);                \
+        if (RESULT_CHECK_RAW(res))          \
+        {                                   \
+            last_error = res.result.error;  \
+            return;                         \
+        }                                   \
+        (res).result.success.obj;           \
     })
 
 #define RESULT_CHECK_RET_RES(expr)          \
@@ -103,10 +108,15 @@ typedef struct Result
         }                                   \
     } while (0)
 
-#define RESULT_UNWRAP_RET_RES(res)  \
-    ({                              \
-        RESULT_CHECK_RET_RES(res);  \
-        (res).result.success.obj;   \
+#define RESULT_UNWRAP_RET_RES(expr)         \
+    ({                                      \
+        Result res = (expr);                \
+        if (RESULT_CHECK_RAW(res))          \
+        {                                   \
+            last_error = res.result.error;  \
+            return res;                     \
+        }                                   \
+        (res).result.success.obj;           \
     })
 
 #define RESULT_CHECK_CLEANUP(expr)              \
@@ -144,7 +154,7 @@ typedef struct Result
         if (_err != HAL_OK)                 \
         {                                   \
             last_error = _err;              \
-            while (1) {}                    \
+            while (1);                      \
         }                                   \
     } while (0)
 #endif
