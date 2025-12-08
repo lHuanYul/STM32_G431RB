@@ -118,7 +118,6 @@ void StartFdCanTask(void *argument)
         }
         if (fdcan_tick % 20 == 0)
         {
-            recv_pkts_proc(5);
             fdcan_tick = 0;
             if (fdacn_data_store == FNC_ENABLE) auto_pkt_proc();
         }

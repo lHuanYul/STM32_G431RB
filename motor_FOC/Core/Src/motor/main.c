@@ -117,33 +117,30 @@ static void motor_adc_renew(MotorParameter *motor)
 
 static void ref_update(MotorParameter *motor)
 {
+    MotorRpm rpm_set = {
+        .reverse = motor->rpm_reference.reverse,
+        .value = motor->rpm_reference.value,
+    };
     bool save_stop = (motor->rpm_feedback.value < motor->rpm_save_stop) ? 1 : 0;
     bool ref_fbk_same_dir = (motor->rpm_reference.reverse == motor->rpm_feedback.reverse) ? 1 : 0;
-    MotorRpm rpm_set;
     switch (motor->dir_state)
     {
         case DIRECTION_NORMAL:
         {
-            rpm_set.value = motor->rpm_reference.value;
-            if (!ref_fbk_same_dir) motor->dir_state = DIRECTION_BRAKE_TO_ZERO;
-            break;
+            if (ref_fbk_same_dir) break;
+            motor->dir_state = DIRECTION_SWITCHING;
         }
-        case DIRECTION_BRAKE_TO_ZERO:
+        case DIRECTION_SWITCHING:
         {
+            if (save_stop)
+            {
+                motor->dir_state = DIRECTION_NORMAL;
+                break;
+            }
             rpm_set.value = 0;
-            if (motor->rpm_feedback.value < motor->rpm_save_stop)
-                motor->dir_state = DIRECTION_SWITCH_DIR;
-            break;
-        }
-        case DIRECTION_SWITCH_DIR:
-        {
-            rpm_set.reverse = motor->rpm_reference.reverse;
-            rpm_set.value = motor->rpm_reference.value;
-            if (ref_fbk_same_dir) motor->dir_state = DIRECTION_NORMAL;
             break;
         }
     }
-
     // if (HAL_GetTick() - motor->alive_tick >= 1000)
     // {
     //     motor_set_rotate_mode(motor, MOTOR_ROT_COAST);

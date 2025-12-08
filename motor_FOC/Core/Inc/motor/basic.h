@@ -58,8 +58,7 @@ typedef enum MotorModeRotate
 typedef enum DirectionState
 {
     DIRECTION_NORMAL,
-    DIRECTION_BRAKE_TO_ZERO,
-    DIRECTION_SWITCH_DIR,
+    DIRECTION_SWITCHING,
 } DirectionState;
 
 typedef struct MotorRpm
