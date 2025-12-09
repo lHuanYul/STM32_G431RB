@@ -2,8 +2,8 @@
 #include "tim.h"
 #include "main/tim.h"
 
-const uint8_t hall_seq_ccw[8] = {0, 5, 3, 1, 6, 4, 2, 0};
-const uint8_t hall_seq_clw[8] = {0, 3, 6, 2, 5, 1, 4, 0};
+const uint8_t hall_seq_ccw[8] = {UINT8_MAX, 5, 3, 1, 6, 4, 2, UINT8_MAX};
+const uint8_t hall_seq_clw[8] = {UINT8_MAX, 3, 6, 2, 5, 1, 4, UINT8_MAX};
 MotorParameter motor_h = {
     .const_h = {
         // Yellow Green Blue
@@ -54,8 +54,8 @@ MotorParameter motor_h = {
         .min = -0.01f,
         .saturation = 1.0f,
     },
+    .hall_start = 4,
     .rpm_save_stop = 10.0f,
-    .pwm_duty_deg = 0.5f,
 };
 
 void motor_init(MotorParameter *motor)
@@ -96,12 +96,12 @@ void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl)
         case MOTOR_CTRL_FOC_PEAK:
         case MOTOR_CTRL_FOC_RATED:
         {
-            uint8_t i;
-            for (i = 0; i < 3; i++)
-            {
-                HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-                HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-            }
+            // uint8_t i;
+            // for (i = 0; i < 3; i++)
+            // {
+            //     HAL_TIM_PWM_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+            //     HAL_TIMEx_PWMN_Start(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+            // }
             break;
         }
     }

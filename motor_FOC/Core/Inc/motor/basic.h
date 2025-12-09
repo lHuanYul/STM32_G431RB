@@ -80,14 +80,14 @@ typedef struct MotorParameter
     // Δθ_elec(rad) = [ (TIM_tim_t * ARR) / ELE_tim_t ] × (π/3) / htim_cnt
     float32_t           tfm_foc_it_angle_itpl;
 
-
     float32_t           tfm_duty_Iq;
 
     float32_t           dbg_pwm_freq;
-
     // 計時器頻率
     float32_t           dbg_tim_it_freq;
 
+    bool                fdcan_send;
+    
     uint32_t            alive_tick;
     // 馬達控制模式
     MotorModeControl    mode_control;
@@ -98,10 +98,11 @@ typedef struct MotorParameter
 
     MotorRpm            rpm_feedback;
 
+    MotorRpm            rpm_set;
+
     float32_t           rpm_save_stop;
 
     DirectionState      dir_state;
-
     // 目前霍爾相位
     volatile float32_t  exti_hall_rad;
     // 電角度
@@ -121,6 +122,8 @@ typedef struct MotorParameter
     volatile uint32_t   hall_wrong;
     // 目前霍爾相位
     volatile uint8_t    hall_current;
+
+    uint8_t             hall_start;
     // 上次霍爾相位
     uint8_t             hall_chk_last;
 

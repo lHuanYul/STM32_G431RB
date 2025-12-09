@@ -28,7 +28,6 @@ static Result motor_fbk(FdcanPkt *pkt, MotorParameter *motor)
 
 Result fdcan_motor_send(MotorParameter *motor)
 {
-    return RESULT_OK(NULL);
     FdcanPkt *pkt = RESULT_UNWRAP_RET_RES(fdcan_pkt_pool_alloc());
     motor_fbk(pkt, &motor_h);
     RESULT_CHECK_RET_RES(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));

@@ -69,7 +69,7 @@ void StartFdCanTask(void *argument)
         .IdType = FDCAN_STANDARD_ID,
         .FilterIndex = 0,
         .FilterType = FDCAN_FILTER_RANGE,
-        .FilterConfig = FDCAN_FILTER_TO_RXFIFO0_HP,
+        .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
         .FilterID1 = FDCAN_FIFO0_FILTER0_ID_MIN,
         .FilterID2 = FDCAN_FIFO0_FILTER0_ID_MAX,
     };
@@ -79,10 +79,8 @@ void StartFdCanTask(void *argument)
         .FilterIndex = 1,
         .FilterType = FDCAN_FILTER_RANGE,
         .FilterConfig = FDCAN_FILTER_TO_RXFIFO1,
-        .FilterID1 = 0x000,
-        .FilterID2 = 0x7FF,
-        // .FilterID1 = FDCAN_FIFO1_FILTER0_ID_MIN,
-        // .FilterID2 = FDCAN_FIFO1_FILTER0_ID_MAX,
+        .FilterID1 = FDCAN_FIFO1_FILTER0_ID_MIN,
+        .FilterID2 = FDCAN_FIFO1_FILTER0_ID_MAX,
     };
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(&hfdcan1, &fifo1_filter0));
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_Start(&hfdcan1));

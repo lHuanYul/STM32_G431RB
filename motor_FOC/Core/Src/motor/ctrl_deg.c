@@ -37,13 +37,14 @@ static const uint8_t index_180_cw[]   = {7, 2, 0, 1, 4, 3, 5, 7};
 
 void deg_ctrl_120_load(MotorParameter *motor)
 {
+    if (motor->hall_current == UINT8_MAX) return;
     uint8_t idx;
     if (motor->mode_rotate == MOTOR_ROT_LOCK_CHK)
         idx = index_180_lock[motor->hall_current];
     else
     {
         idx = index_120_ccw[motor->hall_current];
-        if (motor->rpm_reference.reverse) idx = (idx + 3) % 6;
+        if (motor->rpm_set.reverse) idx = (idx + 3) % 6;
     }
     float32_t *duty[3] = {&motor->pwm_duty_u, &motor->pwm_duty_v, &motor->pwm_duty_w};
     uint8_t i;
@@ -57,9 +58,13 @@ void deg_ctrl_120_load(MotorParameter *motor)
                 break;
             }
             case LOW_PASS:
-            default:
             {
                 *duty[i] = 0;
+                break;
+            }
+            default:
+            {
+                *duty[i] = 0.5;
                 break;
             }
         }
@@ -69,6 +74,7 @@ void deg_ctrl_120_load(MotorParameter *motor)
 
 void deg_ctrl_180_load(MotorParameter *motor)
 {
+    if (motor->hall_current == UINT8_MAX) return;
     uint8_t i;
     float32_t *duty[3] = {
         &motor->pwm_duty_u,
@@ -94,7 +100,7 @@ void deg_ctrl_180_load(MotorParameter *motor)
         {
             for (i = 0; i < 3; i++)
             {
-                if (!motor->rpm_reference.reverse)
+                if (!motor->rpm_set.reverse)
                     seq[i] = seq_map_180[index_180_ccw[motor->hall_current]][i];
                 else
                     seq[i] = seq_map_180[ index_180_cw[motor->hall_current]][i];

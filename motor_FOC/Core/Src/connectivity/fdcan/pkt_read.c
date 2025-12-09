@@ -36,6 +36,13 @@ Result fdcan_pkt_ist_read(FdcanPkt *pkt)
                     motor_set_rotate_mode(&motor_h, MOTOR_ROT_LOCK);
                     return RESULT_OK(NULL);
                 }
+                case CMD_WHEEL_B0_FDCAN:
+                {
+                    RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
+                    if (code == 0) motor_h.fdcan_send = 0;
+                    else motor_h.fdcan_send = 1;
+                    return RESULT_OK(NULL);
+                }
                 default: break;
             }
         }

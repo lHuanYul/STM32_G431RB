@@ -55,7 +55,7 @@ inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
 {
     if(motor->rpm_feedback.value == 0.0f)
     {
-        motor->pi_Iq.out = (!motor->rpm_reference.reverse) ?
+        motor->pi_Iq.out = (!motor->rpm_set.reverse) ?
             motor->const_h.peak_current : -motor->const_h.peak_current;
         return;
     }

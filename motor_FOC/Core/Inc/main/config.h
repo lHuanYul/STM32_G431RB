@@ -33,12 +33,21 @@
 #include "connectivity/cmds.h"
 #define FDCAN_FIFO0_FILTER0_ID_MIN  0x100
 #define FDCAN_FIFO0_FILTER0_ID_MAX  0x10F
-#define FDCAN_FIFO1_FILTER0_ID_MIN  0x140
-#define FDCAN_FIFO1_FILTER0_ID_MAX  0x14F
-#define FDCAN_TEST_ID               0x001
-#define FDCAN_DATA_ID               0x011
+// #define FDCAN_FIFO1_FILTER0_ID_MIN  0x140
+// #define FDCAN_FIFO1_FILTER0_ID_MAX  0x14F
+#define FDCAN_FIFO1_FILTER0_ID_MIN  0x000
+#define FDCAN_FIFO1_FILTER0_ID_MAX  0x7FF
+
+// #define MOTOR_LEFT
+#ifdef MOTOR_LEFT
+// 739
 #define FDCAN_WHEEL_FBK_ID          CAN_ID_WHEEL_LEFT_SPD_FBK
 #define FDCAN_WHEEL_SET_ID          CAN_ID_WHEEL_LEFT_SET
+#else
+// 734
+#define FDCAN_WHEEL_FBK_ID          CAN_ID_WHEEL_RIGHT_SPD_FBK
+#define FDCAN_WHEEL_SET_ID          CAN_ID_WHEEL_RIGHT_SET
+#endif
 // #define MOTOR_FOC_SPIN_DEBUG
 
 #ifndef PI // 180 deg

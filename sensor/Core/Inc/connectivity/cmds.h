@@ -37,46 +37,33 @@
 #define CMD_WHEEL_B1_REVERSE
 #define CMD_WHEEL_B25_SPD
 
+//----------------------------------------------------------------------------------------------------
+
 #define CAN_ID_HALL_ALL             (uint16_t)0x110
 #define CMD_HALL_B0_FRONT
 #define CMD_HALL_B1_LEFT
 #define CMD_HALL_B2_RIGHT
 // #define CMD_HALL_B3_BATTRY
+
+//----------------------------------------------------------------------------------------------------
+
 #define CAN_ID_RFID                 (uint16_t)0x111
 #define CMD_RFID_B0_NEW
 #define CMD_RFID_B14_ID
 
-#define CMD_WHEEL_B0_CONTROL        (uint8_t)0x20   // 馬達控制
-
-#define CMD_WHEEL_B1_LEFT           (uint8_t)0x01   // 左
-#define CMD_WHEEL_B1_RIGHT          (uint8_t)0x02   // 右
-
-#define CMD_WHEEL_B2_MODE           (uint8_t)0x00   // 模式
-#define CMD_WHEEL_B2_MOTION         (uint8_t)0x01   // 方向
-#define CMD_WHEEL_B2_SPEED          (uint8_t)0x02   // 速度
-
-#define CMD_WHEEL_B3_CONTROL        (uint8_t)0x00   // rps控制模式  /停止
-#define CMD_WHEEL_B3_FREE           (uint8_t)0x01   // duty自由模式 /正轉
-#define CMD_WHEEL_B3_SLOW           (uint8_t)0x02   // 減速模式     /反轉
-//      CMD_WHEEL_B3_VALUE                          // 速度0-100
-// #define CMD_WHEEL_B3_LOCK           (uint8_t)0x03   // 鎖定
-
 //----------------------------------------------------------------------------------------------------
-#define CMD_VEHI_B0_CONTROL         (uint8_t)0x21   // 車輛控制
-
-#define CMD_VEHI_B1_MODE            (uint8_t)0x00   // 模式
-#define CMD_VEHI_B1_MOTION          (uint8_t)0x01   // 方向
-#define CMD_VEHI_B1_SPEED           (uint8_t)0x02   // 速度
-
-#define CMD_VEHI_B2_FREE            (uint8_t)0x00   // 自由模式/車輛停止
-#define CMD_VEHI_B2_END             (uint8_t)0x01   // 停止模式/車輛前進
-#define CMD_VEHI_B2_F_TRACK         (uint8_t)0x02   // 離點模式/車輛後退
-#define CMD_VEHI_B2_TRACK           (uint8_t)0x03   // 循跡模式/車輛左旋
-#define CMD_VEHI_B2_SEARCH          (uint8_t)0x04   // 尋找模式/車輛右旋
-#define CMD_VEHI_B2_ROTATE          (uint8_t)0x05   // 旋轉模式
-//      CMD_VEHI_B2_VALUE                           // 速度0-100
-
-//      CMD_VEHI_B3_VALUE                           // 車輛旋轉模式轉幾個磁條數
+#define CAN_ID_VEHICLE              (uint16_t)0x120
+#define CMD_VEHI_B0_SET_MODE        (uint8_t)0x00
+#define CMD_VEHI_B0_SET_FREE_VAR    (uint8_t)0x01
+#define CMD_VEHI_B0_SET_TRACK_VAR   (uint8_t)0x02
+#define CMD_VEHI_B0_SET_ROTATE_VAR  (uint8_t)0x03
+#define CMD_VEHI_B1_MODE_FREE       (uint8_t)0x00
+#define CMD_VEHI_B1_MODE_TRACK      (uint8_t)0x01
+#define CMD_VEHI_B1_MODE_ROTATE     (uint8_t)0x02
+#define CMD_VEHI_B1_MODE_SEARCH     (uint8_t)0x03
+#define CMD_VEHI_B1_VAR_DICT
+#define CMD_VEHI_B25_VAR_SPD
+#define CMD_VEHI_B6_VAR_CNT
 
 //----------------------------------------------------------------------------------------------------
 #define CMD_MAP_B0_CONTROL          (uint8_t)0x30   // 地圖控制
