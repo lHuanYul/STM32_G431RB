@@ -44,7 +44,7 @@ void deg_ctrl_120_load(MotorParameter *motor)
     else
     {
         idx = index_120_ccw[motor->hall_current];
-        if (motor->rpm_set.reverse) idx = (idx + 3) % 6;
+        if (motor->rpm_reference.reverse) idx = (idx + 3) % 6;
     }
     float32_t *duty[3] = {&motor->pwm_duty_u, &motor->pwm_duty_v, &motor->pwm_duty_w};
     uint8_t i;
@@ -100,7 +100,7 @@ void deg_ctrl_180_load(MotorParameter *motor)
         {
             for (i = 0; i < 3; i++)
             {
-                if (!motor->rpm_set.reverse)
+                if (!motor->rpm_reference.reverse)
                     seq[i] = seq_map_180[index_180_ccw[motor->hall_current]][i];
                 else
                     seq[i] = seq_map_180[ index_180_cw[motor->hall_current]][i];

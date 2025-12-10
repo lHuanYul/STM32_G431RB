@@ -22,7 +22,6 @@ static void hall_update(MotorParameter *motor)
 
 static void hall_check(MotorParameter *motor)
 {
-    // ccw clw check
     if (motor->hall_current == hall_seq_ccw[motor->hall_chk_last])
     {
         motor->rpm_feedback.reverse = 0;
@@ -49,8 +48,9 @@ static void hall_check(MotorParameter *motor)
 
 static void rpm_update(MotorParameter *motor)
 {
-    motor->exti_hall_acc++;
-    if (motor->exti_hall_acc >= MOTOR_RPM_CNT)
+    if (motor->exti_hall_acc == 0)
+        __HAL_TIM_SET_COUNTER(motor->const_h.SPD_htimx, 0);
+    else if (motor->exti_hall_acc >= MOTOR_RPM_CNT)
     {
         motor->exti_hall_acc = 0;
         uint32_t htim_cnt = __HAL_TIM_GET_COUNTER(motor->const_h.SPD_htimx);
@@ -68,6 +68,7 @@ static void rpm_update(MotorParameter *motor)
                 -motor->tfm_foc_it_angle_itpl / (float32_t)htim_cnt;
         }
     }
+    motor->exti_hall_acc++;
 }
 
 static void deg_update(MotorParameter *motor)
@@ -115,30 +116,27 @@ static void motor_adc_renew(MotorParameter *motor)
 static void ref_update(MotorParameter *motor)
 {
     motor->mode_rotate = MOTOR_ROT_NORMAL;
-    motor->rpm_set.reverse = motor->rpm_reference.reverse;
-    motor->rpm_set.value = motor->rpm_reference.value;
+    motor->rpm_reference.reverse = motor->rpm_user.reverse;
+    motor->rpm_reference.value = motor->rpm_user.value;
     bool save_stop = (motor->rpm_feedback.value < motor->rpm_save_stop) ? 1 : 0;
-    bool ref_fbk_same_dir = (motor->rpm_reference.reverse == motor->rpm_feedback.reverse) ? 1 : 0;
-    switch (motor->dir_state)
+    bool ref_fbk_same_dir = (motor->rpm_user.reverse == motor->rpm_feedback.reverse) ? 1 : 0;
+    switch (motor->dict_state)
     {
         case DIRECTION_NORMAL:
         {
             if (ref_fbk_same_dir) break;
-            motor->dir_state = DIRECTION_SWITCHING;
+            motor->dict_state = DIRECTION_SWITCHING;
         }
         case DIRECTION_SWITCHING:
         {
             if (save_stop)
             {
-                motor->dir_state = DIRECTION_NORMAL;
+                motor->dict_state = DIRECTION_NORMAL;
                 motor->mode_rotate = MOTOR_ROT_NORMAL;
                 // PI_reset(&motor->pi_speed);
-                // motor->pwm_duty_deg = 1.0f;
                 break;
             }
             motor->mode_rotate = MOTOR_ROT_BREAK;
-            // motor->rpm_set.reverse = motor->rpm_feedback.reverse;
-            // motor->rpm_set.value = 0;
             break;
         }
     }
@@ -158,7 +156,7 @@ static void ref_update(MotorParameter *motor)
         }
         case MOTOR_ROT_NORMAL:
         {
-            motor->pi_speed.reference = motor->rpm_set.value;
+            motor->pi_speed.reference = motor->rpm_reference.value;
             PI_run(&motor->pi_speed);
             motor->pwm_duty_deg += motor->pi_speed.out;
             VAR_CLAMPF(motor->pwm_duty_deg, 0.0f, 1.0f);
@@ -175,7 +173,7 @@ static void ref_update(MotorParameter *motor)
         }
     }
 
-    motor->pi_Iq.reference = (!motor->rpm_reference.reverse) ?
+    motor->pi_Iq.reference = (!motor->rpm_user.reverse) ?
         motor->const_h.rated_current : -motor->const_h.rated_current;
     // motor->tfm_duty_Iq = var_clampf((motor->tfm_duty_Iq + motor->pi_speed.out), 0.15f, 0.2f);
 }
@@ -188,19 +186,15 @@ void motor_pwm_pulse(MotorParameter *motor)
     if (motor->tim_it_acc % 1000 == 0) ref_update(motor);
     if (
         motor->rpm_feedback.value == 0.0f &&
-        motor->rpm_reference.value != 0.0f &&
+        motor->rpm_user.value != 0.0f &&
         motor->tim_it_acc % 2000 == 0
     ) {
         if (motor->hall_current != UINT8_MAX)
         {
-            if (!motor->rpm_reference.reverse)
-            {
+            if (!motor->rpm_user.reverse)
                 motor->hall_start = hall_seq_ccw[motor->hall_start];
-            }
             else
-            {
                 motor->hall_start = hall_seq_clw[motor->hall_start];
-            }
             motor->hall_current = motor->hall_start;
             deg_update(motor);
         }
@@ -295,7 +289,7 @@ void StartMotorTask(void *argument)
     init_setup(motor);
     motor_set_rotate_mode(motor, MOTOR_ROT_NORMAL);
     motor_switch_ctrl(motor, MOTOR_CTRL_180);
-    motor_set_speed(motor, 0, 500.0f);
+    motor_set_rpm(motor, 0, 500.0f);
 
     // motor_switch_ctrl(&motor_h, MOTOR_CTRL_FOC_RATED);
     // motor_hall_exti(&motor_h);

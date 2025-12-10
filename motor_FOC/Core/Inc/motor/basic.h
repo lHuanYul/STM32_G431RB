@@ -94,15 +94,15 @@ typedef struct MotorParameter
     // 馬達旋轉模式
     MotorModeRotate     mode_rotate;
 
-    MotorRpm            rpm_reference;
+    MotorRpm            rpm_user;
 
     MotorRpm            rpm_feedback;
 
-    MotorRpm            rpm_set;
+    MotorRpm            rpm_reference;
 
     float32_t           rpm_save_stop;
 
-    DirectionState      dir_state;
+    DirectionState      dict_state;
     // 目前霍爾相位
     volatile float32_t  exti_hall_rad;
     // 電角度
@@ -164,7 +164,7 @@ extern MotorParameter motor_h;
 void motor_init(MotorParameter *motor);
 
 // 從尾往轉子 順時針為負
-void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed);
+void motor_set_rpm(MotorParameter *motor, bool reverse, float32_t speed);
 void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode);
 void motor_alive(MotorParameter *motor);
 void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl);

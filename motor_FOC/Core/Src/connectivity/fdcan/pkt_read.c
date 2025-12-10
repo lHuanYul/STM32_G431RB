@@ -28,7 +28,7 @@ Result fdcan_pkt_ist_read(FdcanPkt *pkt)
                     code = (pkt->data[1]) ? 1 : 0;
                     uint8_t spd_u8[sizeof(float32_t)];
                     memcpy(spd_u8, pkt->data + 2, sizeof(float32_t));
-                    motor_set_speed(&motor_h, code, var_u8_to_f32_be(spd_u8));
+                    motor_set_rpm(&motor_h, code, var_u8_to_f32_be(spd_u8));
                     return RESULT_OK(NULL);
                 }
                 case CMD_WHEEL_B0_LOCK:

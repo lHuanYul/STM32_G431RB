@@ -64,10 +64,10 @@ void motor_init(MotorParameter *motor)
     motor->pi_Iq.min = -motor->const_h.rated_current;
 }
 
-void motor_set_speed(MotorParameter *motor, bool reverse, float32_t speed)
+void motor_set_rpm(MotorParameter *motor, bool reverse, float32_t speed)
 {
-    if (speed != 0) motor->rpm_reference.reverse = reverse;
-    motor->rpm_reference.value = speed;
+    if (speed != 0) motor->rpm_user.reverse = reverse;
+    motor->rpm_user.value = speed;
 }
 
 void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode)
