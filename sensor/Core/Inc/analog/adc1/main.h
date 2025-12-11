@@ -2,6 +2,9 @@
 
 #include "main/config.h"
 
+extern bool adc_fdcan_enable;
+extern bool adc_fdcan_send;
+
 typedef struct ADC_PARAMETER_CONST
 {
     ADC_HandleTypeDef *hadcx;

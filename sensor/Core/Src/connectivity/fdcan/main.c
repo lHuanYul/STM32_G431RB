@@ -42,13 +42,23 @@ static Result recv_pkts_proc(uint8_t count)
 static Result auto_pkt_proc(void)
 {
     Result result = RESULT_OK(NULL);
+    if (adc_fdcan_send)
+    {
+        adc_fdcan_send = 0;
+        FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_pkt_write_hall_uss(pkt);
+        RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt, 1));
+        pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+        fdcan_pkt_write_rfid(pkt);
+        RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt, 1));
+    }
     if (fdacn_data_store == FNC_ENABLE)
     {
         FdcanPkt *pkt;
         #ifdef ENABLE_CON_PKT_TEST
         pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
         fdcan_pkt_write(pkt, DATA_TYPE_TEST);
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt, 0);
         #else
         #endif
     }
@@ -111,6 +121,7 @@ void StartFdCanTask(void *argument)
             HAL_FDCAN_Stop(&hfdcan1);
             HAL_FDCAN_Start(&hfdcan1);
         }
+        auto_pkt_proc();
         trsm_pkts_proc();
         if (fdcan_tick % 10 == 0)
         {
@@ -119,7 +130,7 @@ void StartFdCanTask(void *argument)
         if (fdcan_tick % 20 == 0)
         {
             fdcan_tick = 0;
-            if (fdacn_data_store == FNC_ENABLE) auto_pkt_proc();
+            if (fdacn_data_store == FNC_ENABLE);
         }
         osDelayUntil(next_wake);
         next_wake += osPeriod;

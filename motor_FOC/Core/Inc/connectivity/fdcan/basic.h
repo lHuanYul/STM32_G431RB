@@ -36,7 +36,7 @@ typedef struct FdcanPktBuf
 } FdcanPktBuf;
 extern FdcanPktBuf fdcan_trsm_pkt_buf;
 extern FdcanPktBuf fdcan_recv_pkt_buf;
-Result fdcan_pkt_buf_push(FdcanPktBuf* self, FdcanPkt *pkt);
+Result fdcan_pkt_buf_push(FdcanPktBuf* self, FdcanPkt *pkt, uint8_t drop);
 Result fdcan_pkt_buf_get(FdcanPktBuf* self);
 Result fdcan_pkt_buf_pop(FdcanPktBuf* self);
 

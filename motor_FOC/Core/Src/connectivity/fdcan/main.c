@@ -53,7 +53,7 @@ static Result auto_pkt_proc(void)
         #ifdef ENABLE_CON_PKT_TEST
         pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
         fdcan_pkt_write(pkt, DATA_TYPE_TEST);
-        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+        fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt, 0);
         #else
         #endif
     }

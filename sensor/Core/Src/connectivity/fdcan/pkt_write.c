@@ -15,18 +15,23 @@ Result fdcan_pkt_write_test(FdcanPkt *pkt)
 }
 
 #ifdef MCU_MOTOR_CTRL
-#include "motor/basic.h"
-
-Result fdcan_pkt_write_spd_fbk(FdcanPkt *pkt)
+static Result motor_fbk(FdcanPkt *pkt, MotorParameter *motor)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
-    MotorParameter *motor = &motor_h;
     pkt->id = FDCAN_WHEEL_FBK_ID;
-    RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 1 + sizeof(float32_t)));
-    pkt->data[0] = motor->mode_rotate;
+    RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 2 + sizeof(float32_t)));
+    pkt->data[0] = motor->mode_rot_ref;
     pkt->data[1] = motor->rpm_feedback.reverse;
     var_f32_to_u8_be(motor->rpm_feedback.value, pkt->data + 2);
     return RESULT_OK(pkt);
+}
+
+Result fdcan_motor_send(MotorParameter *motor)
+{
+    FdcanPkt *pkt = RESULT_UNWRAP_RET_RES(fdcan_pkt_pool_alloc());
+    motor_fbk(pkt, &motor_h);
+    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt, 1));
+    return RESULT_OK(NULL);
 }
 #endif
 
@@ -34,10 +39,12 @@ Result fdcan_pkt_write_spd_fbk(FdcanPkt *pkt)
 Result fdcan_pkt_write_motor(FdcanPkt *pkt, MotorParameter *motor)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
-    pkt->id = motor->id;
+    pkt->id = motor->fdcan_id;
     pkt->data[0] = motor->mode_ref;
-    pkt->data[1] = motor->rev_ref;
-    var_f32_to_u8_be((float32_t)motor->value_ref * motor->max, pkt->data + 2);
+    pkt->data[1] = motor->reverse_ref;
+    float32_t spd = (float32_t)motor->value_ref * motor->rpm_max * 0.01f;
+    VAR_CLAMPF(spd, 0.0f, motor->rpm_max);
+    var_f32_to_u8_be(spd, pkt->data + 2);
     RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 2 + sizeof(float32_t)));
     return RESULT_OK(pkt);
 }
@@ -46,36 +53,35 @@ Result fdcan_vehicle_motor_send(VehicleParameter *vehicle)
 {
     FdcanPkt *pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
     fdcan_pkt_write_motor(pkt, &vehicle->motor_left);
-    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt, 1));
     pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
     fdcan_pkt_write_motor(pkt, &vehicle->motor_right);
-    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt));
+    RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt, 1));
     return RESULT_OK(NULL);
 }
 #endif
 
 #ifdef MCU_SENSOR
-#include "analog/adc1/main.h"
-#include "rfid/main.h"
-
-Result fdcan_pkt_write_hall(FdcanPkt *pkt)
+Result fdcan_pkt_write_hall_uss(FdcanPkt *pkt)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
-    pkt->id = CAN_ID_HALL_ALL;
+    pkt->id = CAN_ID_HALL_ALL_FBK;
     pkt->data[0] = adchall_direction.state;
     pkt->data[1] = adchall_track_left.state;
     pkt->data[2] = adchall_track_right.state;
-    RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 3));
+    pkt->data[3] = us_sensor_head.status;
+    RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 4));
     return RESULT_OK(NULL);
 }
 
-Result fdcan_pkt_write_uss(FdcanPkt *pkt)
+Result fdcan_pkt_write_rfid(FdcanPkt *pkt)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
-    pkt->id = CAN_ID_RFID;
-    pkt->data[0] = spi2_rfid.state;
-    var_u32_to_u8_be(spi2_rfid.uid32, pkt->data + 1);
-    RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 1 + sizeof(uint32_t)));
+    pkt->id = CAN_ID_RFID_FBK;
+    pkt->data[0] = new_card;
+    new_card = 0;
+    memcpy(pkt->data + 1, spi2_rfid.uid.uidByte, 4);
+    RESULT_CHECK_HANDLE(fdcan_pkt_set_len(pkt, 1 + 4));
     return RESULT_OK(NULL);
 }
 #endif

@@ -46,7 +46,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             hfdcan, FDCAN_RX_FIFO0, &header, pkt->data));
         pkt->id = header.Identifier;
         pkt->len = header.DataLength;
-        RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_recv_pkt_buf, pkt));
+        RESULT_CHECK_HANDLE(fdcan_pkt_buf_push(&fdcan_recv_pkt_buf, pkt, 0));
     }
 }
 

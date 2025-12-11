@@ -5,7 +5,7 @@
  */
 
 // Custom code Start
-#include "rfid/MFRC522_STM32.h"
+#include "connectivity/spi/rfid/MFRC522_STM32.h"
 #include "main/config.h"
 #define RC522_CS_SELECT()	HAL_GPIO_WritePin(rc522_const->SDA_GPIOx, rc522_const->SDA_GPIO_PIN_x, GPIO_PIN_RESET)
 #define RC522_CS_CANCLE()	HAL_GPIO_WritePin(rc522_const->SDA_GPIOx, rc522_const->SDA_GPIO_PIN_x, GPIO_PIN_SET)

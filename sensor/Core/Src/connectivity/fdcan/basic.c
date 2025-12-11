@@ -71,9 +71,26 @@ FdcanPktBuf fdcan_recv_pkt_buf = {
     .cap = FDCAN_RECV_BUF_CAP,
 };
 
-Result fdcan_pkt_buf_push(FdcanPktBuf* self, FdcanPkt *pkt)
+Result fdcan_pkt_buf_push(FdcanPktBuf* self, FdcanPkt *pkt, uint8_t drop)
 {
-    if (self->len >= self->cap) return RESULT_ERROR(RES_ERR_OVERFLOW);
+    if (self->len >= self->cap)
+    {
+        switch (drop)
+        {
+            case 1:
+            {
+                FdcanPkt *pkt_d = RESULT_UNWRAP_HANDLE(fdcan_pkt_buf_pop(self));
+                fdcan_pkt_pool_free(pkt_d);
+                break;
+            }
+            case 2:
+            {
+                fdcan_pkt_pool_free(pkt);
+                return RESULT_OK(self);
+            }
+            default: return RESULT_ERROR(RES_ERR_OVERFLOW);
+        }
+    }
     uint8_t tail = (self->head + self->len) % self->cap;
     self->buf[tail] = pkt;
     self->len++;

@@ -1,5 +1,6 @@
-#include "rfid/main.h"
+#include "connectivity/spi/rfid/main.h"
 #include "connectivity/fdcan/main.h"
+#include "main/variable_cal.h"
 
 bool new_card = 0;
 
@@ -84,11 +85,7 @@ void StartRfidTask(void *argument)
                 spi2_rfid.state = CARD_STATE_EXIST;
                 spi2_rfid.err_count = 0;
                 memcpy(&spi2_rfid.uid, &rc522_uid, sizeof(RC522Uid));
-                uint32_t new_id =
-                      ((uint32_t)spi2_rfid.uid.uidByte[0] << 24)
-                    | ((uint32_t)spi2_rfid.uid.uidByte[1] << 16)
-                    | ((uint32_t)spi2_rfid.uid.uidByte[2] <<  8)
-                    | ((uint32_t)spi2_rfid.uid.uidByte[3]      );
+                uint32_t new_id = var_u8_to_u32_be(spi2_rfid.uid.uidByte);
                 if (spi2_rfid.uid32 != new_id)
                 {
                     new_card = 1;

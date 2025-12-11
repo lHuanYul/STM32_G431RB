@@ -4,6 +4,9 @@
 
 static uint16_t ADC_Values[ADC_COUNT] = {0};
 
+bool adc_fdcan_enable = 0;
+bool adc_fdcan_send = 0;
+
 ADC_PARAMETER adchall_direction = {
     .const_h = {
         .hadcx = &hadc1,
@@ -115,6 +118,7 @@ void StartAdcTask(void *argument)
     for(;;)
     {
         HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Values, ADC_COUNT);
+        if (adc_fdcan_enable) adc_fdcan_send = 1;
         osDelay(100);
     }
 }

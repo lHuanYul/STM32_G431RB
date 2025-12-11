@@ -13,5 +13,8 @@ Result fdcan_motor_send(MotorParameter *motor);
 #endif
 
 #ifdef MCU_VEHICLE_MAIN
-Result fdcan_pkt_write_motor(FdcanPkt *pkt, uint16_t id, uint8_t mode, float32_t spd);
+#include "vehicle/basic.h"
+
+Result fdcan_pkt_write_motor(FdcanPkt *pkt, MotorParameter *motor);
+Result fdcan_vehicle_motor_send(VehicleParameter *vehicle);
 #endif
