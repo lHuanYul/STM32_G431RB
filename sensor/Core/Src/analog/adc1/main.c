@@ -109,14 +109,11 @@ void adc_update(ADC_PARAMETER* adc)
     max_min(adc);
 }
 
-int a = 0;
 void StartAdcTask(void *argument)
 {
-    HAL_ADC_Start(&hadc1);
     HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
     for(;;)
     {
-        a++;
         HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Values, ADC_COUNT);
         osDelay(100);
     }
