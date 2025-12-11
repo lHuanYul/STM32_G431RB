@@ -56,7 +56,7 @@ static Result auto_pkt_proc(void)
 }
 
 uint32_t fdcan_tick;
-#define FDCAN_TASK_DELAY_MS 5
+#define FDCAN_TASK_DELAY_MS 2
 void StartFdCanTask(void *argument)
 {
     #ifdef DISABLE_FDCAN

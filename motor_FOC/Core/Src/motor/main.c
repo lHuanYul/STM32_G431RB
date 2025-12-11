@@ -50,7 +50,8 @@ static void rpm_update(MotorParameter *motor)
 {
     if (motor->exti_hall_acc == 0)
         __HAL_TIM_SET_COUNTER(motor->const_h.SPD_htimx, 0);
-    else if (motor->exti_hall_acc >= MOTOR_RPM_CNT)
+    else 
+    if (motor->exti_hall_acc >= MOTOR_RPM_CNT)
     {
         motor->exti_hall_acc = 0;
         uint32_t htim_cnt = __HAL_TIM_GET_COUNTER(motor->const_h.SPD_htimx);
@@ -113,6 +114,17 @@ static void motor_adc_renew(MotorParameter *motor)
     RESULT_CHECK_RET_VOID(adc_renew(motor->adc_c));
 }
 
+void motor_stop_trigger(MotorParameter *motor)
+{
+    motor->stop_spin_time = HAL_GetTick();
+    motor->exti_hall_acc = 0;
+    motor->rpm_feedback.value = 0;
+    motor->pi_Iq.out = 0;
+    motor->foc_angle_acc = 0.0f;
+    PI_reset(&motor->pi_speed);
+    motor->pwm_duty_deg = 0.0f;
+}
+
 static void ref_update(MotorParameter *motor)
 {
     motor->mode_rotate = MOTOR_ROT_NORMAL;
@@ -129,11 +141,13 @@ static void ref_update(MotorParameter *motor)
         }
         case DIRECTION_SWITCHING:
         {
+            // rpm來不及算到就煞停了
             if (save_stop)
             {
                 motor->dict_state = DIRECTION_NORMAL;
                 motor->mode_rotate = MOTOR_ROT_NORMAL;
-                // PI_reset(&motor->pi_speed);
+                motor->exti_hall_acc = 0;
+                motor->rpm_feedback.value = 0;
                 break;
             }
             motor->mode_rotate = MOTOR_ROT_BREAK;
@@ -189,6 +203,7 @@ void motor_pwm_pulse(MotorParameter *motor)
         motor->rpm_user.value != 0.0f &&
         motor->tim_it_acc % 2000 == 0
     ) {
+        hall_update(motor);
         if (motor->hall_current != UINT8_MAX)
         {
             if (!motor->rpm_user.reverse)
@@ -211,17 +226,6 @@ void motor_pwm_pulse(MotorParameter *motor)
     vec_ctrl_ipark(motor);
     vec_ctrl_svgen(motor);
     vec_ctrl_svpwm(motor);
-}
-
-void motor_stop_trigger(MotorParameter *motor)
-{
-    motor->stop_spin_time = HAL_GetTick();
-    motor->exti_hall_acc = 0;
-    motor->rpm_feedback.value = 0;
-    motor->pi_Iq.out = 0;
-    motor->foc_angle_acc = 0.0f;
-    PI_reset(&motor->pi_speed);
-    motor->pwm_duty_deg = 0.0f;
 }
 
 static void init_setup(MotorParameter *motor)

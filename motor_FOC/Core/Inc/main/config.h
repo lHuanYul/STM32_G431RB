@@ -38,7 +38,7 @@
 #define FDCAN_FIFO1_FILTER0_ID_MIN  0x000
 #define FDCAN_FIFO1_FILTER0_ID_MAX  0x7FF
 
-// #define MOTOR_LEFT
+#define MOTOR_LEFT
 #ifdef MOTOR_LEFT
 // 739
 #define FDCAN_WHEEL_FBK_ID          CAN_ID_WHEEL_LEFT_SPD_FBK
@@ -77,7 +77,7 @@
 // 霍爾訊號與實際電角校正
 // 霍爾超前實際為負
 #define MOTOR_42BLF01_ANGLE     (PI_DIV_6*-5.0f) // 6 // -3/3 -4/2 -5/2 -6/6
-#define MOTOR_RPM_CNT           18
+#define MOTOR_RPM_CNT           6
 
 #define ADC_COUNT       4
 #define ADC_NEED_LEN    5 // 511
@@ -90,7 +90,7 @@
 #define TIM1_ARR        4250 // Max: 65535
 // Motor Time Calculate
 #define TIM2_PSC        0
-#define TIM2_ARR        170000000 // Max: 4294967295
+#define TIM2_ARR        17000000*5 // Max: 4294967295
 // 20kHz 50us 20kHzIT
 #define TIM3_PSC        0
 #define TIM3_ARR        8500 // Max: 65535
