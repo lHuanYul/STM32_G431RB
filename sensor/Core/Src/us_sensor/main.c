@@ -30,7 +30,7 @@ Result us_sensor_start(void)
     return RESULT_OK(uss);
 }
 
-Result us_sensor_enable(void)
+const Result us_sensor_enable(void)
 {
     USSensor *uss = &us_sensor_head;
     if (uss->state != USS_STATE_STOP) return RESULT_ERROR(RES_ERR_BUSY);
@@ -74,9 +74,11 @@ Result us_sensor_overflow(void)
     else return RESULT_ERROR(RES_ERR_INVALID);
 }
 
+int text_a = 0;
 static bool uss_danger_flag = false;
 Result us_sensor_echo(void)
 {
+    text_a++;
     USSensor *uss = &us_sensor_head;
     if (uss->state != USS_STATE_RUNNING) return RESULT_ERROR(RES_ERR_INVALID);
     hyrun[2]++;
@@ -92,9 +94,10 @@ Result us_sensor_echo(void)
         {
             uss_danger_flag = true;
             FdcanPkt* pkt;
-            pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
+            // TODO
+            // pkt = RESULT_UNWRAP_HANDLE(fdcan_pkt_pool_alloc());
             // fdcan_rfid_reset(pkt);
-            fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
+            // fdcan_pkt_buf_push(&fdcan_trsm_pkt_buf, pkt);
         }
     }
     else if (uss->distance <= const_h->warning_gate)
@@ -110,11 +113,13 @@ Result us_sensor_echo(void)
     return RESULT_OK(uss);
 }
 
+int tick_text = 0;
  void StartUsTask(void *argument)
 {
     us_sensor_enable();
     for(;;)
     {
+        tick_text++;
 
         osDelay(1);
     }
