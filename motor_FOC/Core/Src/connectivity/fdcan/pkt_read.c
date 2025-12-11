@@ -21,6 +21,11 @@ Result fdcan_pkt_ist_read(FdcanPkt *pkt)
                     motor_set_rotate_mode(&motor_h, MOTOR_ROT_COAST);
                     return RESULT_OK(NULL);
                 }
+                case CMD_WHEEL_B0_BREAK:
+                {
+                    motor_set_rotate_mode(&motor_h, MOTOR_ROT_BREAK);
+                    return RESULT_OK(NULL);
+                }
                 case CMD_WHEEL_B0_NORMAL:
                 {
                     if (pkt->len < 6) break;

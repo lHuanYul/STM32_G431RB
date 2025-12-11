@@ -39,7 +39,7 @@ void deg_ctrl_120_load(MotorParameter *motor)
 {
     if (motor->hall_current == UINT8_MAX) return;
     uint8_t idx;
-    if (motor->mode_rotate == MOTOR_ROT_LOCK_CHK)
+    if (motor->mode_rot_ref == MOTOR_ROT_LOCK_CHK)
         idx = index_180_lock[motor->hall_current];
     else
     {
@@ -82,7 +82,7 @@ void deg_ctrl_180_load(MotorParameter *motor)
         &motor->pwm_duty_w
     };
     int8_t seq[3] = {0};
-    switch (motor->mode_rotate)
+    switch (motor->mode_rot_ref)
     {
         case MOTOR_ROT_COAST:
         {

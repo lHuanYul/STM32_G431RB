@@ -127,7 +127,7 @@ void motor_stop_trigger(MotorParameter *motor)
 
 static void ref_update(MotorParameter *motor)
 {
-    motor->mode_rotate = MOTOR_ROT_NORMAL;
+    motor->mode_rot_ref = motor->mode_rot_user;
     motor->rpm_reference.reverse = motor->rpm_user.reverse;
     motor->rpm_reference.value = motor->rpm_user.value;
     bool save_stop = (motor->rpm_feedback.value < motor->rpm_save_stop) ? 1 : 0;
@@ -142,15 +142,15 @@ static void ref_update(MotorParameter *motor)
         case DIRECTION_SWITCHING:
         {
             // rpm來不及算到就煞停了
+            if (motor->mode_rot_ref == MOTOR_ROT_COAST) break;
             if (save_stop)
             {
                 motor->dict_state = DIRECTION_NORMAL;
-                motor->mode_rotate = MOTOR_ROT_NORMAL;
                 motor->exti_hall_acc = 0;
                 motor->rpm_feedback.value = 0;
                 break;
             }
-            motor->mode_rotate = MOTOR_ROT_BREAK;
+            motor->mode_rot_ref = MOTOR_ROT_BREAK;
             break;
         }
     }
@@ -159,7 +159,7 @@ static void ref_update(MotorParameter *motor)
     //     motor_set_rotate_mode(motor, MOTOR_ROT_COAST);
     // }
     motor->pi_speed.feedback = motor->rpm_feedback.value;
-    switch (motor->mode_rotate)
+    switch (motor->mode_rot_ref)
     {
         case MOTOR_ROT_COAST:
         case MOTOR_ROT_BREAK:
@@ -181,8 +181,8 @@ static void ref_update(MotorParameter *motor)
         }
         case MOTOR_ROT_LOCK:
         {
-            motor->mode_rotate = MOTOR_ROT_BREAK;
-            if (save_stop) motor->mode_rotate = MOTOR_ROT_LOCK_CHK;
+            motor->mode_rot_ref = MOTOR_ROT_BREAK;
+            if (save_stop) motor->mode_rot_ref = MOTOR_ROT_LOCK_CHK;
             break;
         }
     }

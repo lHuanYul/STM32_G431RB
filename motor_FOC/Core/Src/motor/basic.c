@@ -74,12 +74,13 @@ void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode)
 {
     if (
         mode != MOTOR_ROT_COAST &&
+        mode != MOTOR_ROT_BREAK &&
         mode != MOTOR_ROT_NORMAL &&
         mode != MOTOR_ROT_LOCK &&
         mode != MOTOR_ROT_LOCK_CHK
     ) return;
     if (mode == MOTOR_ROT_LOCK_CHK) mode = MOTOR_ROT_LOCK;
-    motor->mode_rotate = mode;
+    motor->mode_rot_user = mode;
 }
 
 void motor_alive(MotorParameter *motor)

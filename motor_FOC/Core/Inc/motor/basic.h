@@ -94,7 +94,9 @@ typedef struct MotorParameter
     // 馬達控制模式
     MotorModeControl    mode_control;
     // 馬達旋轉模式
-    MotorModeRotate     mode_rotate;
+    MotorModeRotate     mode_rot_user;
+    // 馬達旋轉模式
+    MotorModeRotate     mode_rot_ref;
 
     MotorRpm            rpm_user;
 
