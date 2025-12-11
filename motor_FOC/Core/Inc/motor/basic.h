@@ -86,6 +86,8 @@ typedef struct MotorParameter
     // 計時器頻率
     float32_t           dbg_tim_it_freq;
 
+    bool                fdcan_enable;
+
     bool                fdcan_send;
     
     uint32_t            alive_tick;

@@ -215,9 +215,9 @@ void motor_pwm_pulse(MotorParameter *motor)
         }
     }
     if (
-        motor->fdcan_send &&
+        motor->fdcan_enable &&
         motor->tim_it_acc % 2000 == 0
-    ) fdcan_motor_send(motor);
+    ) motor->fdcan_send = 1;
     if (motor->tim_it_acc >= 20000) motor->tim_it_acc = 0;
     
     vec_ctrl_clarke(motor);

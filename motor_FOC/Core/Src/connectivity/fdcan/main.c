@@ -42,7 +42,12 @@ static Result recv_pkts_proc(uint8_t count)
 static Result auto_pkt_proc(void)
 {
     Result result = RESULT_OK(NULL);
-    if (fdacn_data_store == FNC_ENABLE)
+    if (motor_h.fdcan_send)
+    {
+        motor_h.fdcan_send = 0;
+        result = fdcan_motor_send(&motor_h);
+    }
+    else if (fdacn_data_store == FNC_ENABLE)
     {
         FdcanPkt *pkt;
         #ifdef ENABLE_CON_PKT_TEST
@@ -112,6 +117,7 @@ void StartFdCanTask(void *argument)
             HAL_FDCAN_Stop(&hfdcan1);
             HAL_FDCAN_Start(&hfdcan1);
         }
+        auto_pkt_proc();
         trsm_pkts_proc();
         if (fdcan_tick % 10 == 0)
         {
@@ -120,7 +126,7 @@ void StartFdCanTask(void *argument)
         if (fdcan_tick % 20 == 0)
         {
             fdcan_tick = 0;
-            if (fdacn_data_store == FNC_ENABLE) auto_pkt_proc();
+            if (fdacn_data_store == FNC_ENABLE) ;
         }
         osDelayUntil(next_wake);
         next_wake += osPeriod;

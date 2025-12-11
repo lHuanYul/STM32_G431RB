@@ -39,8 +39,8 @@ Result fdcan_pkt_ist_read(FdcanPkt *pkt)
                 case CMD_WHEEL_B0_FDCAN:
                 {
                     RESULT_CHECK_RET_RES(fdcan_pkt_get_byte(pkt, 1, &code));
-                    if (code == 0) motor_h.fdcan_send = 0;
-                    else motor_h.fdcan_send = 1;
+                    if (code == 0) motor_h.fdcan_enable = 0;
+                    else motor_h.fdcan_enable = 1;
                     return RESULT_OK(NULL);
                 }
                 default: break;
