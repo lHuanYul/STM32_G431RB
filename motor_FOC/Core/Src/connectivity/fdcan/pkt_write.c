@@ -6,7 +6,7 @@ static float ftest = 0.0;
 Result fdcan_pkt_write_test(FdcanPkt *pkt)
 {
     if (pkt == NULL) return RESULT_ERROR(RES_ERR_MEMORY_ERROR);
-    pkt->id = FDCAN_TEST_ID;
+    pkt->id = 0x000;
     pkt->data[0] = 0x00;
     pkt->data[1] = 0xFF;
     var_f32_to_u8_be(ftest++, pkt->data + 2);

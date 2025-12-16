@@ -2,3 +2,21 @@
 in the 46th 中華民國電力工程研討會,the 22th 台灣電力電子研討會,2025電力學門成果發表會,Nov. 14
 何子儀,何子才,鄭宇呈,蔡丞輔,吳家豪,＂健身腳踏車馬達控制＂,
 in the 46th 中華民國電力工程研討會,the 22th 台灣電力電子研討會,2025電力學門成果發表會,Nov. 14
+name "DracFusion"
+every 20 ticks do
+    if Fusion has = 0 then
+        input from ItemIn slots 0
+        output to Fusion
+        forget
+        input from ItemIn slots 1-17
+        output 1 to each Injector
+        forget
+    end
+    input from Fusion
+    output to PatternP
+    forget
+end
+LSN767877648
+LSN1874505306
+LSN370188102
+LSN1733878019
