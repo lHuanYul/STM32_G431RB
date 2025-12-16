@@ -74,24 +74,25 @@ void StartFdCanTask(void *argument)
     #else
     fdcan_pkt_pool_init();
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE));
-    FDCAN_FilterTypeDef sFilter0 = {
+    FDCAN_FilterTypeDef fifo0_filter0 =
+    {
         .IdType = FDCAN_STANDARD_ID,
         .FilterIndex = 0,
         .FilterType = FDCAN_FILTER_RANGE,
-        .FilterConfig = FDCAN_FILTER_TO_RXFIFO0_HP,
-        .FilterID1 = FDCAN_FILTER0_ID_MIN,
-        .FilterID2 = FDCAN_FILTER0_ID_MAX,
+        .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
+        .FilterID1 = FDCAN_FIFO0_FILTER0_ID_MIN,
+        .FilterID2 = FDCAN_FIFO0_FILTER0_ID_MAX,
     };
-    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter0));
-    FDCAN_FilterTypeDef sFilter1 = {
+    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(&hfdcan1, &fifo0_filter0));
+    FDCAN_FilterTypeDef fifo1_filter0 = {
         .IdType = FDCAN_STANDARD_ID,
         .FilterIndex = 1,
         .FilterType = FDCAN_FILTER_RANGE,
-        .FilterConfig = FDCAN_FILTER_TO_RXFIFO0,
-        .FilterID1 = FDCAN_FILTER1_ID_MIN,
-        .FilterID2 = FDCAN_FILTER1_ID_MAX,
+        .FilterConfig = FDCAN_FILTER_TO_RXFIFO1,
+        .FilterID1 = FDCAN_FIFO1_FILTER0_ID_MIN,
+        .FilterID2 = FDCAN_FIFO1_FILTER0_ID_MAX,
     };
-    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilter1));
+    ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_ConfigFilter(&hfdcan1, &fifo1_filter0));
     ERROR_CHECK_HAL_HANDLE(HAL_FDCAN_Start(&hfdcan1));
     ERROR_CHECK_HAL_HANDLE(
         HAL_FDCAN_ActivateNotification(&hfdcan1,
@@ -121,6 +122,7 @@ void StartFdCanTask(void *argument)
             HAL_FDCAN_Stop(&hfdcan1);
             HAL_FDCAN_Start(&hfdcan1);
         }
+        // adc_fdcan_send = 1;
         auto_pkt_proc();
         trsm_pkts_proc();
         if (fdcan_tick % 10 == 0)

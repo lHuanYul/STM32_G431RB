@@ -39,7 +39,6 @@
 #define CMD_WHEEL_B25_SPD
 
 //----------------------------------------------------------------------------------------------------
-
 #define CAN_ID_HALL_ALL_FBK         (uint16_t)0x104
 #define CMD_HALL_B0_FRONT
 #define CMD_HALL_B1_LEFT

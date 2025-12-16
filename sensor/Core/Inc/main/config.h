@@ -31,6 +31,11 @@
 #define ITS_CHECK(its, tag) (((its) & (tag)) != RESET)
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 #define MCU_SENSOR
+#include "connectivity/cmds.h"
+#define FDCAN_FIFO0_FILTER0_ID_MIN  0x148
+#define FDCAN_FIFO0_FILTER0_ID_MAX  0x14F
+#define FDCAN_FIFO1_FILTER0_ID_MIN  0x140
+#define FDCAN_FIFO1_FILTER0_ID_MAX  0x147
 // #define MOTOR_FOC_SPIN_DEBUG
 
 #ifndef PI // 180 deg
@@ -77,10 +82,6 @@
 // #define FDCAN_TX_BUF_NBR        4
 // #define FDCAN_TX_FIFO_NBR       16
 // #define FDCAN_TX_EVT_NBR        (FDCAN_TX_BUF_NBR+FDCAN_TX_FIFO_NBR)
-#define FDCAN_FILTER0_ID_MIN    0x020
-#define FDCAN_FILTER0_ID_MAX    0x021
-#define FDCAN_FILTER1_ID_MIN    0x022
-#define FDCAN_FILTER1_ID_MAX    0x023
 #define FDCAN_TEST_ID           0x001
 #define FDCAN_DATA_ID           0x011
 #define FDCAN_PKT_LEN           8

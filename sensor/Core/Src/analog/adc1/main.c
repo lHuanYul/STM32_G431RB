@@ -2,7 +2,7 @@
 #include "adc.h"
 #include "main/config.h"
 
-static uint16_t ADC_Values[ADC_COUNT] = {0};
+static uint16_t ADC_Values[ADC_NEED_LEN * ADC_COUNT] = {0};
 
 bool adc_fdcan_enable = 0;
 bool adc_fdcan_send = 0;
@@ -60,15 +60,15 @@ static void max_min (ADC_PARAMETER* adc)
     else if(adc->value < adc->dbg_min && adc->value > 800) adc->dbg_min = adc->value;
 }
 
-static void average(const ADC_PARAMETER *adc, float32_t *store)
+static uint16_t average(const ADC_PARAMETER *adc)
 {
     uint16_t i;
-    float32_t total = 0;
+    uint32_t total = 0;
     for (i = 0; i < ADC_NEED_LEN; i++)
     {
         total += ADC_Values[i * ADC_COUNT + adc->const_h.rankx];
     }
-    *store = total / (float32_t)ADC_NEED_LEN;
+    return (uint16_t)(total / ADC_NEED_LEN);
 }
 
 // 2100 - 1100
@@ -96,17 +96,16 @@ static void middle(const ADC_PARAMETER *adc, float32_t *store)
 }
 
 #define ALPHA 0.1f
-static void iir(const ADC_PARAMETER *adc, float32_t *store)
+static void iir(const ADC_PARAMETER *adc, uint16_t *store)
 {
-    float32_t avg;
-    average(adc, &avg);
-    *store += ALPHA * (avg - *store);
+    uint16_t value = ADC_Values[adc->const_h.rankx];
+    *store += ALPHA * (value - *store);
 }
 
 void adc_update(ADC_PARAMETER* adc)
 {
-    // middle(adc, &adc->value);
-    adc->value = ADC_Values[adc->const_h.rankx];
+    iir(adc, &adc->value);
+    // adc->value = average(adc);
     if (adc->value <= adc->gate) adc->state = ADC_HALL_STATE_ON_MAG;
     else adc->state = ADC_HALL_STATE_NONE;
     max_min(adc);
