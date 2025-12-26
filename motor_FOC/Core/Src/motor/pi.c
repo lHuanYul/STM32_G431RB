@@ -1,5 +1,5 @@
 #include "motor/pi.h"
-#include "motor/basic.h"
+#include "main/variable_cal.h"
 
 void PI_run(PI_CTRL *pi)
 {
