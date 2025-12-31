@@ -20,7 +20,7 @@ static const int8_t seq_map_120[6][3] = {
     { NONE_PASS, LOW_PASS,  HIGH_PASS },
     { HIGH_PASS, LOW_PASS,  NONE_PASS },
 };
-static const uint8_t index_120_ccw[] = {0xFF, 4, 2, 3, 0, 5, 1, 0xFF};
+static const uint8_t index_120_ccw[] = {7, 4, 2, 3, 0, 5, 1, 7};
 static const int8_t seq_map_180[][3] = {
     { HIGH_PASS, LOW_PASS,  HIGH_PASS }, // 0-4
     { HIGH_PASS, LOW_PASS,  LOW_PASS  }, // 1-6
@@ -54,17 +54,20 @@ void deg_ctrl_120_load(MotorParameter *motor)
         {
             case HIGH_PASS:
             {
+                TIM_CH_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
                 *duty[i] = motor->pwm_duty_deg;
                 break;
             }
             case LOW_PASS:
             {
-                *duty[i] = 0;
+                TIM_CH_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+                *duty[i] = 0.0f;
                 break;
             }
             default:
             {
-                *duty[i] = 0.5;
+                TIM_CH_DISABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+                *duty[i] = 0.5f;
                 break;
             }
         }
