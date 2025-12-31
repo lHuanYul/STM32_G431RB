@@ -173,6 +173,7 @@ static void ref_update(MotorParameter *motor)
             motor->pi_speed.reference = motor->rpm_reference.value;
             PI_run(&motor->pi_speed);
             motor->pwm_duty_deg += motor->pi_speed.out;
+            motor->pwm_duty_deg = 0.5f;
             VAR_CLAMPF(motor->pwm_duty_deg, 0.0f, 1.0f);
 
             motor->pi_Iq.reference += motor->pi_speed.out * motor->tfm_duty_Iq;
@@ -206,12 +207,13 @@ void motor_pwm_pulse(MotorParameter *motor)
         hall_update(motor);
         if (motor->hall_current != UINT8_MAX)
         {
-            if (!motor->rpm_user.reverse)
-                motor->hall_start = hall_seq_ccw[motor->hall_start];
-            else
-                motor->hall_start = hall_seq_clw[motor->hall_start];
-            motor->hall_current = motor->hall_start;
-            deg_update(motor);
+            // if (!motor->rpm_user.reverse)
+            //     motor->hall_start = hall_seq_ccw[motor->hall_start];
+            // else
+            //     motor->hall_start = hall_seq_clw[motor->hall_start];
+            // motor->hall_current = motor->hall_start;
+            // motor->pwm_duty_deg = 0.5f;
+            // deg_update(motor);
         }
     }
     if (
