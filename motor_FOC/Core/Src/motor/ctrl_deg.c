@@ -67,7 +67,7 @@ void deg_ctrl_120_load(MotorParameter *motor)
             default:
             {
                 TIM_CH_DISABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-                *duty[i] = 0.5f;
+                *duty[i] = 0.1f;
                 break;
             }
         }

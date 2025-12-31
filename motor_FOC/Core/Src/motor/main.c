@@ -294,7 +294,7 @@ void StartMotorTask(void *argument)
     MotorParameter *motor = &motor_h;
     init_setup(motor);
     motor_set_rotate_mode(motor, MOTOR_ROT_NORMAL);
-    motor_switch_ctrl(motor, MOTOR_CTRL_180);
+    motor_switch_ctrl(motor, MOTOR_CTRL_120);
     motor_set_rpm(motor, 0, 500.0f);
 
     // motor_switch_ctrl(&motor_h, MOTOR_CTRL_FOC_RATED);
