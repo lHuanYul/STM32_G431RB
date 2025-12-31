@@ -9,6 +9,16 @@
 #include "analog/adc1/basic.h"
 #include "cordic.h"
 
+#define TIM_CH_ENABLE(__HANDLE__, __CHANNEL__) \
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCER |= (TIM_CCER_CC1E | TIM_CCER_CC1NE)) : \
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCER |= (TIM_CCER_CC2E | TIM_CCER_CC2NE)) : \
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCER |= (TIM_CCER_CC3E | TIM_CCER_CC3NE)) : 0)
+
+#define TIM_CH_DISABLE(__HANDLE__, __CHANNEL__) \
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCER &= ~(TIM_CCER_CC1E | TIM_CCER_CC1NE)) : \
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCER &= ~(TIM_CCER_CC2E | TIM_CCER_CC2NE)) : \
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCER &= ~(TIM_CCER_CC3E | TIM_CCER_CC3NE)) : 0)
+
 extern const uint8_t hall_seq_clw[8];
 extern const uint8_t hall_seq_ccw[8];
 
