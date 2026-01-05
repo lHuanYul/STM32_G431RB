@@ -119,15 +119,15 @@ typedef struct Result
         (res).result.success.obj;           \
     })
 
-#define RESULT_CHECK_CLEANUP(expr)              \
-    do {                                        \
+#define RESULT_CHECK_GOTO(expr,tag)             \
+    ({                                          \
         result = (expr);                        \
         if (RESULT_CHECK_RAW(result))           \
         {                                       \
             last_error = result.result.error;   \
-            goto cleanup;                       \
+            goto (tag);                         \
         }                                       \
-    } while (0)
+    })
 
 #ifdef STM32_DEVICE
 #define ERROR_CHECK_HAL_RET_HAL(expr)       \
