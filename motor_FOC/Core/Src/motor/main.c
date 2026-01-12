@@ -213,6 +213,7 @@ void motor_pwm_pulse(MotorParameter *motor)
                 motor->hall_start = hall_seq_clw[motor->hall_start];
             // motor->hall_current = motor->hall_start;
             // motor->pwm_duty_deg = 0.5f;
+            // motor->mode_control = MOTOR_CTRL_120;
             // deg_update(motor);
         }
     }
@@ -237,40 +238,50 @@ static void init_setup(MotorParameter *motor)
         (float32_t)*motor->const_h.PWM_tim_clk /
         (float32_t)(motor->const_h.PWM_htimx->Init.Prescaler + 1U);
 
-    const float32_t FOC_tim_f =
-        (float32_t)*motor->const_h.IT20k_tim_clk /
-        (float32_t)(motor->const_h.IT20k_htimx->Init.Prescaler + 1U);
+    // const float32_t FOC_tim_f =
+    //     (float32_t)*motor->const_h.IT20k_tim_clk /
+    //     (float32_t)(motor->const_h.IT20k_htimx->Init.Prescaler + 1U);
+
     // ELE_tim_f：霍爾計時器的實際計數頻率 (Hz)
     // = ELE_timer_clock / (PSC + 1)
-    const float32_t ELE_tim_f =
+    const float32_t SPD_tim_f =
         (float32_t)*motor->const_h.SPD_tim_clk /
         (float32_t)(motor->const_h.SPD_htimx->Init.Prescaler + 1U);
+
+    // PWM_tim_t：PWM 控制定時器每個計數週期的時間 (秒/計數)
+    // = (PSC + 1) / ELE_timer_clock
+    const float32_t PWM_tim_t =
+        (float32_t)(motor->const_h.PWM_htimx->Init.Prescaler + 1U) /
+        (float32_t)*motor->const_h.PWM_tim_clk;
+    
     // FOC_tim_t：PWM 控制定時器每個計數週期的時間 (秒/計數)
     // = (PSC + 1) / TIM_timer_clock
-    const float32_t FOC_tim_t =
-        (float32_t)(motor->const_h.IT20k_htimx->Init.Prescaler + 1U) /
-        (float32_t)*motor->const_h.IT20k_tim_clk;
-    // ELE_tim_t：霍爾計時器每個計數週期的時間 (秒/計數)
+    // const float32_t FOC_tim_t =
+    //     (float32_t)(motor->const_h.IT20k_htimx->Init.Prescaler + 1U) /
+    //     (float32_t)*motor->const_h.IT20k_tim_clk;
+
+    // SPD_tim_t：霍爾計時器每個計數週期的時間 (秒/計數)
     // = (PSC + 1) / ELE_timer_clock
-    const float32_t ELE_tim_t =
+    const float32_t SPD_tim_t =
         (float32_t)(motor->const_h.SPD_htimx->Init.Prescaler + 1U) /
         (float32_t)*motor->const_h.SPD_tim_clk;
 
     motor->dbg_pwm_freq = PWM_tim_f / (motor->const_h.PWM_htimx->Init.Period * 2);
-    motor->dbg_tim_it_freq = FOC_tim_f / motor->const_h.IT20k_htimx->Init.Period;
+    // motor->dbg_tim_it_freq = FOC_tim_f / motor->const_h.IT20k_htimx->Init.Period;
 
     motor->tfm_pwm_period = motor->const_h.PWM_htimx->Init.Period;
     motor->tfm_rpm_fbk =
-        ((float32_t)MOTOR_RPM_CNT / 6.0f * ELE_tim_f * 60.0f) / (float32_t)MOTOR_42BLF01_POLE;
+        ((float32_t)MOTOR_RPM_CNT * SPD_tim_f * 60.0f) /
+        ((float32_t)MOTOR_POLE / 2.0f * 6.0f * (float32_t)MOTOR_GEAR);
     motor->tfm_foc_it_angle_itpl =
-        FOC_tim_t / ELE_tim_t * (float32_t)(motor->const_h.IT20k_htimx->Init.Period) * PI_DIV_3;
+        PWM_tim_t / SPD_tim_t * (float32_t)(motor->const_h.PWM_htimx->Init.Period) * PI_DIV_3;
 
     ERROR_CHECK_HAL_HANDLE(HAL_ADCEx_Calibration_Start(motor->adc_a->const_h.hadcx, ADC_SINGLE_ENDED));
     ERROR_CHECK_HAL_HANDLE(HAL_ADCEx_Calibration_Start(motor->adc_b->const_h.hadcx, ADC_SINGLE_ENDED));
     ERROR_CHECK_HAL_HANDLE(HAL_ADCEx_Calibration_Start(motor->adc_c->const_h.hadcx, ADC_SINGLE_ENDED));
     ERROR_CHECK_HAL_HANDLE(HAL_ADCEx_InjectedStart_IT(motor->adc_a->const_h.hadcx));
 
-    ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start_IT(motor->const_h.IT20k_htimx));
+    // ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start_IT(motor->const_h.IT20k_htimx));
     __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_MID_TIM_CH_x,
         motor->const_h.PWM_htimx->Init.Period - 1);
     ERROR_CHECK_HAL_HANDLE(HAL_TIM_Base_Start(motor->const_h.PWM_htimx));

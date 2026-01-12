@@ -73,7 +73,7 @@ inline void vec_ctrl_pi_id_iq(MotorParameter *motor)
 
 inline void vec_ctrl_ipark(MotorParameter *motor)
 {
-    motor->ipark.Vdref = motor->ipark.Vdref + motor->pi_Id.out;
+    motor->ipark.Vdref += motor->pi_Id.out;
     VAR_CLAMPF(motor->ipark.Vdref, -0.06f, 0.06f);
     motor->ipark.Vqref = motor->pi_Iq.out;
     motor->ipark.Sin = motor->park.Sin;

@@ -82,7 +82,7 @@ typedef struct MotorParameter
     // 常數
     const MotorConst    const_h;
     // 霍爾間隔 → 輸出軸轉速(RPM) 轉換常數
-    // RPM = [ELE_tim_f * 60] / [6 × (POLE/2) × GEAR × htim_cnt]
+    // RPM = [SPD_tim_f * 60] / [6 × (POLE/2) × GEAR × htim_cnt]
     float32_t           tfm_rpm_fbk;
 
     float32_t           tfm_pwm_period;
