@@ -193,6 +193,7 @@ static void ref_update(MotorParameter *motor)
     // motor->tfm_duty_Iq = var_clampf((motor->tfm_duty_Iq + motor->pi_speed.out), 0.15f, 0.2f);
 }
 
+// 20kHz
 void motor_pwm_pulse(MotorParameter *motor)
 {
     RESULT_CHECK_RET_VOID(vec_ctrl_hall_angle_chk(motor));
@@ -300,6 +301,7 @@ static void init_setup(MotorParameter *motor)
     // adc_set_zero_point(motor_h.adc_c);
 }
 
+#define MOTOR_TASK_DELAY   100
 void StartMotorTask(void *argument)
 {
     MotorParameter *motor = &motor_h;
@@ -310,5 +312,13 @@ void StartMotorTask(void *argument)
 
     // motor_switch_ctrl(&motor_h, MOTOR_CTRL_FOC_RATED);
     // motor_hall_exti(&motor_h);
+    const uint32_t osPeriod = pdMS_TO_TICKS(MOTOR_TASK_DELAY);
+    uint32_t next_wake = osKernelGetTickCount() + osPeriod;
+    for (;;)
+    {
+        motor_history_write(motor);
+        osDelayUntil(next_wake);
+        next_wake += osPeriod;
+    }
     StopTask();
 }

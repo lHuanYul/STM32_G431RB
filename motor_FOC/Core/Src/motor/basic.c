@@ -15,10 +15,6 @@ MotorParameter motor_h = {
         .PWM_TIM_CHANNEL_x  = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3 },
         .PWM_tim_clk        = &tim_clk_APB2,
         .PWM_MID_TIM_CH_x   = TIM_CHANNEL_4,
-        // .Coil_GPIOx         = { GPIOB,       GPIOB,       GPIOB       },
-        // .Coil_GPIO_Pin_x    = { GPIO_PIN_5,  GPIO_PIN_4,  GPIO_PIN_10 },
-        .IT20k_htimx        = &htim3,
-        .IT20k_tim_clk      = &tim_clk_APB1,
         .SPD_htimx          = &htim2,
         .SPD_tim_clk        = &tim_clk_APB1,
         // 42BLF01
@@ -120,4 +116,21 @@ void motor_pwm_load(MotorParameter *motor)
         (uint32_t)(motor->tfm_pwm_period * motor->pwm_duty_v));
     __HAL_TIM_SET_COMPARE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[2],
         (uint32_t)(motor->tfm_pwm_period * motor->pwm_duty_w));
+}
+
+void motor_history_write(MotorParameter *motor)
+{
+    uint16_t idx = motor->history.head;
+    motor->history.data[idx].spd_ref = (!motor->rpm_reference.reverse) ?
+        motor->rpm_reference.value : -motor->rpm_reference.value;
+    motor->history.data[idx].spd_fbk = (!motor->rpm_feedback.reverse) ?
+        motor->rpm_feedback.value  : -motor->rpm_feedback.value;
+    motor->history.cnt++;
+    idx++;
+    if (idx >= MOTOR_HISTORY_LEN)
+    {
+        idx = 0;
+        motor->history.is_full = 1;
+    }
+    motor->history.head = idx;
 }

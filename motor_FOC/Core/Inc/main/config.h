@@ -75,12 +75,13 @@
 #define MOTOR_42BLF01_RATED_CURRENT 1.9f
 #define MOTOR_42BLF01_PEAK_CURRENT  5.7f
 
-#define MOTOR_POLE  MOTOR_42BLF01_POLE
-#define MOTOR_GEAR  MOTOR_42BLF01_GEAR
+#define MOTOR_POLE  20
+#define MOTOR_GEAR  4.4f
 // 霍爾訊號與實際電角校正
 // 霍爾超前實際為負
 #define MOTOR_42BLF01_ANGLE     (PI_DIV_6*-5.0f) // 6 // -3/3 -4/2 -5/2 -6/6
 #define MOTOR_RPM_CNT           6
+#define MOTOR_HISTORY_LEN       100
 
 #define ADC_COUNT       4
 #define ADC_NEED_LEN    5 // 511

@@ -38,9 +38,6 @@ typedef struct MotorConst
     // 轉速計時器
     TIM_HandleTypeDef   *SPD_htimx;
     uint32_t            *SPD_tim_clk;
-    // FOC 20kHz timer
-    TIM_HandleTypeDef   *IT20k_htimx;
-    uint32_t            *IT20k_tim_clk;
     // 馬達data sheet
     float32_t           rated_trorque;
     float32_t           rated_current;
@@ -76,6 +73,20 @@ typedef struct MotorRpm
     volatile bool reverse;
     volatile float32_t value;
 } MotorRpm;
+
+typedef struct MotorHistoryData
+{
+    float32_t spd_ref;
+    float32_t spd_fbk;
+} MotorHistoryData;
+
+typedef struct MotorHistoryArray
+{
+    MotorHistoryData data[MOTOR_HISTORY_LEN];
+    uint16_t head;
+    bool is_full;
+    uint32_t cnt;
+} MotorHistoryArray;
 
 typedef struct MotorParameter
 {
@@ -173,6 +184,8 @@ typedef struct MotorParameter
     float32_t           pwm_duty_v;
     // PWM duty
     float32_t           pwm_duty_w;
+
+    MotorHistoryArray   history;
 } MotorParameter;
 extern MotorParameter motor_h;
 void motor_init(MotorParameter *motor);
@@ -183,3 +196,4 @@ void motor_set_rotate_mode(MotorParameter *motor, MotorModeRotate mode);
 void motor_alive(MotorParameter *motor);
 void motor_switch_ctrl(MotorParameter *motor, MotorModeControl ctrl);
 void motor_pwm_load(MotorParameter *motor);
+void motor_history_write(MotorParameter *motor);

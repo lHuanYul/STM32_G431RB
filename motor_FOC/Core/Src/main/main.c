@@ -20,9 +20,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    if (htim == motor_h.const_h.IT20k_htimx)
-    {
-    }
     if (htim == motor_h.const_h.SPD_htimx)
     {
         motor_stop_trigger(&motor_h);
