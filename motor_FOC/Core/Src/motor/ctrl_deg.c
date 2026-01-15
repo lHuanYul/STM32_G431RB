@@ -31,6 +31,36 @@ static const uint8_t index_180_lock[] = {7, 4, 2, 3, 0, 5, 1, 7};
 static const uint8_t index_180_ccw[]  = {7, 0, 4, 5, 2, 1, 3, 7};
 static const uint8_t index_180_cw[]   = {7, 2, 0, 1, 4, 3, 5, 7};
 
+#define TIM_CH_ENABLE(__HANDLE__, __CHANNEL__) \
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCER |= (TIM_CCER_CC1E | TIM_CCER_CC1NE)) : \
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCER |= (TIM_CCER_CC2E | TIM_CCER_CC2NE)) : \
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCER |= (TIM_CCER_CC3E | TIM_CCER_CC3NE)) : 0)
+
+#define TIM_CH_DISABLE(__HANDLE__, __CHANNEL__) \
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCER &= ~(TIM_CCER_CC1E | TIM_CCER_CC1NE)) : \
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCER &= ~(TIM_CCER_CC2E | TIM_CCER_CC2NE)) : \
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCER &= ~(TIM_CCER_CC3E | TIM_CCER_CC3NE)) : 0)
+
+#define TIM_PWM_ENABLE(__HANDLE__, __CHANNEL__) \
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCER |= TIM_CCER_CC1E) : \
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCER |= TIM_CCER_CC2E) : \
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCER |= TIM_CCER_CC3E) : 0)
+
+#define TIM_PWM_DISABLE(__HANDLE__, __CHANNEL__) \
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCER &= ~TIM_CCER_CC1E) : \
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCER &= ~TIM_CCER_CC2E) : \
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCER &= ~TIM_CCER_CC3E) : 0)
+
+#define TIM_PWMN_ENABLE(__HANDLE__, __CHANNEL__) \
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCER |= TIM_CCER_CC1NE) : \
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCER |= TIM_CCER_CC2NE) : \
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCER |= TIM_CCER_CC3NE) : 0)
+
+#define TIM_PWMN_DISABLE(__HANDLE__, __CHANNEL__) \
+  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCER &= ~TIM_CCER_CC1NE) : \
+   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCER &= ~TIM_CCER_CC2NE) : \
+   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCER &= ~TIM_CCER_CC3NE) : 0)
+
 void deg_ctrl_120_load(MotorParameter *motor)
 {
     if (motor->hall_current == UINT8_MAX) return;
@@ -79,18 +109,20 @@ void deg_ctrl_120_load(MotorParameter *motor)
     {
         if (seq[i] == HIGH_PASS)
         {
-            TIM_CH_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+            TIM_PWM_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+            TIM_PWMN_DISABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
             *duty[i] = motor->pwm_duty_deg;
         }
         else if (seq[i] == LOW_PASS)
         {
-            TIM_CH_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+            TIM_PWMN_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+            TIM_PWM_DISABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
             *duty[i] = 0;
         }
         else
         {
             TIM_CH_DISABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-            *duty[i] = 0.1f;
+            *duty[i] = 0.01f;
         }
     }
     // uint8_t idx;
