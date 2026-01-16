@@ -173,7 +173,7 @@ static void ref_update(MotorParameter *motor)
             motor->pi_speed.reference = motor->rpm_reference.value;
             PI_run(&motor->pi_speed);
             motor->pwm_duty_deg += motor->pi_speed.out;
-            motor->pwm_duty_deg = 0.5f;
+            motor->pwm_duty_deg = 1.0f;
             VAR_CLAMPF(motor->pwm_duty_deg, 0.0f, 1.0f);
 
             motor->pi_Iq.reference += motor->pi_speed.out * motor->tfm_duty_Iq;

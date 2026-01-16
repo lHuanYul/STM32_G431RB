@@ -109,15 +109,17 @@ void deg_ctrl_120_load(MotorParameter *motor)
     {
         if (seq[i] == HIGH_PASS)
         {
+            // TIM_CH_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
             TIM_PWM_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
             TIM_PWMN_DISABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
             *duty[i] = motor->pwm_duty_deg;
         }
         else if (seq[i] == LOW_PASS)
         {
-            TIM_PWMN_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+            // TIM_CH_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
             TIM_PWM_DISABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-            *duty[i] = 0;
+            TIM_PWMN_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
+            *duty[i] = 1;
         }
         else
         {
@@ -125,42 +127,6 @@ void deg_ctrl_120_load(MotorParameter *motor)
             *duty[i] = 0.01f;
         }
     }
-    // uint8_t idx;
-    // if (motor->mode_rot_ref == MOTOR_ROT_LOCK_CHK)
-    //     idx = index_180_lock[motor->hall_current];
-    // else if (!motor->rpm_reference.reverse)
-    // {
-    //     idx = index_120_ccw[motor->hall_current];
-    //     // if (motor->rpm_reference.reverse) idx = (idx + 3) % 6;
-    // }
-    // else
-    // {
-    //     idx = index_120_cw[motor->hall_current];
-    // }
-    // for (i = 0; i < 3; i++)
-    // {
-    //     switch (seq_map_120[idx][i])
-    //     {
-    //         case HIGH_PASS:
-    //         {
-    //             TIM_CH_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-    //             *duty[i] = motor->pwm_duty_deg;
-    //             break;
-    //         }
-    //         case LOW_PASS:
-    //         {
-    //             TIM_CH_ENABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-    //             *duty[i] = 0.0f;
-    //             break;
-    //         }
-    //         default:
-    //         {
-    //             TIM_CH_DISABLE(motor->const_h.PWM_htimx, motor->const_h.PWM_TIM_CHANNEL_x[i]);
-    //             *duty[i] = 0.1f;
-    //             break;
-    //         }
-    //     }
-    // }
     motor_pwm_load(motor);
 }
 
