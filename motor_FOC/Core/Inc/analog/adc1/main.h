@@ -1,7 +1,7 @@
 #pragma once
 
 #include "main/config.h"
-#include "main/fn_state.h"
+#include "HY_MOD/main/fn_state.h"
 #include "analog/adc1/basic.h"
 
 extern ADC_HandleTypeDef hadc1;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "motor/basic.h"
-#include "main/fn_state.h"
+#include "HY_MOD/main/fn_state.h"
 
 void vec_ctrl_hall_angle_trf(MotorParameter *motor);
 Result vec_ctrl_hall_angle_chk(MotorParameter *motor);

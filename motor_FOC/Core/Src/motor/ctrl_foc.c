@@ -1,7 +1,8 @@
 #include "motor/ctrl_foc.h"
-#include "tim.h"
 #include "motor/trigonometric.h"
 #include "analog/adc1/main.h"
+#include "HY_MOD/main/variable_cal.h"
+#include "tim.h"
 
 static const float32_t hall_elec_angle[8] = {
     F32_MAX,

@@ -1,4 +1,5 @@
 #include "motor/trigonometric.h"
+#include "HY_MOD/main/variable_cal.h"
 #include <math.h>
 
 static const float32_t Table_sin[316] = {

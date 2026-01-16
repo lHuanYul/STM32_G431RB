@@ -1,7 +1,7 @@
 #pragma once
 
 #include "main/config.h"
-#include "main/fn_state.h"
+#include "HY_MOD/main/fn_state.h"
 
 typedef struct PI_CTRL {
     float32_t   reference;    // Input: reference set-point

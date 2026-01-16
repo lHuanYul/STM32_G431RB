@@ -5,7 +5,7 @@
 #include "motor/clarke.h"
 #include "motor/park.h"
 #include "motor/svgendq.h"
-#include "main/variable_cal.h"
+#include "HY_MOD/main/variable_cal.h"
 #include "analog/adc1/basic.h"
 #include "cordic.h"
 

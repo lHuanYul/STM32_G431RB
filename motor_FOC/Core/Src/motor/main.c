@@ -4,7 +4,7 @@
 #include "motor/ctrl_foc.h"
 #include "analog/adc1/main.h"
 #include "motor/trigonometric.h"
-#include "connectivity/fdcan/pkt_write.h"
+#include "HY_MOD/fdcan/pkt_write.h"
 
 static void hall_update(MotorParameter *motor)
 {
