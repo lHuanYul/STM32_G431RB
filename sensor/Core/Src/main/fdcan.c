@@ -1,7 +1,4 @@
-#include "main/mod_cfg.h"
-
-#include "HY_MOD/fdcan/basic.h"
-#include "HY_MOD/packet/fdcan.h"
+#include "main/fdcan.h"
 
 FdcanPktPool fdcan_pkt_pool;
 

@@ -1,7 +1,7 @@
 #include "main/main.h"
 #include "main/tim.h"
 #include "analog/adc1/main.h"
-#include "us_sensor/main.h"
+#include "HY_MOD/us_sensor/main.h"
 
 inline void INIT_OWN(void)
 {

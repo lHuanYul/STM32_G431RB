@@ -46,7 +46,7 @@ ADC_PARAMETER adchall_node = {
     .dbg_min = UINT16_MAX,
 };
 
-static void max_min (ADC_PARAMETER* adc)
+static void max_min(ADC_PARAMETER* adc)
 {
     adc->dbg_tim++;
     if (adc->dbg_tim >= 100)
