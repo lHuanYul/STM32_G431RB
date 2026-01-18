@@ -26,7 +26,7 @@
 #include "stm32g4xx_hal.h"
 
 #define STM32_DEVICE
-#define STM32_G431RB
+#define STM32G431RB
 #define ITS_CHECK(its, tag) (((its) & (tag)) != RESET)
 #define BOARD_LED_TOGGLE HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5)
 #define MCU_MOTOR_CTRL
