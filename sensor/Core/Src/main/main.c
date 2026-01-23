@@ -1,7 +1,7 @@
 #include "main/main.h"
-#include "main/tim.h"
-#include "analog/adc1/main.h"
+#include "HY_MOD/main/tim.h"
 #include "HY_MOD/us_sensor/main.h"
+#include "main/adc_hall.h"
 
 inline void INIT_OWN(void)
 {
@@ -40,12 +40,12 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    if (hadc == adchall_direction.const_h.hadcx)
+    if (hadc == adchall_direction.adc.const_h.hadcx)
     {
-        adc_update(&adchall_direction);
-        adc_update(&adchall_track_left);
-        adc_update(&adchall_track_right);
-        adc_update(&adchall_node);
+        adc_hall_update(&adchall_direction);
+        adc_hall_update(&adchall_track_left);
+        adc_hall_update(&adchall_track_right);
+        adc_hall_update(&adchall_node);
     }
 }
 

@@ -88,6 +88,7 @@
 #define FDCAN_TRSM_BUF_CAP      10
 #define FDCAN_RECV_BUF_CAP      10
 
+#define HY_MOD_STM32_ADC_HALL
 #define HY_MOD_STM32_RFID
 #define HY_MOD_STM32_USS
 
