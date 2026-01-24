@@ -33,7 +33,7 @@
 		<link>
 			<name>STM32</name>
 			<type>2</type>
-			<location>C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32</location>
+			<locationURI>$%7BPARENT-2-PROJECT_LOC%7D/HY_MCU_MOD/STM32</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

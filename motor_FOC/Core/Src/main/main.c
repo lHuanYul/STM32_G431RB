@@ -1,5 +1,5 @@
 #include "main/main.h"
-#include "main/tim.h"
+#include "HY_MOD/main/tim.h"
 #include "motor/main.h"
 
 inline void INIT_OWN(void)
