@@ -1,0 +1,3 @@
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/spi/basic.c:7:8:spi_init	1
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/spi/basic.c:15:15:wait_it	2
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/spi/basic.c:26:8:spi_start_transceive	4

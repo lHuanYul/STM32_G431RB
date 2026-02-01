@@ -1,0 +1,5 @@
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/lcd_1inch47/main.c:8:6:LCD_init	32	static
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/lcd_1inch47/main.c:110:6:lcd_set_addr_window	32	static
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/lcd_1inch47/main.c:142:6:LCD_Fill_DMA	32	static
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/lcd_1inch47/main.c:174:6:LCD_DrawChar	328	static
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/lcd_1inch47/main.c:227:6:LCD_DrawString	40	static

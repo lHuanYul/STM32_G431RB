@@ -1,0 +1,3 @@
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/spi/basic.c:7:8:spi_init	24	static
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/spi/basic.c:15:15:wait_it	40	static
+C:/Users/HuanYu/Desktop/Codes/HY_MCU_MOD/STM32/Src/HY_MOD/spi/basic.c:26:8:spi_start_transceive	56	static,ignoring_inline_asm
