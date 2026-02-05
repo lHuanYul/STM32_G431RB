@@ -20,9 +20,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 }
 
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim == motor_h.const_h.Hall_htimx && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
+    {
+        motor_hall_exti_cb(&motor_h);
+    }
+}
+
 void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    if (htim == motor_h.const_h.SPD_htimx)
+    if (htim == motor_h.const_h.Hall_htimx)
     {
         motor_stop_cb(&motor_h);
     }

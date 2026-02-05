@@ -27,6 +27,7 @@
 
 #define HY_MOD_STM32_MOTOR
 // #define MOTOR_FOC_SPIN_DEBUG
+#define MOTOR_AUTO_SPIN
 #include "HY_MOD/motor/motor_parameter.h"
 #define MOTOR_POLE      MOTOR_VEHICLE_POLE
 #define MOTOR_GEAR      MOTOR_VEHICLE_GEAR
