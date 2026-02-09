@@ -17,7 +17,7 @@ FdcanPktBuf fdcan_recv_pkt_buf = {
 FdcanParametar fdcan_h = {
     .const_h = {
         .hfdcanx = &hfdcan1,
-        // .rx = { .GPIOx = , .GPIO_Pin_x = },
-        // .tx = { .GPIOx = , .GPIO_Pin_x = },
+        // .rx = { .GPIOx = , .Pin = },
+        // .tx = { .GPIOx = , .Pin = },
     },
 };

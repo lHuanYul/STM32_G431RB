@@ -12,9 +12,9 @@ inline void INIT_OWN(void)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (
-           (GPIO_Pin == motor_h.const_h.Hall_GPIO_Pin_x[0])
-        || (GPIO_Pin == motor_h.const_h.Hall_GPIO_Pin_x[1])
-        || (GPIO_Pin == motor_h.const_h.Hall_GPIO_Pin_x[2])
+           (GPIO_Pin == motor_h.const_h.Hall_GPIO.u.Pin)
+        || (GPIO_Pin == motor_h.const_h.Hall_GPIO.v.Pin)
+        || (GPIO_Pin == motor_h.const_h.Hall_GPIO.w.Pin)
     ) {
         motor_hall_exti_cb(&motor_h);
     }
