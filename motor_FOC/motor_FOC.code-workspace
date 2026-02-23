@@ -108,6 +108,7 @@
 			"ctrl_deg.h": "c",
 			"regex": "c",
 			"iostream": "c"
-		}
+		},
+		"stm32-for-vscode.makePath": false
 	}
 }
