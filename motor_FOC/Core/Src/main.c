@@ -102,7 +102,7 @@ int main(void)
   MX_TIM2_Init();
   MX_CORDIC_Init();
   /* USER CODE BEGIN 2 */
-  INIT_OWN();
+  MY_INIT_OWN();
   /* USER CODE END 2 */
 
   /* Init scheduler */

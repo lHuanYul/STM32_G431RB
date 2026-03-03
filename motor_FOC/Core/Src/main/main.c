@@ -2,7 +2,7 @@
 #include "HY_MOD/main/tim.h"
 #include "HY_MOD/motor/main.h"
 
-inline void INIT_OWN(void)
+inline void MY_INIT_OWN(void)
 {
     INIT_OWN_TIM();
 }
@@ -69,7 +69,7 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 
 #include "HY_MOD/motor/main.h"
 #define DEFALT_TASK_DELAY_MS 50
-uint32_t defalt_running;
+uint32_t default_running;
 void StartDefaultTask(void *argument)
 {
     motor_setup(&motor_h);
@@ -77,7 +77,7 @@ void StartDefaultTask(void *argument)
     uint32_t next_wake = osKernelGetTickCount() + osPeriod;
     for(;;)
     {
-        defalt_running = HAL_GetTick();
+        default_running = HAL_GetTick();
         osDelayUntil(next_wake);
         next_wake += osPeriod;
     }

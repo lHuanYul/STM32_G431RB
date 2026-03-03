@@ -56,6 +56,7 @@
 #define ADC_VOL_SEP     (2.0f/3.0f)
 
 #define HY_MOD_STM32_FDCAN
+// #define ENABLE_CON_PKT_TEST
 #include "HY_MOD/cmds.h"
 #define FDCAN_FIFO0_FILTER0_ID_MIN  0x148
 #define FDCAN_FIFO0_FILTER0_ID_MAX  0x14F
