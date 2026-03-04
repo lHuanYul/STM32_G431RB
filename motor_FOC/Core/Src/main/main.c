@@ -54,7 +54,7 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
 
 void HAL_FDCAN_TxEventFifoCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t TxEventFifoITs)
 {
-    fdcan_tx_fifo_cb(&fdcan_h, hfdcan, TxEventFifoITs);
+    fdcan_tx_fifo_cb(&fdcan_h, hfdcan, TxEventFifoITs, &fdcan_pkt_pool, &fdcan_recv_pkt_buf);
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
@@ -64,7 +64,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
-    fdcan_rx_fifo1_cb(&fdcan_h, hfdcan, RxFifo1ITs);
+    fdcan_rx_fifo1_cb(&fdcan_h, hfdcan, RxFifo1ITs, &fdcan_pkt_pool, &fdcan_recv_pkt_buf);
 }
 
 #include "HY_MOD/motor/main.h"
