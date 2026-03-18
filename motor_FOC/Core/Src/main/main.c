@@ -11,13 +11,13 @@ inline void MY_INIT_OWN(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    if (
-           (GPIO_Pin == motor_h.const_h.Hall_GPIO.u.Pin)
-        || (GPIO_Pin == motor_h.const_h.Hall_GPIO.v.Pin)
-        || (GPIO_Pin == motor_h.const_h.Hall_GPIO.w.Pin)
-    ) {
-        motor_hall_exti_cb(&motor_h);
-    }
+    // if (
+    //        (GPIO_Pin == motor_h.const_h.Hall_GPIO.u.Pin)
+    //     || (GPIO_Pin == motor_h.const_h.Hall_GPIO.v.Pin)
+    //     || (GPIO_Pin == motor_h.const_h.Hall_GPIO.w.Pin)
+    // ) {
+    //     motor_hall_exti_cb(&motor_h);
+    // }
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
@@ -38,7 +38,7 @@ void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    if (hadc == motor_h.adc_a->adc.hadcx)
+    if (hadc == motor_h.adc.w->adc.hadcx)
     {
         motor_pwm_cb(&motor_h);
     }
