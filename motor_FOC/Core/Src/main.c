@@ -101,6 +101,7 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM2_Init();
   MX_CORDIC_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
   MY_INIT_OWN();
   /* USER CODE END 2 */

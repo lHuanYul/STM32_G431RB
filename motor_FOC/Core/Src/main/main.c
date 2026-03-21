@@ -7,18 +7,14 @@ inline void MY_INIT_OWN(void)
     INIT_OWN_TIM();
 }
 
-#include "HY_MOD/motor/callback.h"
+#include "HY_MOD/adc/main.h"
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+inline void BUTTON_OWN(void)
 {
-    // if (
-    //        (GPIO_Pin == motor_h.const_h.Hall_GPIO.u.Pin)
-    //     || (GPIO_Pin == motor_h.const_h.Hall_GPIO.v.Pin)
-    //     || (GPIO_Pin == motor_h.const_h.Hall_GPIO.w.Pin)
-    // ) {
-    //     motor_hall_exti_cb(&motor_h);
-    // }
+    adc_max_min_rst(&adc_current_h[0].basic);
 }
+
+#include "HY_MOD/motor/callback.h"
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
@@ -38,7 +34,7 @@ void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    if (hadc == motor_h.adc.w->adc.hadcx)
+    if (hadc == motor_h.foc_h.adc_h.u->basic.hadcx)
     {
         motor_pwm_cb(&motor_h);
     }

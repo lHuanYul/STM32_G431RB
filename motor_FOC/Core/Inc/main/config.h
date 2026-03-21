@@ -39,7 +39,7 @@
 #define TIM1_ARR        4250 // Max: 65535
 // Motor Time Calculate
 #define TIM2_PSC        0
-#define TIM2_ARR        17000000*5 // Max: 4294967295
+#define TIM2_ARR        17000000*10 // Max: 4294967295
 // 20kHz 50us 20kHzIT
 #define TIM3_PSC        0
 #define TIM3_ARR        8500 // Max: 65535
@@ -50,7 +50,7 @@
 #define TIM_DTG_1us     0x95
 
 #define HY_MOD_STM32_ADC_CURRENT
-#define ADC_COUNT       4
+#define ADC_COUNT       3
 #define ADC_NEED_LEN    5 // 511
 #define ADC_TO_VOL      (3.3f/4095.0f)
 #define ADC_VOL_SEP     (2.0f/3.0f)

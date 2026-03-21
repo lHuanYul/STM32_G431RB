@@ -22,6 +22,7 @@
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "main/main.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +57,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc2;
 extern DMA_HandleTypeDef hdma_cordic_read;
 extern DMA_HandleTypeDef hdma_cordic_write;
 extern FDCAN_HandleTypeDef hfdcan1;
@@ -173,6 +175,7 @@ void ADC1_2_IRQHandler(void)
 
   /* USER CODE END ADC1_2_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc1);
+  HAL_ADC_IRQHandler(&hadc2);
   /* USER CODE BEGIN ADC1_2_IRQn 1 */
 
   /* USER CODE END ADC1_2_IRQn 1 */
@@ -228,12 +231,9 @@ void EXTI15_10_IRQHandler(void)
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
 
   /* USER CODE END EXTI15_10_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_11);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
   BSP_PB_IRQHandler(BUTTON_USER);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
-
+  BUTTON_OWN();
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
 

@@ -329,8 +329,8 @@
 
 /* Timeout to wait for current conversion on going to be completed.           */
 /* Timeout fixed to longest ADC conversion possible, for 1 channel:           */
-/*   - maximum sampling time (640.5 adc.wlk)                                  */
-/*   - ADC resolution (Tsar 12 bits= 12.5 adc.wlk)                            */
+/*   - maximum sampling time (640.5 adc_clk)                                  */
+/*   - ADC resolution (Tsar 12 bits= 12.5 adc_clk)                            */
 /*   - System clock / ADC clock <= 4096 (hypothesis of maximum clock ratio)   */
 /*   - ADC oversampling ratio 256                                             */
 /*   Calculation: 653 * 4096 * 256 CPU clock cycles max                       */
