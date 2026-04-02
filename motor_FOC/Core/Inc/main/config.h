@@ -34,6 +34,8 @@
 #define MOTOR_LL        MOTOR_VEHICLE_LL
 #define MOTOR_TAU       MOTOR_VEHICLE_TAU
 #define MOTOR_FOC_ANGLE MOTOR_42BLF01_ANGLE
+#define MOTOR_TAU       MOTOR_VEHICLE_TAU
+#define MOTOR_LL        MOTOR_VEHICLE_LL
 #define MOTOR_RPM_CNT           6
 #define MOTOR_HISTORY_LEN       100
 // 20kHz 50us pwm
@@ -53,7 +55,6 @@
 
 #define HY_MOD_STM32_ADC_CURRENT
 #define ADC_COUNT       3
-#define ADC_NEED_LEN    5 // 511
 #define ADC_TO_VOL      (3.3f/4095.0f)
 #define ADC_VOL_SEP     (2.0f/3.0f)
 
@@ -66,7 +67,7 @@
 #define FDCAN_FIFO1_FILTER0_ID_MAX  0x147
 // #define FDCAN_FIFO1_FILTER0_ID_MIN  0x000
 // #define FDCAN_FIFO1_FILTER0_ID_MAX  0x7FF
-    #define MOTOR_LEFT
+#define MOTOR_LEFT
 #ifdef MOTOR_LEFT
 // 739
 #define FDCAN_WHEEL_FBK_ID          CAN_ID_WHEEL_LEFT_SPD_FBK
