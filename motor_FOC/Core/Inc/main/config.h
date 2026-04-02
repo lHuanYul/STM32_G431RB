@@ -31,6 +31,8 @@
 #include "HY_MOD/motor/motor_parameter.h"
 #define MOTOR_POLE      MOTOR_VEHICLE_POLE
 #define MOTOR_GEAR      MOTOR_VEHICLE_GEAR
+#define MOTOR_LL        MOTOR_VEHICLE_LL
+#define MOTOR_TAU       MOTOR_VEHICLE_TAU
 #define MOTOR_FOC_ANGLE MOTOR_42BLF01_ANGLE
 #define MOTOR_RPM_CNT           6
 #define MOTOR_HISTORY_LEN       100
