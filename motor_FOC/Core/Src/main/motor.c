@@ -70,17 +70,5 @@ MotorParameter motor_h = {
             .v = &adc_current_h[1],
             .w = &adc_current_h[2],
         },
-        .pi_Iq_h = {
-            .Kp = 0.3f,
-            .Ki = 0.001f,
-            .max = 0.75f, // In motor_init
-            .min = -0.75f, // In motor_init
-        },
-        .pi_Id_h = {
-            .Kp = 0.2f,
-            .Ki = 0.001f,
-            .max = 0.01f,
-            .min = -0.01f,
-        },
     },
 };
