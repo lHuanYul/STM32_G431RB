@@ -77,7 +77,8 @@
 #define CAN_ID_WHEEL_RET_RPM    CAN_ID_WHEEL_RIGHT_RET_RPM
 #define CAN_ID_WHEEL_SET_RPM    CAN_ID_WHEEL_RIGHT_SET_RPM
 #endif
-#define FDCAN_STD_FILTER_NBR    2
+#define FDCAN_STD_FILTER_NBR    0
+#define FDCAN_EXT_FILTER_NBR    2
 // #define FDCAN_RX0_NBR           16
 // #define FDCAN_RX1_NBR           16
 // #define FDCAN_RX_BUF_NBR        0
