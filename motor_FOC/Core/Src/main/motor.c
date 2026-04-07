@@ -57,11 +57,13 @@ MotorParameter motor_h = {
     .hall_h.auto_spin = 4,
     .tfm_h.duty_Iq = 1.0f,
     .rpm_h.save_stop_val = 10.0f,
-    .pi_speed = {
-        .Kp = 0.000025f,
-        .Ki = 0.002f,
-        .max = 0.1f,
-        .min = -0.1f,
+    .deg_h = {
+        .pi_rpm = {
+            .Kp = 0.000025f,
+            .Ki = 0.002f,
+            .max = 1.0f,
+            .min = 0.0f,
+        },
     },
     .foc_h = {
         // Yellow Green Blue
@@ -69,6 +71,13 @@ MotorParameter motor_h = {
             .u = &adc_current_h[0],
             .v = &adc_current_h[1],
             .w = &adc_current_h[2],
+        },
+        .pi_rpm = {
+            // ! 這裡的參數只是為了測試，實際使用時需要調整
+            .Kp = 0.000025f,
+            .Ki = 0.002f,
+            .max = 0.2f,
+            .min = 0.15f,
         },
     },
 };

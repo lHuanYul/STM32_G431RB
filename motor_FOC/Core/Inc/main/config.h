@@ -43,7 +43,7 @@
 #define TIM1_ARR        4250 // Max: 65535
 // Motor Time Calculate
 #define TIM2_PSC        0
-#define TIM2_ARR        17000000*10 // Max: 4294967295
+#define TIM2_ARR        17000000 // Max: 4294967295
 // 20kHz 50us 20kHzIT
 #define TIM3_PSC        0
 #define TIM3_ARR        8500 // Max: 65535
