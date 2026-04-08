@@ -54,13 +54,14 @@ MotorParameter motor_h = {
         .rated_current  = MOTOR_42BLF01_RATED_CURRENT,
         .peak_current   = MOTOR_42BLF01_PEAK_CURRENT,
     },
+    .init_cnt = 20000,
     .hall_h.auto_spin = 4,
     .tfm_h.duty_Iq = 1.0f,
     .rpm_h.save_stop_val = 10.0f,
     .deg_h = {
         .pi_rpm = {
             .Kp = 0.000025f,
-            .Ki = 0.002f,
+            .Ki = 0.0f, // 0.002f
             .max = 1.0f,
             .min = 0.0f,
         },
