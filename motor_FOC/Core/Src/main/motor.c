@@ -60,8 +60,8 @@ MotorParameter motor_h = {
     .rpm_h.save_stop_val = 10.0f,
     .deg_h = {
         .pi_rpm = {
-            .Kp = 0.000025f,
-            .Ki = 0.0f, // 0.002f
+            .Kp = 0.005f,
+            .Ki = 0.02f,
             .max = 1.0f,
             .min = 0.0f,
         },
