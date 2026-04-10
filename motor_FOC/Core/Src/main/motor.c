@@ -74,11 +74,18 @@ MotorParameter motor_h = {
             .w = &adc_current_h[2],
         },
         .pi_rpm = {
-            // ! 這裡的參數只是為了測試，實際使用時需要調整
-            .Kp = 0.000025f,
-            .Ki = 0.002f,
-            .max = 0.2f,
-            .min = 0.15f,
+            .Kp = 0.005f,
+            .Ki = 0.02f,
+            .max = 1.0f,
+            .min = -1.0f,
+        },
+        .pi_Id_h = {
+            .max =  ONE_DIV_SQRT3,
+            .min = -ONE_DIV_SQRT3,
+        },
+        .pi_Iq_h = {
+            .max =  ONE_DIV_SQRT3,
+            .min = -ONE_DIV_SQRT3,
         },
     },
 };
