@@ -63,7 +63,7 @@ MotorParameter motor_h = {
             .Kp = 0.005f,
             .Ki = 0.02f,
             .max = 1.0f,
-            .min = 0.0f,
+            .min = -1.0f,
         },
     },
     .foc_h = {
