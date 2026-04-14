@@ -84,7 +84,7 @@
 // #define FDCAN_TX_BUF_NBR        4
 // #define FDCAN_TX_FIFO_NBR       16
 // #define FDCAN_TX_EVT_NBR        (FDCAN_TX_BUF_NBR+FDCAN_TX_FIFO_NBR)
-#define FDCAN_PKT_LEN           8
+#define FDCAN_PKT_LEN           64
 #define FDCAN_PKT_POOL_CAP      32
 #define FDCAN_TRSM_BUF_CAP      10
 #define FDCAN_RECV_BUF_CAP      10
