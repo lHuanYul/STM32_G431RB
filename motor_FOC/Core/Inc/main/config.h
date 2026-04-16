@@ -43,9 +43,9 @@
 // Motor Time Calculate
 #define TIM2_PSC        0
 #define TIM2_ARR        17000000 // Max: 4294967295
-// 20kHz 50us 20kHzIT
-#define TIM3_PSC        0
-#define TIM3_ARR        8500 // Max: 65535
+// Fdcan Time Calculate
+#define TIM16_PSC       169
+#define TIM16_ARR       99 // Max: 65535
 // PWM Dead Time
 #define TIM_DTG_200ns   0x22
 #define TIM_DTG_300ns   0x33
@@ -58,6 +58,7 @@
 #define ADC_VOL_SEP     (2.0f/3.0f)
 
 #define HY_MOD_STM32_FDCAN
+#define FDCAN_TX_FIFO_SIZE 3
 // #define ENABLE_CON_PKT_TEST
 #include "HY_MOD/cmds.h"
 #define FDCAN_FIFO0_FILTER0_ID_MIN  0x148
@@ -67,6 +68,7 @@
 // #define FDCAN_FIFO1_FILTER0_ID_MIN  0x000
 // #define FDCAN_FIFO1_FILTER0_ID_MAX  0x7FF
 #define MOTOR_LEFT
+#define CAN_ID_WHEEL_RET_IDQ    (uint16_t)0x101
 #ifdef MOTOR_LEFT
 // 739
 #define CAN_ID_WHEEL_RET_RPM    CAN_ID_WHEEL_LEFT_RET_RPM
@@ -86,8 +88,8 @@
 // #define FDCAN_TX_EVT_NBR        (FDCAN_TX_BUF_NBR+FDCAN_TX_FIFO_NBR)
 #define FDCAN_PKT_LEN           64
 #define FDCAN_PKT_POOL_CAP      32
-#define FDCAN_TRSM_BUF_CAP      10
-#define FDCAN_RECV_BUF_CAP      10
+#define FDCAN_TRSM_BUF_CAP      FDCAN_PKT_POOL_CAP
+#define FDCAN_RECV_BUF_CAP      FDCAN_PKT_POOL_CAP
 
 // ! Also CHECK ALL basic.c file
 // ! SYSTEM config END ------------------------------

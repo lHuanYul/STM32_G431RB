@@ -83,9 +83,6 @@ MotorParameter motor_h = {
             .max =  ONE_DIV_SQRT3,
             .min = -ONE_DIV_SQRT3,
         },
-        .pi_Iq_h = {
-            .max =  ONE_DIV_SQRT3,
-            .min = -ONE_DIV_SQRT3,
-        },
+        .pi_Iq_h = {},
     },
 };
