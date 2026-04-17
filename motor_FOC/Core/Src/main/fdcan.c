@@ -12,11 +12,11 @@ FdcanParametar fdcan_h = {
         .tim_clk    = &tim_clk_APB2,
     },
     .pool = {},
-    .trsm_buf = {
+    .tx_buf = {
         .buf = trsm_pkt_buf,
         .cap = FDCAN_TRSM_BUF_CAP,
     },
-    .recv_buf = {
+    .rx_buf = {
         .buf = recv_pkt_buf,
         .cap = FDCAN_RECV_BUF_CAP,
     },
