@@ -58,8 +58,8 @@
 #define ADC_VOL_SEP     (2.0f/3.0f)
 
 #define HY_MOD_STM32_FDCAN
-// TDC = Data_Prescaler / (1 + Data_Time_Seg1) : 13
-#define FDCAN_TDC 68
+// TDC = Data_Prescaler / (1 + Data_Time_Seg1)
+#define MY_FDCAN_TDCR 26
 #define FDCAN_TX_FIFO_SIZE 3
 // #define ENABLE_CON_PKT_TEST
 #include "HY_MOD/cmds.h"

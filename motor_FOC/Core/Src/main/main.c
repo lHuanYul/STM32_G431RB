@@ -34,7 +34,7 @@ void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
     }
     if (INSTANCE_CHK(htim, fdcan_h.const_h.htimx))
     {
-        fdcan_task_cb(&fdcan_h);
+        fdcan_tim_cb(&fdcan_h);
     }
 }
 
@@ -70,22 +70,23 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
         fdcan_rx_fifo1_cb(&fdcan_h, RxFifo1ITs);
 }
 
-#include "HY_MOD/motor/main.h"
 #include "HY_MOD/fdcan/main.h"
+#include "HY_MOD/motor/main.h"
 #define DEFALT_TASK_DELAY_MS 50
 uint32_t default_running;
+uint32_t system_clk;
 void StartDefaultTask(void *argument)
 {
+    system_clk = HAL_RCC_GetHCLKFreq();
     motor_setup(&motor_h);
     fdcan_setup(&fdcan_h);
     fdcan_tim_start(&fdcan_h);
-    const uint32_t osPeriod = pdMS_TO_TICKS(DEFALT_TASK_DELAY_MS);
-    uint32_t next_wake = osKernelGetTickCount() + osPeriod;
+    osThreadSetPriority(osThreadGetId(), osPriorityIdle);
     for(;;)
     {
         default_running = HAL_GetTick();
-        osDelayUntil(next_wake);
-        next_wake += osPeriod;
+        fdcan_main(&fdcan_h);
+        osThreadYield();
     }
     osThreadExit();
 }

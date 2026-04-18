@@ -3,21 +3,20 @@
 #include "tim.h"
 #include "HY_MOD/main/tim.h"
 
-static FdcanPkt* trsm_pkt_buf[FDCAN_TRSM_BUF_CAP];
-static FdcanPkt* recv_pkt_buf[FDCAN_RECV_BUF_CAP];
+static FdcanPkt fdcan_tx_pkts[FDCAN_TRSM_BUF_CAP];
+static FdcanPkt fdcan_rx_pkts[FDCAN_RECV_BUF_CAP];
 FdcanParametar fdcan_h = {
     .const_h = {
         .hfdcanx    = &hfdcan1,
         .htimx      = &htim16,
         .tim_clk    = &tim_clk_APB2,
     },
-    .pool = {},
     .tx_buf = {
-        .buf = trsm_pkt_buf,
+        .buf = fdcan_tx_pkts,
         .cap = FDCAN_TRSM_BUF_CAP,
     },
     .rx_buf = {
-        .buf = recv_pkt_buf,
+        .buf = fdcan_rx_pkts,
         .cap = FDCAN_RECV_BUF_CAP,
     },
 };
