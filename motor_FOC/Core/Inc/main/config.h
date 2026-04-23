@@ -40,6 +40,7 @@
 // 20kHz 50us pwm
 #define TIM1_PSC        0
 #define TIM1_ARR        4250 // Max: 65535
+#define TIM1_ADC_TRI_DL 70 // 47.5 + 12.5 + 3
 // Motor Time Calculate
 #define TIM2_PSC        0
 #define TIM2_ARR        17000000 // Max: 4294967295
