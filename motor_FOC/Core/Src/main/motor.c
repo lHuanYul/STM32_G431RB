@@ -75,7 +75,7 @@ MotorParameter motor_h = {
         },
         .pi_rpm = {
             .Kp = 0.005f,
-            .Ki = 0.02f,
+            .Ki = 0.05f,
             .max = 1.0f,
             .min = -1.0f,
         },
