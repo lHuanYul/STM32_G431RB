@@ -65,6 +65,12 @@ MotorParameter motor_h = {
             .max = 1.0f,
             .min = -1.0f,
         },
+        .pi_current = {
+            .Kp = 0.005f,
+            .Ki = 0.02f,
+            .max = 1.0f,
+            .min = -1.0f,
+        },
     },
     .foc_h = {
         // Yellow Green Blue
