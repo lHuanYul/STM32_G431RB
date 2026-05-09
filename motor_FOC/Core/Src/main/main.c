@@ -40,7 +40,7 @@ void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    if (INSTANCE_CHK(hadc, motor_h.foc_h.adc_h.u->basic.hadcx))
+    if (INSTANCE_CHK(hadc, motor_h.adc_h.u->basic.hadcx))
     {
         motor_pwm_cb(&motor_h);
     }

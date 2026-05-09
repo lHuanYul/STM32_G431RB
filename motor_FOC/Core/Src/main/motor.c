@@ -57,31 +57,31 @@ MotorParameter motor_h = {
     .init_cnt = 20000,
     .hall_h.auto_spin = 4,
     .tfm_h.duty_Iq = 1.0f,
-    .rpm_h.save_stop_val = 10.0f,
+    .speed_h.save_stop_omega = 1.0f,
+    // Yellow Green Blue
+    .adc_h = {
+        .u = &adc_current_h[0],
+        .v = &adc_current_h[1],
+        .w = &adc_current_h[2],
+    },
     .deg_h = {
-        .pi_rpm = {
-            .Kp = 0.005f,
-            .Ki = 0.02f,
+        .pi_omega = {
+            .Kp = MOTOR_DEG_SPD_KP,
+            .Ki = MOTOR_DEG_SPD_KI,
             .max = 1.0f,
-            .min = -1.0f,
+            .min = 0.0f,
         },
         .pi_current = {
             .Kp = 0.005f,
             .Ki = 0.02f,
             .max = 1.0f,
-            .min = -1.0f,
+            .min = 0.0f,
         },
     },
     .foc_h = {
-        // Yellow Green Blue
-        .adc_h = {
-            .u = &adc_current_h[0],
-            .v = &adc_current_h[1],
-            .w = &adc_current_h[2],
-        },
-        .pi_rpm = {
-            .Kp = 0.005f,
-            .Ki = 0.05f,
+        .pi_omega = {
+            .Kp = MOTOR_FOC_SPD_KP,
+            .Ki = MOTOR_FOC_SPD_KI,
             .max = 1.0f,
             .min = -1.0f,
         },
