@@ -56,7 +56,6 @@ MotorParameter motor_h = {
     },
     .init_cnt = 20000,
     .hall_h.auto_spin = 4,
-    .tfm_h.duty_Iq = 1.0f,
     .speed_h.save_stop_omega = 1.0f,
     // Yellow Green Blue
     .adc_h = {

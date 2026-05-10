@@ -86,6 +86,7 @@ void StartDefaultTask(void *argument)
     {
         default_running = HAL_GetTick();
         fdcan_main(&fdcan_h);
+        motor_main(&motor_h);
         osThreadYield();
     }
     osThreadExit();
