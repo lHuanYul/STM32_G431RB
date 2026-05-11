@@ -59,9 +59,9 @@ MotorParameter motor_h = {
     .speed_h.save_stop_omega = 1.0f,
     // Yellow Green Blue
     .adc_h = {
-        .u = &adc_current_h[0],
-        .v = &adc_current_h[1],
-        .w = &adc_current_h[2],
+        .adc_u = &adc_current_h[0],
+        .adc_v = &adc_current_h[1],
+        .adc_w = &adc_current_h[2],
     },
     .deg_h = {
         .pi_omega = {
@@ -84,10 +84,8 @@ MotorParameter motor_h = {
             .max = 1.0f,
             .min = -1.0f,
         },
-        .pi_Id_h = {
-            .max =  ONE_DIV_SQRT3,
-            .min = -ONE_DIV_SQRT3,
-        },
-        .pi_Iq_h = {},
+        // Setting in HY_MCU_MOD/motor/ctrl_foc.c
+        // .pi_Id_h = {},
+        // .pi_Iq_h = {},
     },
 };

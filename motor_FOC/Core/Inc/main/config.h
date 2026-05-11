@@ -30,18 +30,22 @@
 #define MOTOR_PI_RPM
 // #define MOTOR_AUTO_SPIN
 #include "HY_MOD/motor/motor_parameter.h"
+// PWM_f(20k) / (10~20) * PI_MUL_2
+#define MOTOR_I_BW_INDEX    10.0f
+#define MOTOR_VBUS          24.0f
+#define MOTOR_MAX_MODULATION_INDEX 0.95f
 #define MOTOR_POLE          MOTOR_VEHICLE_POLE
 #define MOTOR_GEAR          MOTOR_VEHICLE_GEAR
+#define MOTOR_RATED_I       MOTOR_VEHICLE_RATED_I
 #define MOTOR_LL            MOTOR_VEHICLE_LL
 #define MOTOR_TAU           MOTOR_VEHICLE_TAU
-#define MOTOR_CURRENT_BW    MOTOR_VEHICLE_CURRENT_BW
 #define MOTOR_FOC_ANGLE     MOTOR_VEHICLE_ANGLE
 #define MOTOR_FOC_SPD_KP    MOTOR_VEHICLE_FOC_SPD_KP
 #define MOTOR_FOC_SPD_KI    MOTOR_VEHICLE_FOC_SPD_KI
 #define MOTOR_DEG_SPD_KP    MOTOR_42BLF01_DEG_SPD_KP
 #define MOTOR_DEG_SPD_KI    MOTOR_42BLF01_DEG_SPD_KI
-#define MOTOR_SPD_CNT           6
-#define MOTOR_HISTORY_LEN       100
+#define MOTOR_SPD_CNT       6
+#define MOTOR_HISTORY_LEN   100
 // 20kHz 50us pwm
 #define TIM1_PSC        0
 #define TIM1_ARR        4250 // Max: 65535
