@@ -51,8 +51,8 @@ MotorParameter motor_h = {
             .w = { .GPIOx = GPIOB, .Pin = GPIO_PIN_10 },
         },
         // 42BLF01
-        .rated_current  = MOTOR_42BLF01_RATED_CURRENT,
-        .peak_current   = MOTOR_42BLF01_PEAK_CURRENT,
+        .rated_current  = MOTOR_RATED_I,
+        .peak_current   = 0.0,
     },
     .init_cnt = 20000,
     .hall_h.auto_spin = 4,
