@@ -251,7 +251,7 @@ void EXTI15_10_IRQHandler(void)
   /* USER CODE END EXTI15_10_IRQn 0 */
   BSP_PB_IRQHandler(BUTTON_USER);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
-  BUTTON_OWN();
+  MY_Button();
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
 

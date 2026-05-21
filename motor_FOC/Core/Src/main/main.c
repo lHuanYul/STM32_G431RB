@@ -2,6 +2,15 @@
 #include "HY_MOD/main/tim.h"
 #include "HY_MOD/motor/main.h"
 
+// overwrite default weak function
+void motor_start_spin(MotorParameter *motor)
+{
+    motor_set_spd(motor, 120.0f);
+    motor_set_rotate_mode(motor, MOTOR_ROT_NORMAL);
+    motor_switch_ctrl(motor, MOTOR_CTRL_FOC_ROT_AUTO);
+}
+
+// int main(void)
 inline void MY_OTH_Init(void)
 {
     INIT_OWN_TIM();
@@ -9,7 +18,8 @@ inline void MY_OTH_Init(void)
 
 #include "HY_MOD/adc/main.h"
 
-inline void BUTTON_OWN(void)
+// void EXTI15_10_IRQHandler(void)
+inline void MY_Button(void)
 {
     adc_max_min_rst(&adc_current_h[0].basic);
 }
@@ -78,7 +88,7 @@ uint32_t system_clk;
 void StartDefaultTask(void *argument)
 {
     system_clk = HAL_RCC_GetHCLKFreq();
-    motor_setup(&motor_h);
+    motor_init(&motor_h);
     fdcan_setup(&fdcan_h);
     fdcan_tim_start(&fdcan_h);
     osThreadSetPriority(osThreadGetId(), osPriorityIdle);

@@ -4,12 +4,13 @@
 
 MotorParameter motor_h = {
     .const_h = {
-        // PA8      ------> TIM1_CH1
-        // PA9      ------> TIM1_CH2
-        // PA10     ------> TIM1_CH3
-        // PB13     ------> TIM1_CH1N
-        // PB14     ------> TIM1_CH2N
-        // PB15     ------> TIM1_CH3N
+        .model = &MOTOR_MODEL,
+        // PA8  ------> TIM1_CH1
+        // PA9  ------> TIM1_CH2
+        // PA10 ------> TIM1_CH3
+        // PB13 ------> TIM1_CH1N
+        // PB14 ------> TIM1_CH2N
+        // PB15 ------> TIM1_CH3N
         .PWM_htimx          = &htim1,
         .PWM_tim_clk        = &tim_clk_APB2,
         .PWM_TIM_CH_x  = {
@@ -40,9 +41,9 @@ MotorParameter motor_h = {
                 .MODEx_1 = GPIO_MODER_MODE15_1,
             },
         },
-        // PA0     ------> TIM2_CH1
-        // PA1     ------> TIM2_CH2
-        // PB10     ------> TIM2_CH3
+        // PA0  ------> TIM2_CH1
+        // PA1  ------> TIM2_CH2
+        // PB10 ------> TIM2_CH3
         .Hall_htimx     = &htim2,
         .Hall_tim_clk   = &tim_clk_APB1,
         .Hall_GPIO = {
@@ -50,26 +51,19 @@ MotorParameter motor_h = {
             .v = { .GPIOx = GPIOA, .Pin = GPIO_PIN_1  },
             .w = { .GPIOx = GPIOB, .Pin = GPIO_PIN_10 },
         },
-        // 42BLF01
-        .rated_current  = MOTOR_RATED_I,
-        .peak_current   = 0.0,
     },
     .init_cnt = 20000,
     .hall_h.auto_spin = 4,
     .speed_h.save_stop_omega = 1.0f,
-    // Yellow Green Blue
+    // Yellow Green Blue (42BLF01)
     .adc_h = {
         .adc_u = &adc_current_h[0],
         .adc_v = &adc_current_h[1],
         .adc_w = &adc_current_h[2],
     },
     .deg_h = {
-        .pi_omega = {
-            .Kp = MOTOR_DEG_SPD_KP,
-            .Ki = MOTOR_DEG_SPD_KI,
-            .max = 1.0f,
-            .min = 0.0f,
-        },
+        // Setting in HY_MCU_MOD/motor/main.c
+        // .pi_omega = {},
         .pi_current = {
             .Kp = 0.005f,
             .Ki = 0.02f,
@@ -78,13 +72,8 @@ MotorParameter motor_h = {
         },
     },
     .foc_h = {
-        .pi_omega = {
-            .Kp = MOTOR_FOC_SPD_KP,
-            .Ki = MOTOR_FOC_SPD_KI,
-            .max = 1.0f,
-            .min = -1.0f,
-        },
         // Setting in HY_MCU_MOD/motor/ctrl_foc.c
+        // .pi_omega = {},
         // .pi_Id_h = {},
         // .pi_Iq_h = {},
     },
