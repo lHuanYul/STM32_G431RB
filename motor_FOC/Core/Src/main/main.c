@@ -5,9 +5,9 @@
 // overwrite default weak function
 void motor_start_spin(MotorParameter *motor)
 {
-    motor_set_spd(motor, 120.0f);
+    motor_set_spd(motor, 0.8f);
     motor_set_rotate_mode(motor, MOTOR_ROT_NORMAL);
-    motor_switch_ctrl(motor, MOTOR_CTRL_FOC);
+    motor_switch_ctrl(motor, MOTOR_CTRL_120_DUTY);
 }
 
 // int main(void)
@@ -21,7 +21,8 @@ inline void MY_OTH_Init(void)
 // void EXTI15_10_IRQHandler(void)
 inline void MY_Button(void)
 {
-    adc_max_min_rst(&adc_current_h[0].basic);
+    // adc_max_min_rst(&adc_current_h[0].basic);
+    motor_h.hall_h.vir_tri = 1;
 }
 
 #include "HY_MOD/motor/callback.h"
