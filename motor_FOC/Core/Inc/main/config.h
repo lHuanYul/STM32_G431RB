@@ -33,7 +33,7 @@
 #define MOTOR_I_BW_INDEX    10.0f
 #define MOTOR_VBUS          24.0f
 #define MOTOR_MAX_MODULATION_INDEX 1.0f // 0.95f
-#define MOTOR_MODEL         motor_vehicle
+#define MOTOR_MODEL         motor_vehicle // motor_42BLF01
 #define MOTOR_SPD_CNT       6
 #define MOTOR_HISTORY_LEN   100
 // 20kHz 50us pwm
