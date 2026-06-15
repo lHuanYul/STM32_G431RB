@@ -5,7 +5,7 @@
 // overwrite default weak function
 void motor_start_spin(MotorParameter *motor)
 {
-    motor_set_spd(motor, 0.8f);
+    motor_set_spd(motor, 0.5f);
     motor_set_rotate_mode(motor, MOTOR_ROT_NORMAL);
     motor_switch_ctrl(motor, MOTOR_CTRL_120_DUTY);
 }
