@@ -22,7 +22,7 @@ inline void MY_OTH_Init(void)
 inline void MY_Button(void)
 {
     // adc_max_min_rst(&adc_current_h[0].basic);
-    motor_h.hall_h.vir_tri = 1;
+    motor_h.rotor_h.vir_tri = 1;
 }
 
 #include "HY_MOD/motor/callback.h"
