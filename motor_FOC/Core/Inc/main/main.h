@@ -6,6 +6,8 @@
 extern FdcanParametar fdcan_h;
 #include "HY_MOD/motor/basic.h"
 extern MotorParameter motor_h;
+#include "HY_MOD/adc_current/basic.h"
+extern AdcCurrentParameter adc_current_h[ADC_COUNT];
 
 void MY_Button(void);
 void MY_OTH_Init(void);

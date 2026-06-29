@@ -55,7 +55,7 @@
 #define HY_MOD_STM32_ADC_CURRENT
 #define ADC_COUNT       3
 #define ADC_TO_VOL      (3.3f/4095.0f)
-#define ADC_VOL_SEP     (2.0f/3.0f)
+#define ADC_MODEL       adc_I_opa325
 
 #define HY_MOD_STM32_FDCAN
 // TDC = Data_Prescaler / (1 + Data_Time_Seg1)
