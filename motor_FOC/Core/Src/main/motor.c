@@ -62,7 +62,7 @@ MotorParameter motor_h = {
         .adc_w = &adc_current_h[2],
     },
     .deg_h = {
-        // Setting in HY_MCU_MOD/motor/main.c
+        // Setting in HY_MCU_MOD/motor/ctrl_deg.c
         // .pi_omega = {},
         .pi_current = {
             .Kp = 0.005f,
