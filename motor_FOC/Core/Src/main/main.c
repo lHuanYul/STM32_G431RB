@@ -7,7 +7,7 @@ void motor_start_spin(MotorParameter *motor)
 {
     motor_set_spd(motor, 0.5f);
     motor_set_rotate_mode(motor, MOTOR_ROT_NORMAL);
-    motor_switch_ctrl(motor, MOTOR_CTRL_120_DUTY);
+    motor_switch_ctrl_user(motor, MOTOR_CTRL_120_DUTY);
 }
 
 // int main(void)
@@ -21,7 +21,7 @@ inline void MY_OTH_Init(void)
 // void EXTI15_10_IRQHandler(void)
 inline void MY_Button(void)
 {
-    // adc_max_min_rst(&adc_current_h[0].basic);
+    // adc_max_min_reset(&adc_current_h[0].basic);
     motor_h.rotor_h.vir_tri = 1;
 }
 
@@ -51,7 +51,7 @@ void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    if (INSTANCE_CHK(hadc, motor_h.adc_h.adc_u->basic.hadcx))
+    if (INSTANCE_CHK(hadc, motor_h.adc_h.adc_ui.basic.hadcx))
     {
         motor_pwm_cb(&motor_h);
     }

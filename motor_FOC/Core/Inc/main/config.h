@@ -52,10 +52,8 @@
 #define TIM_DTG_500ns   0x55
 #define TIM_DTG_1us     0x95
 
-#define HY_MOD_STM32_ADC_CURRENT
-#define ADC_COUNT       3
-#define ADC_TO_VOL      (3.3f/4095.0f)
-#define ADC_MODEL       adc_I_opa325
+#define HY_MOD_STM32_ADC
+#define ADC_MODEL_I adc_I_opa325
 
 #define HY_MOD_STM32_FDCAN
 // TDC = Data_Prescaler / (1 + Data_Time_Seg1)

@@ -1,5 +1,6 @@
 #include "main/main.h"
 #include "tim.h"
+#include "adc.h"
 #include "HY_MOD/main/tim.h"
 
 MotorParameter motor_h = {
@@ -53,13 +54,60 @@ MotorParameter motor_h = {
         },
     },
     .init_cnt = 20000,
-    .rotor_h.virtual = 4,
+    .rotor_h = {
+        .virtual = 4,
+    },
     .speed_h.save_stop_omega = 1.0f,
     // Yellow Green Blue (42BLF01)
     .adc_h = {
-        .adc_u = &adc_current_h[0],
-        .adc_v = &adc_current_h[1],
-        .adc_w = &adc_current_h[2],
+        .adc_ui = {
+            .model = &ADC_MODEL_I,
+            // ADC1 CH11 PB12 0.097
+            .basic = {
+                .hadcx = &hadc1,
+                .rankx = ADC_INJECTED_RANK_1,
+            },
+        },
+        .adc_vi = {
+            .model = &ADC_MODEL_I,
+            // ADC2 CH12 PB2
+            .basic = {
+                .hadcx = &hadc2,
+                .rankx = ADC_INJECTED_RANK_1,
+            },
+        },
+        .adc_wi = {
+            .model = &ADC_MODEL_I,
+            // ADC1 CH14 PB11
+            .basic = {
+                .hadcx = &hadc1,
+                .rankx = ADC_INJECTED_RANK_2,
+            },
+        },
+        .adc_uv = {
+            .model = &ADC_MODEL_I,
+            // ADC1 CH11 PB12 0.097
+            .basic = {
+                .hadcx = &hadc2,
+                .rankx = ADC_INJECTED_RANK_2,
+            },
+        },
+        .adc_vv = {
+            .model = &ADC_MODEL_I,
+            // ADC2 CH12 PB2
+            .basic = {
+                .hadcx = &hadc1,
+                .rankx = ADC_INJECTED_RANK_3,
+            },
+        },
+        .adc_wv = {
+            .model = &ADC_MODEL_I,
+            // ADC1 CH14 PB11
+            .basic = {
+                .hadcx = &hadc2,
+                .rankx = ADC_INJECTED_RANK_3,
+            },
+        },
     },
     .deg_h = {
         // Setting in HY_MCU_MOD/motor/main.c

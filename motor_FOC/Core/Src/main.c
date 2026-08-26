@@ -21,7 +21,6 @@
 #include "cmsis_os.h"
 #include "adc.h"
 #include "cordic.h"
-#include "dac.h"
 #include "dma.h"
 #include "fdcan.h"
 #include "tim.h"
@@ -103,7 +102,6 @@ int main(void)
   MX_TIM2_Init();
   MX_CORDIC_Init();
   MX_ADC2_Init();
-  MX_DAC1_Init();
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   MY_OTH_Init();
