@@ -110,7 +110,7 @@ MotorParameter motor_h = {
         },
     },
     .deg_h = {
-        // Setting in HY_MCU_MOD/motor/main.c
+        // Setting in HY_MCU_MOD/motor/ctrl_deg.c
         // .pi_omega = {},
         .pi_current = {
             .Kp = 0.005f,
