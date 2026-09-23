@@ -7,11 +7,7 @@ void motor_start_spin(MotorParameter *motor)
 {
     motor_set_spd(motor, -60.0f);
     motor_set_rotate_mode(motor, MOTOR_ROT_NORMAL);
-<<<<<<< HEAD
     motor_switch_ctrl_user(motor, MOTOR_CTRL_120_DUTY);
-=======
-    motor_switch_ctrl(motor, MOTOR_CTRL_FOC_NORMAL);
->>>>>>> origin/main
 }
 
 // int main(void)
