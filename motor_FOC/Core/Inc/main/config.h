@@ -42,7 +42,7 @@
 #define TIM1_ADC_TRI_DL 70 // 47.5 + 12.5 + 3
 // Motor Time Calculate
 #define TIM2_PSC        0
-#define TIM2_ARR        17000000 // Max: 4294967295
+#define TIM2_ARR        UINT32_MAX // Max: 4294967295
 // Fdcan Time Calculate
 #define TIM16_PSC       169
 #define TIM16_ARR       99 // Max: 65535

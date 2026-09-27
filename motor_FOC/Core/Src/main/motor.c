@@ -4,58 +4,62 @@
 #include "HY_MOD/main/tim.h"
 
 MotorParameter motor_h = {
-    .const_h = {
+    .system.const_h = {
         .model = &MOTOR_MODEL,
-        // PA8  ------> TIM1_CH1
-        // PA9  ------> TIM1_CH2
-        // PA10 ------> TIM1_CH3
-        // PB13 ------> TIM1_CH1N
-        // PB14 ------> TIM1_CH2N
-        // PB15 ------> TIM1_CH3N
         .PWM_htimx          = &htim1,
         .PWM_tim_clk        = &tim_clk_APB2,
-        .PWM_TIM_CH_x  = {
-            .u = TIM_CHANNEL_1,
-            .v = TIM_CHANNEL_2,
-            .w = TIM_CHANNEL_3,
-            .mid = TIM_CHANNEL_4,
-        },
-        .PWMN_GPIO = {
-            .u = { .GPIOx = GPIOB, .Pin = GPIO_PIN_13 },
-            .v = { .GPIOx = GPIOB, .Pin = GPIO_PIN_14 },
-            .w = { .GPIOx = GPIOB, .Pin = GPIO_PIN_15 },
-        },
-        .PWMN_GPIO_set = {
-            .u = {
+        .PWM_u = {
+            // .pwm_gpio = { .GPIOx = GPIOA, .Pin = GPIO_PIN_8  },
+            .pwmn_gpio = { .GPIOx = GPIOB, .Pin = GPIO_PIN_13 },
+            .pwm_ch = TIM_CHANNEL_1,
+            .pwmn_mode = {
                 .MODEx = GPIO_MODER_MODE13,
                 .MODEx_0 = GPIO_MODER_MODE13_0,
                 .MODEx_1 = GPIO_MODER_MODE13_1,
             },
-            .v = {
+        },
+        .PWM_v = {
+            // .pwm_gpio = { .GPIOx = GPIOA, .Pin = GPIO_PIN_9  },
+            .pwmn_gpio = { .GPIOx = GPIOB, .Pin = GPIO_PIN_14 },
+            .pwm_ch = TIM_CHANNEL_2,
+            .pwmn_mode = {
                 .MODEx = GPIO_MODER_MODE14,
                 .MODEx_0 = GPIO_MODER_MODE14_0,
                 .MODEx_1 = GPIO_MODER_MODE14_1,
             },
-            .w = {
+        },
+        .PWM_w = {
+            // .pwm_gpio = { .GPIOx = GPIOA, .Pin = GPIO_PIN_10 },
+            .pwmn_gpio = { .GPIOx = GPIOB, .Pin = GPIO_PIN_15 },
+            .pwm_ch = TIM_CHANNEL_3,
+            .pwmn_mode = {
                 .MODEx = GPIO_MODER_MODE15,
                 .MODEx_0 = GPIO_MODER_MODE15_0,
                 .MODEx_1 = GPIO_MODER_MODE15_1,
             },
         },
-        // PA0  ------> TIM2_CH1
-        // PA1  ------> TIM2_CH2
-        // PB10 ------> TIM2_CH3
+        .PWM_mid_ch = TIM_CHANNEL_4,
+
         .Hall_htimx     = &htim2,
         .Hall_tim_clk   = &tim_clk_APB1,
-        .Hall_GPIO = {
-            .u = { .GPIOx = GPIOA, .Pin = GPIO_PIN_0  },
-            .v = { .GPIOx = GPIOA, .Pin = GPIO_PIN_1  },
-            .w = { .GPIOx = GPIOB, .Pin = GPIO_PIN_10 },
+        .Hall_a = {
+            // .tim_ch = TIM_CHANNEL_1,
+            .gpio = { .GPIOx = GPIOA, .Pin = GPIO_PIN_0  },
         },
+        .Hall_b = {
+            // .tim_ch = TIM_CHANNEL_2,
+            .gpio = { .GPIOx = GPIOA, .Pin = GPIO_PIN_1  },
+        },
+        .Hall_c = {
+            // .tim_ch = TIM_CHANNEL_3,
+            .gpio = { .GPIOx = GPIOB, .Pin = GPIO_PIN_10 },
+        },
+        .Hall_tim_val_ch = TIM_CHANNEL_1,
+        .Hall_Active_ch = HAL_TIM_ACTIVE_CHANNEL_1,
     },
-    .init_cnt = 20000,
+    .ctrl_h = { .ref_user = MOTOR_CTRL_UNINIT, .ref_sys = MOTOR_CTRL_UNINIT },
     .rotor_h = {
-        .virtual = 4,
+        .overflow = 170000000,
     },
     .speed_h.save_stop_omega = 1.0f,
     // Yellow Green Blue (42BLF01)

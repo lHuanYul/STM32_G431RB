@@ -3,12 +3,13 @@
 #include "HY_MOD/motor/main.h"
 
 // overwrite default weak function
-void motor_start_spin(MotorParameter *motor)
-{
-    motor_set_spd(motor, 0.2f);
-    motor_set_rotate_mode(motor, MOTOR_ROT_NORMAL);
-    motor_switch_ctrl_user(motor, MOTOR_CTRL_120_SIM);
-}
+// void motor_start_spin(MotorParameter *motor)
+// {
+//     motor_set_speed(motor, 0.2f);
+//     motor_rotor_mode_change(motor, MOTOR_SENSOR_HALL_EXTI);
+//     motor_switch_ctrl(motor, MOTOR_CTRL_120_SIMULATE);
+//     motor_set_rotate_mode(motor, MOTOR_ROTATE_NORMAL);
+// }
 
 // int main(void)
 inline void MY_OTH_Init(void)
@@ -29,9 +30,11 @@ inline void MY_Button(void)
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (INSTANCE_CHK(htim, motor_h.const_h.Hall_htimx) && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-    {
-        motor_hall_exti_cb(&motor_h);
+    if (
+        INSTANCE_CHK(htim, motor_h.system.const_h.Hall_htimx) &&
+        htim->Channel == motor_h.system.const_h.Hall_Active_ch
+    ) {
+        motor_hall_timer_cb(&motor_h);
     }
 }
 
@@ -39,7 +42,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 
 void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    if (INSTANCE_CHK(htim, motor_h.const_h.Hall_htimx))
+    if (INSTANCE_CHK(htim, motor_h.system.const_h.Hall_htimx))
     {
         motor_stop_cb(&motor_h);
     }
