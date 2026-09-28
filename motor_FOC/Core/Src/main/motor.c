@@ -57,7 +57,6 @@ MotorParameter motor_h = {
         .Hall_tim_val_ch = TIM_CHANNEL_1,
         .Hall_Active_ch = HAL_TIM_ACTIVE_CHANNEL_1,
     },
-    .ctrl_h = { .ref_user = MOTOR_CTRL_UNINIT, .ref_sys = MOTOR_CTRL_UNINIT },
     .rotor_h = {
         .overflow = 170000000,
     },

@@ -27,25 +27,16 @@ inline void MY_Button(void)
 }
 
 #include "HY_MOD/motor/callback.h"
+#include "HY_MOD/fdcan/callback.h"
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (
-        INSTANCE_CHK(htim, motor_h.system.const_h.Hall_htimx) &&
-        htim->Channel == motor_h.system.const_h.Hall_Active_ch
-    ) {
-        motor_hall_timer_cb(&motor_h);
-    }
+    MOTOR_HAL_TIM_IC_CaptureCB_CHK(htim, &motor_h);
 }
-
-#include "HY_MOD/fdcan/callback.h"
 
 void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    if (INSTANCE_CHK(htim, motor_h.system.const_h.Hall_htimx))
-    {
-        motor_stop_cb(&motor_h);
-    }
+    MOTOR_HAL_TIM_PeriodElapsedCB_CHK(htim, &motor_h);
     if (INSTANCE_CHK(htim, fdcan_h.const_h.htimx))
     {
         fdcan_tim_cb(&fdcan_h);
@@ -54,10 +45,7 @@ void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    if (INSTANCE_CHK(hadc, motor_h.adc_h.adc_ui.basic.hadcx))
-    {
-        motor_pwm_cb(&motor_h);
-    }
+    MOTOR_HAL_ADCEx_InjectedConvCpltCB_CHK(hadc, &motor_h);
 }
 
 void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
