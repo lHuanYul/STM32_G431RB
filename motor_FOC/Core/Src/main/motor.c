@@ -57,10 +57,10 @@ MotorParameter motor_h = {
         .Hall_tim_val_ch = TIM_CHANNEL_1,
         .Hall_Active_ch = HAL_TIM_ACTIVE_CHANNEL_1,
     },
-    .rotor_h = {
+    .rotor = {
         .overflow = 170000000,
     },
-    .speed_h.save_stop_omega = 1.0f,
+    .speed.save_stop_omega = 1.0f,
     // Yellow Green Blue (42BLF01)
     .adc_h = {
         .adc_ui = {
