@@ -106,7 +106,7 @@ int main(void)
   MX_ADC2_Init();
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
-  hy_mod_init();
+  hymod_init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -137,7 +137,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  hy_mod_main();
+  hymod_main();
   while (1)
   {
 
