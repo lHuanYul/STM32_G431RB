@@ -87,9 +87,8 @@
 // #define FDCAN_TX_FIFO_NBR       16
 // #define FDCAN_TX_EVT_NBR        (FDCAN_TX_BUF_NBR+FDCAN_TX_FIFO_NBR)
 #define FDCAN_PKT_LEN           64
-#define FDCAN_PKT_POOL_CAP      32
-#define FDCAN_TRSM_BUF_CAP      FDCAN_PKT_POOL_CAP
-#define FDCAN_RECV_BUF_CAP      FDCAN_PKT_POOL_CAP
+#define FDCAN_TRSM_BUF_CAP      16
+#define FDCAN_RECV_BUF_CAP      16
 
 // ! Also CHECK ALL basic.c file
 // ! SYSTEM config END ------------------------------

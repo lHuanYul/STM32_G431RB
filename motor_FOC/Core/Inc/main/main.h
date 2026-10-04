@@ -9,4 +9,3 @@ extern MotorParameter motor_h;
 
 void MY_Button(void);
 void MY_OTH_Init(void);
-void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim);

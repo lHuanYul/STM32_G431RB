@@ -3,15 +3,14 @@
 #include "HY_MOD/motor/main.h"
 
 // overwrite default weak function
-// void motor_start_spin(MotorParameter *motor)
-// {
-//     motor_set_speed(motor, 0.2f);
-//     motor_rotor_mode_change(motor, MOTOR_SENSOR_HALL_EXTI);
-//     motor_switch_ctrl(motor, MOTOR_CTRL_120_SIMULATE);
-//     motor_set_rotate_mode(motor, MOTOR_ROTATE_NORMAL);
-// }
+void motor_start_spin(MotorParameter *motor)
+{
+	motor_set_rotor_mode(motor, MOTOR_SENSOR_HALL_EXTI);
+	motor_set_ctrl_mode(motor, MOTOR_CTRL_120_DUTY);
+	motor_set_rotate_mode(motor, MOTOR_ROTATE_NORMAL);
+	motor_set_speed(motor, 0.2f);
+}
 
-// int main(void)
 inline void MY_OTH_Init(void)
 {
     INIT_OWN_TIM();
@@ -31,12 +30,12 @@ inline void MY_Button(void)
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-    MOTOR_HAL_TIM_IC_CaptureCB_CHK(htim, &motor_h);
+    MOTOR_HAL_TIM_IC_CaptureCB_CALL(motor_h, htim);
 }
 
 void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
-    MOTOR_HAL_TIM_PeriodElapsedCB_CHK(htim, &motor_h);
+    MOTOR_HAL_TIM_PeriodElapsedCB_CALL(motor_h, htim);
     if (INSTANCE_CHK(htim, fdcan_h.const_h.htimx))
     {
         fdcan_tim_cb(&fdcan_h);
@@ -45,31 +44,27 @@ void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    MOTOR_HAL_ADCEx_InjectedConvCpltCB_CHK(hadc, &motor_h);
+    MOTOR_HAL_ADCEx_InjectedConvCpltCB_CALL(motor_h, hadc);
 }
 
 void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
 {
-    if (INSTANCE_CHK(hfdcan, fdcan_h.const_h.hfdcanx))
-        fdcan_error_status_cb(&fdcan_h, ErrorStatusITs);
+    FDCAN_HAL_ErrorStatusCB_CALL(fdcan_h, hfdcan, ErrorStatusITs);
 }
 
 void HAL_FDCAN_TxEventFifoCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t TxEventFifoITs)
 {
-    if (INSTANCE_CHK(hfdcan, fdcan_h.const_h.hfdcanx))
-        fdcan_tx_fifo_cb(&fdcan_h, TxEventFifoITs);
+    FDCAN_HAL_TxEventFifoCB_CALL(fdcan_h, hfdcan, TxEventFifoITs);
 }
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
-    if (INSTANCE_CHK(hfdcan, fdcan_h.const_h.hfdcanx))
-        fdcan_rx_fifo0_cb(&fdcan_h, RxFifo0ITs);
+    FDCAN_HAL_RxFifo0CB_CALL(fdcan_h, hfdcan, RxFifo0ITs);
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
-    if (INSTANCE_CHK(hfdcan, fdcan_h.const_h.hfdcanx))
-        fdcan_rx_fifo1_cb(&fdcan_h, RxFifo1ITs);
+    FDCAN_HAL_RxFifo1CB_CALL(fdcan_h, hfdcan, RxFifo1ITs);
 }
 
 #include "HY_MOD/fdcan/main.h"
@@ -77,6 +72,7 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 #define DEFALT_TASK_DELAY_MS 50
 uint32_t default_running;
 uint32_t system_clk;
+// int main(void)
 void StartDefaultTask(void *argument)
 {
     system_clk = HAL_RCC_GetHCLKFreq();
