@@ -29,6 +29,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "main/main.h"
+#include "HY_MOD/main/main.h"
+#include "HY_MOD/main/tim.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -104,7 +106,7 @@ int main(void)
   MX_ADC2_Init();
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
-  MY_OTH_Init();
+  hy_mod_init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -135,6 +137,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  hy_mod_main();
   while (1)
   {
 

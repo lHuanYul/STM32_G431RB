@@ -2,6 +2,7 @@
 
 #include "tim.h"
 #include "HY_MOD/main/tim.h"
+#include "HY_MOD/fdcan/basic.h"
 
 static FdcanPkt tx[FDCAN_TRSM_BUF_CAP];
 static FdcanPkt rx[FDCAN_RECV_BUF_CAP];

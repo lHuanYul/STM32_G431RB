@@ -11,11 +11,6 @@ void motor_start_spin(MotorParameter *motor)
 	motor_set_speed(motor, 0.2f);
 }
 
-inline void MY_OTH_Init(void)
-{
-    INIT_OWN_TIM();
-}
-
 #include "HY_MOD/adc/main.h"
 
 // void EXTI15_10_IRQHandler(void)
@@ -36,10 +31,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 void HAL_TIM_PeriodElapsedCallback_OWN(TIM_HandleTypeDef *htim)
 {
     MOTOR_HAL_TIM_PeriodElapsedCB_CALL(motor_h, htim);
-    if (INSTANCE_CHK(htim, fdcan_h.const_h.htimx))
-    {
-        fdcan_tim_cb(&fdcan_h);
-    }
+    FDCAN_HAL_TIM_PeriodElapsedCB_CALL(fdcan_h, htim);
 }
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)

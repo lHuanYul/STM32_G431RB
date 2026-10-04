@@ -2,6 +2,7 @@
 #include "tim.h"
 #include "adc.h"
 #include "HY_MOD/main/tim.h"
+#include "HY_MOD/motor/basic.h"
 
 MotorParameter motor_h = {
     .system.const_h = {

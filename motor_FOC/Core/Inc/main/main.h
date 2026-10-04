@@ -8,4 +8,3 @@ extern FdcanParametar fdcan_h;
 extern MotorParameter motor_h;
 
 void MY_Button(void);
-void MY_OTH_Init(void);
