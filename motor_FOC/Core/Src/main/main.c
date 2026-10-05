@@ -6,9 +6,9 @@
 void motor_start_spin(MotorParameter *motor)
 {
 	motor_set_rotor_mode(motor, MOTOR_SENSOR_HALL_EXTI);
-	motor_set_ctrl_mode(motor, MOTOR_CTRL_120_DUTY);
+	motor_set_ctrl_mode(motor, MOTOR_CTRL_120_NORMAL);
 	motor_set_rotate_mode(motor, MOTOR_ROTATE_NORMAL);
-	motor_set_speed(motor, 0.2f);
+	motor_set_speed(motor, 80.0f);
 }
 
 #include "HY_MOD/adc/main.h"

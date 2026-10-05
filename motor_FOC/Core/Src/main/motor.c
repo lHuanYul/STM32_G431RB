@@ -66,7 +66,7 @@ MotorParameter motor_h = {
     .adc_h = {
         .adc_ui = {
             .model = &ADC_MODEL_I,
-            // ADC1 CH11 PB12 0.097
+            // ADC1 CH14 PB11 0.097
             .basic = {
                 .hadcx = &hadc1,
                 .rankx = ADC_INJECTED_RANK_1,
@@ -82,7 +82,7 @@ MotorParameter motor_h = {
         },
         .adc_wi = {
             .model = &ADC_MODEL_I,
-            // ADC1 CH14 PB11
+            // ADC1 CH12 PB1
             .basic = {
                 .hadcx = &hadc1,
                 .rankx = ADC_INJECTED_RANK_2,
@@ -90,7 +90,7 @@ MotorParameter motor_h = {
         },
         .adc_uv = {
             .model = &ADC_MODEL_I,
-            // ADC1 CH11 PB12 0.097
+            // ADC2 CH3 PA6
             .basic = {
                 .hadcx = &hadc2,
                 .rankx = ADC_INJECTED_RANK_2,
@@ -98,7 +98,7 @@ MotorParameter motor_h = {
         },
         .adc_vv = {
             .model = &ADC_MODEL_I,
-            // ADC2 CH12 PB2
+            // ADC1 CH11 PB12
             .basic = {
                 .hadcx = &hadc1,
                 .rankx = ADC_INJECTED_RANK_3,
@@ -106,7 +106,7 @@ MotorParameter motor_h = {
         },
         .adc_wv = {
             .model = &ADC_MODEL_I,
-            // ADC1 CH14 PB11
+            // ADC2 CH4 PA7
             .basic = {
                 .hadcx = &hadc2,
                 .rankx = ADC_INJECTED_RANK_3,
