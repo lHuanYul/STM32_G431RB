@@ -22,7 +22,7 @@
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "main/main.h"
+#include "main/_main.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

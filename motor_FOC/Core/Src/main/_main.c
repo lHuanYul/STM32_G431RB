@@ -1,4 +1,4 @@
-#include "main/main.h"
+#include "main/_main.h"
 #include "HY_MOD/main/tim.h"
 #include "HY_MOD/motor/main.h"
 

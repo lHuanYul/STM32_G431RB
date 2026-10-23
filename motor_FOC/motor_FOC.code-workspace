@@ -24,7 +24,8 @@
 		],
 		"C_Cpp.default.defines": [
 			"uint32_t=unsigned int",
-			"FDCAN1"
+			"USE_HAL_DRIVER",
+    		"STM32G431xx",
 		],
 		"files.associations": {
 			"main.h": "c",

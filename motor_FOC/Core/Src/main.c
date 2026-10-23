@@ -28,7 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "main/main.h"
+#include "main/_main.h"
 #include "HY_MOD/main/main.h"
 #include "HY_MOD/main/tim.h"
 /* USER CODE END Includes */
