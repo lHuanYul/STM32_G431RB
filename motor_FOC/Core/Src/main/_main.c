@@ -16,7 +16,7 @@ void motor_start_spin(MotorParameter *motor)
 // void EXTI15_10_IRQHandler(void)
 inline void MY_Button(void)
 {
-    // adc_max_min_reset(&adc_current_h[0].basic);
+    // adc_value_max_min_reset(&adc_current_h[0].basic);
     // motor_h.rotor.vir_tri = 1;
 }
 

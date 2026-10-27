@@ -59,55 +59,55 @@ MotorParameter motor_h = {
         .Hall_Active_ch = HAL_TIM_ACTIVE_CHANNEL_1,
     },
     .rotor = {
-        .overflow = 170000000,
+        .tim_ar = 170000000,
     },
     .speed.save_stop_omega = 1.0f,
     // Yellow Green Blue (42BLF01)
     .adc_h = {
-        .adc_ui = {
+        .u_cur.adc = {
             .model = &adc_I_amc3302_R1m2,
             // ADC1 CH14 PB11 0.097
-            .basic = {
+            .basic.const_h = {
                 .hadcx = &hadc1,
                 .rankx = ADC_INJECTED_RANK_1,
             },
         },
-        .adc_vi = {
+        .v_cur.adc = {
             .model = &adc_I_amc3302_R1m2,
             // ADC2 CH12 PB2
-            .basic = {
+            .basic.const_h = {
                 .hadcx = &hadc2,
                 .rankx = ADC_INJECTED_RANK_1,
             },
         },
-        .adc_wi = {
+        .w_cur.adc = {
             .model = &adc_I_amc3302_R1m2,
             // ADC1 CH12 PB1
-            .basic = {
+            .basic.const_h = {
                 .hadcx = &hadc1,
                 .rankx = ADC_INJECTED_RANK_2,
             },
         },
-        .adc_uv = {
+        .u_vol.adc = {
             .model = &adc_I_amc3302_R1m2,
             // ADC2 CH3 PA6
-            .basic = {
+            .basic.const_h = {
                 .hadcx = &hadc2,
                 .rankx = ADC_INJECTED_RANK_2,
             },
         },
-        .adc_vv = {
+        .v_vol.adc = {
             .model = &adc_I_amc3302_R1m2,
             // ADC1 CH11 PB12
-            .basic = {
+            .basic.const_h = {
                 .hadcx = &hadc1,
                 .rankx = ADC_INJECTED_RANK_3,
             },
         },
-        .adc_wv = {
+        .w_vol.adc = {
             .model = &adc_I_amc3302_R1m2,
             // ADC2 CH4 PA7
-            .basic = {
+            .basic.const_h = {
                 .hadcx = &hadc2,
                 .rankx = ADC_INJECTED_RANK_3,
             },

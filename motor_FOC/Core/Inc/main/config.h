@@ -29,7 +29,7 @@
 // #define MOTOR_FOC_SPIN_DEBUG
 #define MOTOR_PI_RPM
 // #define MOTOR_AUTO_SPIN
-// PWM_f(20k) / (10~20) * PI_MUL_2
+// PWM_f(20k) / (10~20) * PI_MUL(2)
 #define MOTOR_I_BW_INDEX    10.0f
 #define MOTOR_VBUS          24.0f
 #define MOTOR_MAX_MODULATION_INDEX 1.0f // 0.95f
