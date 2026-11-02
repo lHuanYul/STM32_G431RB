@@ -65,7 +65,7 @@ MotorParameter motor_h = {
     // Yellow Green Blue (42BLF01)
     .adc_h = {
         .u_cur.adc = {
-            .model = &adc_I_amc3302_R1m2,
+            .model = &adc_I_amc3302_R4m,
             // ADC1 CH14 PB11 0.097
             .basic.const_h = {
                 .hadcx = &hadc1,
@@ -73,7 +73,7 @@ MotorParameter motor_h = {
             },
         },
         .v_cur.adc = {
-            .model = &adc_I_amc3302_R1m2,
+            .model = &adc_I_amc3302_R4m,
             // ADC2 CH12 PB2
             .basic.const_h = {
                 .hadcx = &hadc2,
@@ -81,7 +81,7 @@ MotorParameter motor_h = {
             },
         },
         .w_cur.adc = {
-            .model = &adc_I_amc3302_R1m2,
+            .model = &adc_I_amc3302_R4m,
             // ADC1 CH12 PB1
             .basic.const_h = {
                 .hadcx = &hadc1,
@@ -89,7 +89,7 @@ MotorParameter motor_h = {
             },
         },
         .u_vol.adc = {
-            .model = &adc_I_amc3302_R1m2,
+            .model = &adc_V_R_36to3V3,
             // ADC2 CH3 PA6
             .basic.const_h = {
                 .hadcx = &hadc2,
@@ -97,7 +97,7 @@ MotorParameter motor_h = {
             },
         },
         .v_vol.adc = {
-            .model = &adc_I_amc3302_R1m2,
+            .model = &adc_V_R_36to3V3,
             // ADC1 CH11 PB12
             .basic.const_h = {
                 .hadcx = &hadc1,
@@ -105,7 +105,7 @@ MotorParameter motor_h = {
             },
         },
         .w_vol.adc = {
-            .model = &adc_I_amc3302_R1m2,
+            .model = &adc_V_R_36to3V3,
             // ADC2 CH4 PA7
             .basic.const_h = {
                 .hadcx = &hadc2,
